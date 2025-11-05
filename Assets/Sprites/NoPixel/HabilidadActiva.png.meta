@@ -1,0 +1,193 @@
+fileFormatVersion: 2
+guid: 8403fc9ae51dc47479868d4319b9e199
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 118548875006795454
+    second: HabilidadActiva_0
+  - first:
+      213: -1870959767663366558
+    second: HabilidadActiva_1
+  - first:
+      213: -7755569556940489566
+    second: HabilidadActiva_2
+  - first:
+      213: 2592483362523092774
+    second: HabilidadActiva_3
+  - first:
+      213: -2356285193880632101
+    second: HabilidadActiva_4
+  - first:
+      213: 8863167509526237574
+    second: HabilidadActiva_5
+  - first:
+      213: 8539903293378935922
+    second: HabilidadActiva_6
+  - first:
+      213: 3736500280418303455
+    second: HabilidadActiva_7
+  - first:
+      213: 7663711905802505268
+    second: HabilidadActiva_8
+  - first:
+      213: -7821134917718198077
+    second: HabilidadActiva_9
+  - first:
+      213: -1344227097571709711
+    second: HabilidadActiva_10
+  - first:
+      213: -391667458577407136
+    second: HabilidadActiva_11
+  - first:
+      213: 1707684130257529303
+    second: HabilidadActiva_12
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: HabilidadActiva_1
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 10
+        width: 476
+        height: 499
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26ea06b01040906e0800000000000000
+      internalID: -1870959767663366558
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 94b29db393f9f1447b0a5338ddead87c
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      HabilidadActiva_0: 118548875006795454
+      HabilidadActiva_1: -1870959767663366558
+      HabilidadActiva_10: -1344227097571709711
+      HabilidadActiva_11: -391667458577407136
+      HabilidadActiva_12: 1707684130257529303
+      HabilidadActiva_2: -7755569556940489566
+      HabilidadActiva_3: 2592483362523092774
+      HabilidadActiva_4: -2356285193880632101
+      HabilidadActiva_5: 8863167509526237574
+      HabilidadActiva_6: 8539903293378935922
+      HabilidadActiva_7: 3736500280418303455
+      HabilidadActiva_8: 7663711905802505268
+      HabilidadActiva_9: -7821134917718198077
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

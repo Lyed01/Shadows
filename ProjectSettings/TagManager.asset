@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 3
+  tags:
+  - CutsceneCharacter
+  - AbyssFlame
+  - Switch
+  - Walls
+  - Receptor
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Obstaculo
+  - Water
+  - UI
+  - Jugador
+  - ReflectiveBlock
+  - Walls
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: piso
+    uniqueID: 2184970681
+    locked: 0
+  - name: paredes
+    uniqueID: 1604953979
+    locked: 0
+  - name: objetos
+    uniqueID: 1192023379
+    locked: 0
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: ui
+    uniqueID: 1464227241
+    locked: 0
+  m_RenderingLayers:
+  - Default
+  - Layer 1
