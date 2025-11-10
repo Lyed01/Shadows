@@ -73,22 +73,26 @@ public class GameManager : PersistentSingleton<GameManager>
         // 🧷 Si estamos en el Hub, asegurar que los popups queden operativos
         if (EsHub)
             ReactivarSistemaPopupsHub();
+
+        // 🩹 🔽 NUEVO BLOQUE DE REPARACIÓN DE UI 🔽
+        StartCoroutine(ReactivarSistemaUI());
     }
 
     private void ActivarHUD(Scene escena)
     {
-        if (HUDHabilidad.Instance != null)
+        if (escena.name != "Hub")
         {
-            HUDHabilidad.Instance.gameObject.SetActive(true);
-            Debug.Log("🟢 HUD persistente activado.");
-        }
+            if (HUDHabilidad.Instance != null)
+                HUDHabilidad.Instance.gameObject.SetActive(true);
 
-        if (UIManager.Instance != null)
+            UIManager.Instance?.MostrarHUD();
+        }
+        else
         {
-            if (escena.name != "Hub")
-                UIManager.Instance.MostrarHUD();
+            Debug.Log("🏠 GameManager: En Hub, no se activa HUD del UIManager.");
         }
     }
+
 
     private IEnumerator SincronizarDespuesDeFrame()
     {
@@ -344,4 +348,55 @@ public class GameManager : PersistentSingleton<GameManager>
 
         objetivo.localScale = escalaFinal;
     }
+
+    private IEnumerator ReactivarSistemaUI()
+    {
+        // Espera un frame para asegurar que el Canvas se haya instanciado completamente
+        yield return null;
+
+        // Rehabilitar cualquier CanvasGroup que haya quedado bloqueado
+        foreach (var cg in FindObjectsByType<CanvasGroup>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (cg.alpha > 0.9f)
+            {
+                cg.blocksRaycasts = true;
+                cg.interactable = true;
+            }
+        }
+
+        // Asegurar que el EventSystem esté activo
+        var ev = UnityEngine.EventSystems.EventSystem.current;
+        if (ev == null)
+        {
+            var es = FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>(FindObjectsInactive.Include);
+            if (es != null)
+            {
+                es.gameObject.SetActive(true);
+                Debug.Log("🎯 EventSystem reactivado correctamente.");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ No se encontró EventSystem activo en la escena.");
+            }
+        }
+        else
+        {
+            ev.enabled = true;
+        }
+
+        // Forzar selección de un botón si el menú de pausa está abierto
+        if (UIManager.Instance != null && UIManager.Instance.panelPausa != null &&
+            UIManager.Instance.panelPausa.activeInHierarchy)
+        {
+            var firstButton = UIManager.Instance.panelPausa.GetComponentInChildren<UnityEngine.UI.Button>();
+            if (firstButton != null)
+            {
+                UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(firstButton.gameObject);
+                Debug.Log("🟡 Primer botón del menú de pausa seleccionado automáticamente.");
+            }
+        }
+
+        Debug.Log("✅ Sistema de UI reactivado y listo.");
+    }
+
 }

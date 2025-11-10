@@ -106,6 +106,12 @@ public class StarProgressUI : MonoBehaviour
         Vector3 escalaBase = iconoEstrella.transform.localScale;
         textoProgreso.gameObject.SetActive(true);
 
+        // Asegurar jerarquía activa antes de animar
+        if (!iconoEstrella.gameObject.activeSelf)
+            iconoEstrella.gameObject.SetActive(true);
+        if (!textoProgreso.gameObject.activeSelf)
+            textoProgreso.gameObject.SetActive(true);
+
         // Animación de conteo progresivo
         while (tiempo < duracionConteo)
         {
@@ -120,7 +126,7 @@ public class StarProgressUI : MonoBehaviour
                 actual = nuevoValor;
                 textoProgreso.text = $"{actual} / {totalEstrellasPosibles}";
 
-                // Pulso visual
+                // Pulso visual (no bloqueante)
                 StartCoroutine(PulsoVisual(iconoEstrella, escalaBase));
             }
 
@@ -131,7 +137,13 @@ public class StarProgressUI : MonoBehaviour
         textoProgreso.text = $"{totalFinal} / {totalEstrellasPosibles}";
         iconoEstrella.transform.localScale = escalaBase;
 
-        // Inicia ciclo de refresco normal
+        // Esperá un pequeño instante para asegurar visibilidad y estabilidad
+        yield return new WaitForSecondsRealtime(0.3f);
+
+        // 🔁 Lanza refresco periódico sin interrumpir la animación
+        if (refrescoCoroutine != null)
+            StopCoroutine(refrescoCoroutine);
+
         refrescoCoroutine = StartCoroutine(RefrescarPeriodicamente());
     }
 
@@ -170,9 +182,18 @@ public class StarProgressUI : MonoBehaviour
         while (enHub)
         {
             ActualizarProgreso();
+
+            // Seguridad: asegurar que siga visible
+            if (textoProgreso != null && !textoProgreso.gameObject.activeSelf)
+                textoProgreso.gameObject.SetActive(true);
+
+            if (iconoEstrella != null && !iconoEstrella.gameObject.activeSelf)
+                iconoEstrella.gameObject.SetActive(true);
+
             yield return new WaitForSecondsRealtime(tiempoRefresco);
         }
     }
+
 
     public void ActualizarProgreso()
     {

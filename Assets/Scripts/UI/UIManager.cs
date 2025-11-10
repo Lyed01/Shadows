@@ -21,13 +21,10 @@ public class UIManager : PersistentSingleton<UIManager>
 
     protected override void OnBoot()
     {
-        base.OnBoot();
-        Debug.Log("🟢 UIManager persistente inicializado.");
-
-        // Si estamos en el Hub, no tocar UI local
-        if (SceneManager.GetActiveScene().name == "Hub")
+        string escenaActual = SceneManager.GetActiveScene().name;
+        if (escenaActual == "Hub")
         {
-            Debug.Log("🏠 Escena HUB detectada → no se muestra HUD persistente.");
+            Debug.Log("🏠 UIManager: Hub detectado, no se muestra HUD persistente.");
         }
         else
         {
