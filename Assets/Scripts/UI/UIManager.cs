@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class UIManager : MonoBehaviour
+public class UIManager : PersistentSingleton<UIManager>
 {
-    public static UIManager Instance { get; private set; }
-
     [Header("Paneles principales")]
     public GameObject panelHUD;
     public GameObject panelPausa;
@@ -16,25 +15,34 @@ public class UIManager : MonoBehaviour
 
     private GameObject panelActual;
     private Canvas canvasPrincipal;
+
     [Header("Canvas raíz del sistema de menús")]
     public Canvas canvasMenues;
 
-    void Awake()
+    protected override void OnBoot()
     {
-        if (Instance != null && Instance != this)
+        base.OnBoot();
+        Debug.Log("🟢 UIManager persistente inicializado.");
+
+        // Si estamos en el Hub, no tocar UI local
+        if (SceneManager.GetActiveScene().name == "Hub")
         {
-            Destroy(gameObject);
-            return;
+            Debug.Log("🏠 Escena HUB detectada → no se muestra HUD persistente.");
+        }
+        else
+        {
+            MostrarHUD();
         }
 
-        Instance = this;
 
-        // 🔹 Hacer persistentes UIManager y su Canvas principal
-        DontDestroyOnLoad(gameObject);
+        // Registrar evento de escena
+        SceneManager.sceneLoaded += OnSceneLoaded;
 
+        // Registrar Canvas como persistente
         if (canvasMenues != null)
         {
             DontDestroyOnLoad(canvasMenues.gameObject);
+            canvasPrincipal = canvasMenues;
             Debug.Log($"🟢 Canvas persistente asignado: {canvasMenues.name}");
         }
         else
@@ -43,30 +51,18 @@ public class UIManager : MonoBehaviour
         }
     }
 
-
-    void Start()
+    private void OnDestroy()
     {
-        MostrarHUD();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    void OnEnable()
-    {
-        // 🔹 Cada vez que se carga una nueva escena, actualizamos la cámara del canvas
-        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    void OnDisable()
-    {
-        UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    private void OnSceneLoaded(UnityEngine.SceneManagement.Scene escena, UnityEngine.SceneManagement.LoadSceneMode modo)
+    private void OnSceneLoaded(Scene escena, LoadSceneMode modo)
     {
         // Reconectar cámara si el Canvas usa ScreenSpaceCamera
         if (canvasPrincipal != null && canvasPrincipal.renderMode == RenderMode.ScreenSpaceCamera)
         {
             canvasPrincipal.worldCamera = Camera.main;
-            Debug.Log("🎥 UIManager: reconectada cámara principal al canvas tras cambiar escena.");
+            Debug.Log($"🎥 UIManager: reconectada cámara principal al canvas tras cargar {escena.name}.");
         }
     }
 
@@ -92,7 +88,6 @@ public class UIManager : MonoBehaviour
 
         panelPausa.SetActive(true);
         panelActual = panelPausa;
-
         Debug.Log("🟡 UIManager: mostrando panel de pausa.");
     }
 
@@ -137,6 +132,7 @@ public class UIManager : MonoBehaviour
         else
             MostrarPausa();
     }
+
     public void CerrarOpciones()
     {
         if (panelOpciones != null && panelOpciones.activeSelf)

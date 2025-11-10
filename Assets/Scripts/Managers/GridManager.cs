@@ -156,13 +156,20 @@ public class GridManager : MonoBehaviour
     {
         if (sueloTilemap == null) return;
 
-        Vector3Int centerCell = sueloTilemap.WorldToCell(worldPos);
+        // 🔹 Ajuste para compensar el pivot del jugador (mitad de una celda hacia abajo)
+        Vector3 ajuste = new Vector3(0f, -sueloTilemap.cellSize.y * 0.5f, 0f);
+        Vector3Int centerCell = sueloTilemap.WorldToCell(worldPos + ajuste);
+
         Vector3Int spawnCell = sueloTilemap.WorldToCell(spawnTransform.position);
         if (centerCell == spawnCell) return;
 
         Vector3Int[] offsets = new Vector3Int[]
         {
-            Vector3Int.zero, new(0,1,0), new(0,-1,0), new(-1,0,0), new(1,0,0)
+        Vector3Int.zero,
+        new(0, 1, 0),
+        new(0, -1, 0),
+        new(-1, 0, 0),
+        new(1, 0, 0)
         };
 
         foreach (Vector3Int offset in offsets)
@@ -177,7 +184,6 @@ public class GridManager : MonoBehaviour
             if (tileDesbloqueado != null)
                 sueloTilemap.SetTile(cellPos, tileDesbloqueado);
         }
-
     }
 
     public void CorromperCeldaUnica(Vector3Int cellPos)

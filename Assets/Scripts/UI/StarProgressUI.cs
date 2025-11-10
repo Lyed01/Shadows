@@ -6,104 +6,187 @@ using UnityEngine.SceneManagement;
 
 public class StarProgressUI : MonoBehaviour
 {
-    [Header("UI (se rellenan dinámicamente si están en null)")]
+    [Header("Referencias UI")]
     public Image iconoEstrella;
     public TextMeshProUGUI textoProgreso;
 
     [Header("Config")]
     public int totalEstrellasPosibles = 45;
-    public float duracionAnimacion = 0.6f;
-    public float escalaMax = 1.4f;
-    public float escalaTextoMax = 1.2f;
+    public float tiempoRefresco = 2.0f;
+    public float delayInicialAnim = 1.2f;
+    public float duracionConteo = 1.8f; // duración de la animación de conteo
+    public float escalaMax = 1.3f; // pulso de la estrella
 
     private int estrellasTotales = 0;
-    private int estrellasPrevias = 0;
+    private bool enHub;
+    private Coroutine refrescoCoroutine;
 
     void Awake()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    void Start()
+    {
+        if (SceneManager.GetActiveScene().name == "Hub")
+        {
+            enHub = true;
+            Inicializar();
+        }
+    }
+
     void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        if (refrescoCoroutine != null)
+            StopCoroutine(refrescoCoroutine);
     }
 
     private void OnSceneLoaded(Scene s, LoadSceneMode m)
     {
-        // Solo nos importa re-bindeo cuando volvemos al Hub
-        if (s.name == "Hub")
-            StartCoroutine(TryBindInHubAndRefresh());
+        enHub = s.name == "Hub";
+        if (enHub)
+            Inicializar();
+        else
+            Ocultar();
     }
 
-    private IEnumerator TryBindInHubAndRefresh()
+    private void Inicializar()
     {
-        // Esperá 1 frame para que el Canvas e hijos estén instanciados
-        yield return null;
+        Debug.Log("🟢 Inicializando StarProgressUI en Hub...");
 
-        // Busca el anchor incluso si está inactivo
-        var anchor = FindAnyObjectByType<StarProgressAnchor>(FindObjectsInactive.Include);
-        if (anchor == null)
+        // 🧩 Reactiva jerarquía por seguridad
+        Transform actual = transform;
+        while (actual != null)
         {
-            Debug.LogWarning("StarProgressUI: no encontré StarProgressAnchor en el Hub.");
-            yield break;
+            if (!actual.gameObject.activeSelf)
+            {
+                Debug.LogWarning($"⚠️ Reactivando objeto desactivado en jerarquía: {actual.name}");
+                actual.gameObject.SetActive(true);
+            }
+            actual = actual.parent;
         }
 
-        // Si no están seteadas desde el inspector, enlazá desde el Anchor
-        if (iconoEstrella == null) iconoEstrella = anchor.iconoEstrella;
-        if (textoProgreso == null) textoProgreso = anchor.textoProgreso;
+        // Si no hay referencias, intenta encontrarlas
+        if (iconoEstrella == null || textoProgreso == null)
+        {
+            var anchor = FindAnyObjectByType<StarProgressAnchor>(FindObjectsInactive.Include);
+            if (anchor != null)
+            {
+                if (iconoEstrella == null) iconoEstrella = anchor.iconoEstrella;
+                if (textoProgreso == null) textoProgreso = anchor.textoProgreso;
+            }
+        }
 
         if (iconoEstrella == null || textoProgreso == null)
         {
-            Debug.LogWarning("StarProgressUI: el Anchor existe pero faltan referencias (Image/TMP).");
-            yield break;
+            Debug.LogWarning("⚠️ StarProgressUI: faltan referencias (Image/TMP).");
+            return;
         }
 
-        // Refrescar y animar si subió
-        ActualizarProgreso(animarSiSube: true);
-    }
-
-    public void ActualizarProgreso(bool animarSiSube = false)
-    {
-        if (textoProgreso == null || iconoEstrella == null) return;
-
-        estrellasPrevias = estrellasTotales;
-        estrellasTotales = CalcularEstrellasTotales();
-
-        textoProgreso.text = $"{estrellasTotales} / {totalEstrellasPosibles}";
+        // Limpia texto e inicia animación
+        textoProgreso.text = "";
         iconoEstrella.enabled = true;
 
-        if (animarSiSube && estrellasTotales > estrellasPrevias)
-            StartCoroutine(AnimarContador());
+        if (refrescoCoroutine != null)
+            StopCoroutine(refrescoCoroutine);
+
+        refrescoCoroutine = StartCoroutine(AnimacionInicial());
     }
 
-    private IEnumerator AnimarContador()
+    private IEnumerator AnimacionInicial()
     {
-        float t = 0f;
-        Vector3 escalaBaseIcono = iconoEstrella.transform.localScale;
-        Vector3 escalaBaseTexto = textoProgreso.transform.localScale;
-        Color colorBase = textoProgreso.color;
-        Color colorDestacado = new Color(1f, 1f, 0.5f);
+        // Pequeño delay antes de comenzar (como al volver al Hub)
+        yield return new WaitForSecondsRealtime(delayInicialAnim);
 
-        while (t < duracionAnimacion)
+        int totalFinal = CalcularEstrellasTotales();
+        int actual = 0;
+        float tiempo = 0f;
+
+        Vector3 escalaBase = iconoEstrella.transform.localScale;
+        textoProgreso.gameObject.SetActive(true);
+
+        // Animación de conteo progresivo
+        while (tiempo < duracionConteo)
         {
-            t += Time.unscaledDeltaTime;
-            float k = Mathf.Sin((t / duracionAnimacion) * Mathf.PI);
-            iconoEstrella.transform.localScale = Vector3.Lerp(escalaBaseIcono, escalaBaseIcono * escalaMax, k);
-            textoProgreso.transform.localScale = Vector3.Lerp(escalaBaseTexto, escalaBaseTexto * escalaTextoMax, k);
-            textoProgreso.color = Color.Lerp(colorBase, colorDestacado, k);
+            tiempo += Time.unscaledDeltaTime;
+            float progreso = Mathf.Clamp01(tiempo / duracionConteo);
+
+            // Conteo suave (ease-out)
+            int nuevoValor = Mathf.RoundToInt(Mathf.Lerp(0, totalFinal, Mathf.SmoothStep(0, 1, progreso)));
+
+            if (nuevoValor != actual)
+            {
+                actual = nuevoValor;
+                textoProgreso.text = $"{actual} / {totalEstrellasPosibles}";
+
+                // Pulso visual
+                StartCoroutine(PulsoVisual(iconoEstrella, escalaBase));
+            }
+
             yield return null;
         }
 
-        iconoEstrella.transform.localScale = escalaBaseIcono;
-        textoProgreso.transform.localScale = escalaBaseTexto;
-        textoProgreso.color = colorBase;
+        // Finaliza en el valor real exacto
+        textoProgreso.text = $"{totalFinal} / {totalEstrellasPosibles}";
+        iconoEstrella.transform.localScale = escalaBase;
+
+        // Inicia ciclo de refresco normal
+        refrescoCoroutine = StartCoroutine(RefrescarPeriodicamente());
+    }
+
+    private IEnumerator PulsoVisual(Image img, Vector3 escalaBase)
+    {
+        float duracionPulso = 0.2f;
+        float t = 0f;
+
+        while (t < duracionPulso)
+        {
+            t += Time.unscaledDeltaTime;
+            float k = Mathf.Sin((t / duracionPulso) * Mathf.PI);
+            img.transform.localScale = Vector3.Lerp(escalaBase, escalaBase * escalaMax, k);
+            img.color = Color.Lerp(Color.white, new Color(1f, 0.9f, 0.5f), k);
+            yield return null;
+        }
+
+        img.transform.localScale = escalaBase;
+        img.color = Color.white;
+    }
+
+    private void Ocultar()
+    {
+        if (textoProgreso != null) textoProgreso.gameObject.SetActive(false);
+        if (iconoEstrella != null) iconoEstrella.enabled = false;
+
+        if (refrescoCoroutine != null)
+        {
+            StopCoroutine(refrescoCoroutine);
+            refrescoCoroutine = null;
+        }
+    }
+
+    private IEnumerator RefrescarPeriodicamente()
+    {
+        while (enHub)
+        {
+            ActualizarProgreso();
+            yield return new WaitForSecondsRealtime(tiempoRefresco);
+        }
+    }
+
+    public void ActualizarProgreso()
+    {
+        if (textoProgreso == null || iconoEstrella == null)
+            return;
+
+        estrellasTotales = CalcularEstrellasTotales();
+        textoProgreso.text = $"{estrellasTotales} / {totalEstrellasPosibles}";
+        iconoEstrella.enabled = true;
     }
 
     private int CalcularEstrellasTotales()
     {
         int total = 0;
-        // Ajustá el rango a tu cantidad real de niveles / IDs
         for (int i = 1; i <= 50; i++)
         {
             string clave = $"Nivel_Nivel{i}_Estrellas";

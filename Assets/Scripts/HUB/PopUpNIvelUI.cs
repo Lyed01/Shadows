@@ -8,9 +8,9 @@ public class PopupNivelUI : MonoBehaviour
     public static PopupNivelUI Instance { get; private set; }
 
     [Header("Referencias UI")]
-    public Canvas canvas;                 // tu canvas existente (Screen Space Overlay/Camera)
-    public CanvasGroup canvasGroup;       // del panel del popup
-    public RectTransform panel;           // raíz del popup
+    public Canvas canvas;                 // Canvas del Hub (Screen Space Camera)
+    public CanvasGroup canvasGroup;       // CanvasGroup del popup
+    public RectTransform panel;           // Panel raíz del popup
     public TextMeshProUGUI textoTitulo;
     public TextMeshProUGUI textoDescripcion;
     public Image[] estrellasUI;           // 3 imágenes de estrellas
@@ -36,7 +36,12 @@ public class PopupNivelUI : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        // Singleton local, sin persistencia
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
 
         cam = Camera.main;
@@ -46,7 +51,10 @@ public class PopupNivelUI : MonoBehaviour
             canvasGroup.interactable = false;
             canvasGroup.blocksRaycasts = false;
         }
-        if (panel != null) panel.localScale = escalaOculto;
+
+        if (panel != null)
+            panel.localScale = escalaOculto;
+
         visible = false;
     }
 
@@ -56,6 +64,7 @@ public class PopupNivelUI : MonoBehaviour
             botonJugar.onClick.AddListener(OnClickJugar);
     }
 
+    // === MOSTRAR / OCULTAR ===
     public void Mostrar(DoorHub puerta, Vector3 worldAnchor, string titulo, string descripcion, int estrellas)
     {
         puertaActual = puerta;
@@ -68,9 +77,10 @@ public class PopupNivelUI : MonoBehaviour
         if (posicionarCercaDeLaPuerta)
             ActualizarPosicion(worldAnchor);
 
-        if (animCoroutine != null) StopCoroutine(animCoroutine);
-        animCoroutine = StartCoroutine(Fade(true));
+        if (animCoroutine != null)
+            StopCoroutine(animCoroutine);
 
+        animCoroutine = StartCoroutine(Fade(true));
         AudioManager.Instance?.ReproducirUIHover();
     }
 
@@ -79,13 +89,17 @@ public class PopupNivelUI : MonoBehaviour
         if (!visible) return;
         visible = false;
 
-        if (animCoroutine != null) StopCoroutine(animCoroutine);
+        if (animCoroutine != null)
+            StopCoroutine(animCoroutine);
+
         animCoroutine = StartCoroutine(Fade(false));
     }
 
+    // === POSICIONAMIENTO ===
     public void ActualizarPosicion(Vector3 worldAnchor)
     {
-        if (!posicionarCercaDeLaPuerta || panel == null || canvas == null) return;
+        if (!posicionarCercaDeLaPuerta || panel == null || canvas == null)
+            return;
 
         Vector2 pantalla = RectTransformUtility.WorldToScreenPoint(cam, worldAnchor);
         pantalla += offsetPantalla;
@@ -96,9 +110,11 @@ public class PopupNivelUI : MonoBehaviour
             canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : cam,
             out Vector2 local
         );
+
         panel.anchoredPosition = local;
     }
 
+    // === ANIMACIÓN ===
     private IEnumerator Fade(bool mostrar)
     {
         float t = 0f;
@@ -132,7 +148,7 @@ public class PopupNivelUI : MonoBehaviour
         }
     }
 
-    // 🟡 NUEVO SISTEMA DE ESTRELLAS
+    // === ESTRELLAS ===
     private void ActualizarEstrellas(int cantidad)
     {
         if (estrellasUI == null || estrellasUI.Length == 0) return;
@@ -143,14 +159,12 @@ public class PopupNivelUI : MonoBehaviour
 
             if (spriteEstrellaLlena == null || spriteEstrellaVacia == null)
             {
-                // Si no hay sprites asignados, usar fallback de color
                 estrellasUI[i].color = i < cantidad
                     ? new Color(1f, 0.9f, 0.4f, 1f)
                     : new Color(0.35f, 0.35f, 0.35f, 0.35f);
             }
             else
             {
-                // Usa sprites de “llena” o “vacía”
                 estrellasUI[i].sprite = i < cantidad ? spriteEstrellaLlena : spriteEstrellaVacia;
                 estrellasUI[i].enabled = true;
             }

@@ -7,34 +7,49 @@ public class PauseMenuUI : MonoBehaviour
     [Tooltip("Nombre de la escena del menú principal")]
     public string nombreEscenaMenuPrincipal = "MainMenu";
 
-    // === BOTONES PRINCIPALES ===
+    private bool bloqueado;
 
+    // === BOTONES PRINCIPALES ===
     public void Reanudar()
     {
-        // Reanuda el juego y vuelve al HUD
+        if (bloqueado) return;
+        bloqueado = true;
+
         GameManager.Instance?.ReanudarJuego();
         UIManager.Instance?.MostrarHUD();
-        
+        AudioManager.Instance?.PlaySfx(UIManager.Instance?.panelPausa.GetComponent<AudioSource>()?.clip);
+        Invoke(nameof(Desbloquear), 0.3f);
     }
 
     public void ReiniciarNivel()
     {
-        // Reanuda el tiempo por si estaba pausado
+        if (bloqueado) return;
+        bloqueado = true;
+
         GameManager.Instance?.ReanudarJuego();
-        // Reinicia la escena actual
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Invoke(nameof(Desbloquear), 0.5f);
     }
 
     public void AbrirOpciones()
     {
-        // Muestra el menú de opciones dentro del UIManager
+        if (bloqueado) return;
+        bloqueado = true;
+
         UIManager.Instance?.MostrarOpciones();
+        AudioManager.Instance?.PlaySfx(UIManager.Instance?.panelOpciones.GetComponent<AudioSource>()?.clip);
+        Invoke(nameof(Desbloquear), 0.2f);
     }
 
     public void VolverAlMenuPrincipal()
     {
-        // Asegura que el juego no quede pausado y carga la escena del menú principal
+        if (bloqueado) return;
+        bloqueado = true;
+
         GameManager.Instance?.ReanudarJuego();
         SceneManager.LoadScene(nombreEscenaMenuPrincipal);
+        Invoke(nameof(Desbloquear), 0.5f);
     }
+
+    private void Desbloquear() => bloqueado = false;
 }

@@ -3,10 +3,8 @@ using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
 
-public class GameManager : MonoBehaviour
+public class GameManager : PersistentSingleton<GameManager>
 {
-    public static GameManager Instance { get; private set; }
-
     public enum GameState { Jugando, Pausado, Muerte, Transicion }
     public GameState EstadoActual { get; private set; } = GameState.Jugando;
 
@@ -14,6 +12,9 @@ public class GameManager : MonoBehaviour
     public static Action OnLevelRestart;
     public static Action OnPause;
     public static Action OnResume;
+
+    // 🔔 Nuevo: evento global al spawnear/re-spawnear jugador
+    public static Action<Jugador> OnPlayerSpawned;
 
     [Header("Transición visual")]
     public ScreenFader fader;
@@ -28,22 +29,21 @@ public class GameManager : MonoBehaviour
     private Jugador jugadorActual;
     private string ultimaPuertaID;
     private Vector3 ultimaPuertaPosicion;
+    private bool regresoDesdeNivel = false; // ✅ indica si se vuelve desde un nivel
     public float tiempoReinicio = 1.0f;
 
-    // === CICLO DE VIDA ===
-    private void Awake()
+    private bool EsHub => SceneManager.GetActiveScene().name == "Hub";
+ 
+
+
+    // 🧠 Inicialización persistente
+    protected override void OnBoot()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-
         SceneManager.sceneLoaded += OnSceneLoaded;
+        Debug.Log("🟢 GameManager persistente inicializado.");
     }
+
+    private void OnDestroy() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
     private void OnSceneLoaded(Scene escena, LoadSceneMode modo)
     {
@@ -62,23 +62,31 @@ public class GameManager : MonoBehaviour
         // 🎥 Conectar cámara (en siguiente frame)
         StartCoroutine(EsperarYConectarCamara());
 
-        // 🟢 Activar HUD persistente (si existe)
+        // 🧩 Sincronizar habilidades y HUD
+        StartCoroutine(SincronizarDespuesDeFrame());
+        ActivarHUD(escena);
+
+        // 🔔 Importante: anunciar spawn a todos los sistemas (Hub incluido)
+        if (jugadorActual != null)
+            OnPlayerSpawned?.Invoke(jugadorActual);
+
+        // 🧷 Si estamos en el Hub, asegurar que los popups queden operativos
+        if (EsHub)
+            ReactivarSistemaPopupsHub();
+    }
+
+    private void ActivarHUD(Scene escena)
+    {
         if (HUDHabilidad.Instance != null)
         {
             HUDHabilidad.Instance.gameObject.SetActive(true);
             Debug.Log("🟢 HUD persistente activado.");
         }
 
-        // 🧩 Sincronizar habilidades después de 1 frame
-        StartCoroutine(SincronizarDespuesDeFrame());
-        // 🧭 Reset de UI al entrar a niveles (excepto Hub)
         if (UIManager.Instance != null)
         {
             if (escena.name != "Hub")
-            {
-                UIManager.Instance.MostrarHUD(); // Oculta menús y muestra HUD
-                Debug.Log("🎮 Reinicio de UI: solo HUD activo en nivel.");
-            }
+                UIManager.Instance.MostrarHUD();
         }
     }
 
@@ -94,24 +102,13 @@ public class GameManager : MonoBehaviour
         jugadorActual = FindFirstObjectByType<Jugador>();
         if (jugadorActual != null) return;
 
-        Vector3 spawnPos;
+        Vector3 spawnPos = Vector3.zero;
         Vector3 posicionDefault = new Vector3(-4f, -25f, 0f);
 
         if (escena.name == "Hub")
-            spawnPos = ultimaPuertaPosicion != Vector3.zero ? ultimaPuertaPosicion : Vector3.zero;
+            spawnPos = (ultimaPuertaPosicion != Vector3.zero) ? ultimaPuertaPosicion : posicionDefault;
         else
-            spawnPos = spawnTransform != null ? spawnTransform.position : Vector3.zero;
-
-        if(escena.name == "Hub")
-        {
-            if (ultimaPuertaPosicion != Vector3.zero)
-                spawnPos = ultimaPuertaPosicion;
-            else
-                spawnPos = posicionDefault;
-        }
-            
-            
-
+            spawnPos = (spawnTransform != null) ? spawnTransform.position : Vector3.zero;
 
         if (jugadorPrefab != null)
         {
@@ -125,7 +122,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // === CICLO DE JUEGO ===
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -161,10 +157,15 @@ public class GameManager : MonoBehaviour
         grid?.EliminarShadowBlocks();
         grid?.ResetearCeldas();
 
-        // 🟢 Crea nuevo jugador y reconecta cámara + HUD
         InstanciarJugador();
-
         OnLevelRestart?.Invoke();
+
+        // 🔔 anunciar respawn y rearmar popups si estamos en Hub
+        if (jugadorActual != null)
+            OnPlayerSpawned?.Invoke(jugadorActual);
+
+        if (EsHub)
+            ReactivarSistemaPopupsHub();
 
         yield return new WaitForSeconds(0.1f);
         if (fader != null) fader.FadeOut(duracionFade);
@@ -180,14 +181,13 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        Vector3 spawnPos = spawnTransform != null ? spawnTransform.position : Vector3.zero;
+        Vector3 spawnPos = (spawnTransform != null) ? spawnTransform.position : Vector3.zero;
         jugadorActual = Instantiate(jugadorPrefab, spawnPos, Quaternion.identity);
 
         jugadorActual.Inicializar(grid, HUDHabilidad.Instance);
         StartCoroutine(EsperarYConectarCamara());
     }
 
-    // === PAUSA ===
     public void PausarJuego()
     {
         if (EstadoActual == GameState.Pausado) return;
@@ -206,7 +206,6 @@ public class GameManager : MonoBehaviour
         UIManager.Instance?.MostrarHUD();
     }
 
-    // === CAMBIO DE ESCENAS ===
     private IEnumerator CargarHubAsync()
     {
         EstadoActual = GameState.Transicion;
@@ -219,6 +218,19 @@ public class GameManager : MonoBehaviour
         yield return null;
 
         if (fader != null) fader.FadeOut(duracionFade);
+
+        // ✅ Si volvemos desde un nivel, colocar jugador en la última puerta usada
+        if (regresoDesdeNivel)
+        {
+            regresoDesdeNivel = false;
+            if (jugadorActual != null)
+            {
+                jugadorActual.transform.position = ultimaPuertaPosicion;
+                jugadorActual.StartCoroutine(EfectoAparicion(jugadorActual.transform));
+                Debug.Log($"🚪 Jugador reapareció frente a puerta en {ultimaPuertaPosicion} con efecto visual.");
+            }
+        }
+
         EstadoActual = GameState.Jugando;
     }
 
@@ -231,12 +243,17 @@ public class GameManager : MonoBehaviour
         }
 
         ultimaPuertaID = puerta.idNivel;
+
+        // 🟢 Guardamos la posición de retorno del Hub
         ultimaPuertaPosicion = puerta.puntoSpawnRetorno != null
             ? puerta.puntoSpawnRetorno.position
             : puerta.transform.position;
 
+        Debug.Log($"📍 Guardando punto de retorno del Hub: {ultimaPuertaPosicion}");
+
         StartCoroutine(CargarEscenaAsync(puerta.nombreEscenaNivel));
     }
+ 
 
     private IEnumerator CargarEscenaAsync(string nombreEscena)
     {
@@ -256,7 +273,11 @@ public class GameManager : MonoBehaviour
         EstadoActual = GameState.Jugando;
     }
 
-    public void VolverAlHub() => StartCoroutine(CargarHubAsync());
+    public void VolverAlHub()
+{
+    regresoDesdeNivel = true;
+    StartCoroutine(CargarHubAsync());
+}
     public void CambiarEstado(GameState nuevoEstado) => EstadoActual = nuevoEstado;
     public bool EstaJugando => EstadoActual == GameState.Jugando;
 
@@ -270,5 +291,57 @@ public class GameManager : MonoBehaviour
             vcam.LookAt = jugadorActual.transform;
             Debug.Log("🎥 Cámara Cinemachine reconectada al nuevo jugador.");
         }
+    }
+
+    // ====== Hub helpers ======
+    private void ReactivarSistemaPopupsHub()
+    {
+        // 1) Asegurar que el popup global esté activo (si existe)
+        var popup = FindFirstObjectByType<PopupNivelUI>(FindObjectsInactive.Include);
+        if (popup != null)
+        {
+            popup.gameObject.SetActive(true);
+            Debug.Log("🟢 PopupNivelUI activo en Hub.");
+        }
+
+        // 2) Reforzar chequeo inmediato de solape con puertas (por si el jugador renace dentro)
+        var puertas = FindObjectsByType<DoorHub>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        if (puertas != null && jugadorActual != null)
+        {
+            foreach (var p in puertas)
+            {
+                try
+                {
+                    // Si DoorHub implementa este método, lo llamamos:
+                    p.SendMessage("ForzarChequeoJugador", jugadorActual, SendMessageOptions.DontRequireReceiver);
+                }
+                catch { /* ignorar si no existe */ }
+            }
+            Debug.Log("🔁 Reforzado de detección de puertas en Hub tras respawn.");
+        }
+    }
+    private IEnumerator EfectoAparicion(Transform objetivo)
+    {
+        if (objetivo == null) yield break;
+
+        Vector3 escalaInicial = Vector3.zero;
+        Vector3 escalaFinal = Vector3.one;
+        float duracion = 0.35f;
+        float tiempo = 0f;
+
+        objetivo.localScale = escalaInicial;
+
+        // Esperá un frame por seguridad (por si el fade todavía está activo)
+        yield return null;
+
+        while (tiempo < duracion)
+        {
+            tiempo += Time.deltaTime;
+            float t = Mathf.Sin((tiempo / duracion) * (Mathf.PI * 0.5f)); // easing OutSine
+            objetivo.localScale = Vector3.LerpUnclamped(escalaInicial, escalaFinal, t);
+            yield return null;
+        }
+
+        objetivo.localScale = escalaFinal;
     }
 }

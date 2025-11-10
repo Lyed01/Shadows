@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-
 public enum AbilityType
 {
     ShadowBlocks,
@@ -15,15 +14,13 @@ public enum AbilityType
 [System.Serializable]
 public class AbilityEvent : UnityEvent<AbilityType> { }
 
-public class AbilityManager : MonoBehaviour
+public class AbilityManager : PersistentSingleton<AbilityManager>
 {
     [Header("Prefabs de habilidades")]
     public GameObject prefabAbyssFlame;
 
-    public static AbilityManager Instance { get; private set; }
-
     // === Eventos globales ===
-    public static System.Action OnUsarHabilidad;
+    public static Action OnUsarHabilidad;
 
     // === Estados internos ===
     private readonly Dictionary<AbilityType, bool> habilidades = new();
@@ -32,35 +29,18 @@ public class AbilityManager : MonoBehaviour
     public AbilityEvent OnAbilityUnlocked = new();
     public AbilityEvent OnAbilityLocked = new();
 
-    // === CICLO DE VIDA ===
-    void Awake()
+    protected override void OnBoot()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        base.OnBoot();
+        Debug.Log("🟢 AbilityManager persistente inicializado.");
 
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
         LoadProgress();
 
-
-        foreach (AbilityType tipo in System.Enum.GetValues(typeof(AbilityType)))
-        {
-            // Si ya estaba guardada como desbloqueada, mantenerla
-            bool guardada = PlayerPrefs.GetInt($"Habilidad_{tipo}", 0) == 1;
-            habilidades[tipo] = guardada;
-        }
-    }
-
-    private void OnEnable()
-    {
-        // 🔹 Escuchar eventos del GameManager
+        // Suscripción global a eventos del juego
         GameManager.OnPlayerDeath += ReiniciarCargasGlobales;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         GameManager.OnPlayerDeath -= ReiniciarCargasGlobales;
     }
@@ -70,8 +50,7 @@ public class AbilityManager : MonoBehaviour
     {
         Debug.Log("♻️ AbilityManager: Reiniciando cargas tras la muerte del jugador");
 
-        // Reinicia el HUD global de habilidades
-        var hud = FindFirstObjectByType<HUDHabilidad>();
+        var hud = HUDHabilidad.Instance;
         if (hud != null)
             hud.Reiniciar();
     }
@@ -79,14 +58,14 @@ public class AbilityManager : MonoBehaviour
     // === GESTIÓN DE HABILIDADES ===
     public void Unlock(AbilityType tipo)
     {
-        if (habilidades.ContainsKey(tipo) && habilidades[tipo]) return;
+        if (habilidades.TryGetValue(tipo, out bool activa) && activa) return;
 
         habilidades[tipo] = true;
         OnAbilityUnlocked.Invoke(tipo);
-
-        Debug.Log($"🌀 Habilidad desbloqueada: {tipo}");
         PlayerPrefs.SetInt($"Habilidad_{tipo}", 1);
         PlayerPrefs.Save();
+
+        Debug.Log($"🌀 Habilidad desbloqueada: {tipo}");
     }
 
     public void Lock(AbilityType tipo)
@@ -95,10 +74,10 @@ public class AbilityManager : MonoBehaviour
 
         habilidades[tipo] = false;
         OnAbilityLocked.Invoke(tipo);
-
-        Debug.Log($"🛑 Habilidad bloqueada: {tipo}");
         PlayerPrefs.SetInt($"Habilidad_{tipo}", 0);
         PlayerPrefs.Save();
+
+        Debug.Log($"🛑 Habilidad bloqueada: {tipo}");
     }
 
     public bool IsUnlocked(AbilityType tipo)
@@ -113,14 +92,14 @@ public class AbilityManager : MonoBehaviour
 
         Debug.Log("🔁 Todas las habilidades han sido bloqueadas (reset global).");
     }
+
     public List<AbilityType> GetUnlockedAbilities()
     {
-        List<AbilityType> activas = new List<AbilityType>();
+        List<AbilityType> activas = new();
         foreach (var kvp in habilidades)
             if (kvp.Value) activas.Add(kvp.Key);
         return activas;
     }
-
 
     // === PERSISTENCIA DE HABILIDADES ===
     public void SaveProgress()
@@ -139,22 +118,22 @@ public class AbilityManager : MonoBehaviour
             bool desbloqueada = PlayerPrefs.GetInt($"Habilidad_{tipo}", 0) == 1;
             habilidades[tipo] = desbloqueada;
             if (desbloqueada)
-                OnAbilityUnlocked.Invoke(tipo); // actualiza el HUD automáticamente
+                OnAbilityUnlocked.Invoke(tipo);
         }
 
         Debug.Log("📦 Habilidades cargadas desde PlayerPrefs.");
     }
 
-
+    // === SINCRONIZACIÓN CON EL JUGADOR ===
     public void SincronizarJugador(Jugador jugador)
     {
         if (jugador == null) return;
 
-        HUDHabilidad hud = jugador.hudHabilidad ?? FindFirstObjectByType<HUDHabilidad>();
+        HUDHabilidad hud = jugador.hudHabilidad ?? HUDHabilidad.Instance;
         if (hud != null)
         {
             hud.gameObject.SetActive(true);
-            hud.Reiniciar(); // asegura cargas visibles
+            hud.Reiniciar();
         }
 
         foreach (AbilityType tipo in habilidades.Keys)
@@ -166,14 +145,12 @@ public class AbilityManager : MonoBehaviour
         Debug.Log("🔁 Habilidades sincronizadas con jugador en nueva escena.");
     }
 
-
-
 #if UNITY_EDITOR
-[ContextMenu("🧹 Resetear PlayerPrefs (debug)")]
+    [ContextMenu("🧹 Resetear PlayerPrefs (debug)")]
 #endif
     public void ResetearProgresoDebug()
     {
-        foreach (AbilityType tipo in System.Enum.GetValues(typeof(AbilityType)))
+        foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))
             PlayerPrefs.DeleteKey($"Habilidad_{tipo}");
 
         PlayerPrefs.Save();

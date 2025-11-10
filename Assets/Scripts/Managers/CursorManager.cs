@@ -1,73 +1,76 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using System.Collections.Generic;
 using UnityEngine.UI;
-public class CursorManager : MonoBehaviour
+using System.Collections.Generic;
+
+public class CursorManager : PersistentSingleton<CursorManager>
 {
     [Header("Texturas del Cursor")]
     // 0 = Normal, 1 = Hover, 2 = Click, 3 = Habilidad, 4 = Habilidad usada
     public Texture2D[] cursors = new Texture2D[5];
 
-    [Header("Configuraci�n")]
+    [Header("Configuración")]
     public Vector2 hotspot = Vector2.zero;
     public CursorMode cursorMode = CursorMode.Auto;
 
-    private static CursorManager instance;
     private int currentState = -1;
 
-    // Referencias a estado de juego
+    // Estados internos
     private bool modoHabilidad = false;
     private bool habilidadUsada = false;
 
-    void Awake()
+    protected override void OnBoot()
     {
-        if (instance != null && instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        instance = this;
-        DontDestroyOnLoad(gameObject);
-
-        SetCursor(0); // Normal inicial
+        base.OnBoot();
+        Debug.Log("🟢 CursorManager persistente inicializado.");
+        SetCursor(0); // Estado normal inicial
 
         // Suscribirse a eventos del sistema de habilidad
         Jugador.OnActivarHabilidad += ActivarHabilidad;
         Jugador.OnDesactivarHabilidad += DesactivarHabilidad;
         AbilityManager.OnUsarHabilidad += HabilidadUsada;
+
+        // Reconectar EventSystem en cada escena
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         Jugador.OnActivarHabilidad -= ActivarHabilidad;
         Jugador.OnDesactivarHabilidad -= DesactivarHabilidad;
         AbilityManager.OnUsarHabilidad -= HabilidadUsada;
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(UnityEngine.SceneManagement.Scene escena, UnityEngine.SceneManagement.LoadSceneMode modo)
+    {
+        // Reforzar conexión con el EventSystem al cambiar escena
+        if (EventSystem.current != null)
+            Debug.Log($"🧩 CursorManager: reconectado al EventSystem de {escena.name}");
+        else
+            Debug.LogWarning($"⚠️ CursorManager: no se encontró EventSystem en {escena.name}");
     }
 
     void Update()
     {
         int newState = GetCursorState();
-
         if (newState != currentState)
         {
             SetCursor(newState);
             currentState = newState;
         }
 
-        // Reset visual de �habilidad usada� despu�s de un corto tiempo
         if (habilidadUsada)
-        {
             StartCoroutine(ResetHabilidadUsada());
-        }
     }
 
+    // === Estados del cursor ===
     private int GetCursorState()
     {
         if (habilidadUsada)
-            return 4; // flash de habilidad usada
+            return 4;
         if (modoHabilidad)
-            return 3; // modo habilidad activo
+            return 3;
 
         bool hovering = IsPointerOverClickableUI();
         bool clicking = Input.GetMouseButton(0);
@@ -107,22 +110,10 @@ public class CursorManager : MonoBehaviour
         return false;
     }
 
-    // ==== Eventos del jugador ====
-
-    private void ActivarHabilidad()
-    {
-        modoHabilidad = true;
-    }
-
-    private void DesactivarHabilidad()
-    {
-        modoHabilidad = false;
-    }
-
-    private void HabilidadUsada()
-    {
-        habilidadUsada = true;
-    }
+    // === Eventos del jugador / habilidad ===
+    private void ActivarHabilidad() => modoHabilidad = true;
+    private void DesactivarHabilidad() => modoHabilidad = false;
+    private void HabilidadUsada() => habilidadUsada = true;
 
     private System.Collections.IEnumerator ResetHabilidadUsada()
     {

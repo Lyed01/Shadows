@@ -207,4 +207,22 @@ public class AudioManager : MonoBehaviour
         PlayerPrefs.SetFloat("VolMaster", multiplicadorGlobal);
         PlayerPrefs.Save();
     }
+
+    public void PlaySfx(AudioClip clip)
+    {
+        if (clip == null)
+        {
+            Debug.LogWarning("⚠️ AudioManager: intento de reproducir un SFX nulo.");
+            return;
+        }
+
+        AudioSource sfxSource = GetComponent<AudioSource>();
+        if (sfxSource == null)
+        {
+            sfxSource = gameObject.AddComponent<AudioSource>();
+            sfxSource.playOnAwake = false;
+        }
+
+        sfxSource.PlayOneShot(clip);
+    }
 }

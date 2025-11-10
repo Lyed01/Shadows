@@ -3,10 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
-public class HUDHabilidad : MonoBehaviour
+public class HUDHabilidad : PersistentSingleton<HUDHabilidad>
 {
-    public static HUDHabilidad Instance;
-
     [Header("UI de Cargas")]
     public Image[] iconos;
     public Sprite spriteDisponible;
@@ -21,44 +19,41 @@ public class HUDHabilidad : MonoBehaviour
     public int maxCargas = 4;
     private int cargasDisponibles;
 
-    void Awake()
+    protected override void OnBoot()
     {
-        Debug.Log($"🧩 HUDHabilidad activo en {gameObject.scene.name}");
+        base.OnBoot();
 
-        // 🔹 Evita duplicados y persiste entre escenas
-        if (Instance != null && Instance != this)
+        Debug.Log($"🧩 HUDHabilidad persistente inicializado en escena: {gameObject.scene.name}");
+
+        // Si está dentro de un Canvas, hacerlo persistente
+        var canvasRoot = transform.root.GetComponentInParent<Canvas>();
+        if (canvasRoot != null)
         {
-            Destroy(gameObject);
-            return;
+            DontDestroyOnLoad(canvasRoot.gameObject);
+            Debug.Log($"🟢 Canvas raíz persistente detectado: {canvasRoot.name}");
         }
-
-        Instance = this;
-        DontDestroyOnLoad(transform.root.gameObject);
+        else
+        {
+            DontDestroyOnLoad(gameObject);
+        }
 
         Reiniciar();
 
         if (avisoTexto != null)
             avisoTexto.gameObject.SetActive(false);
-    }
 
-    void OnEnable()
-    {
-        // 🔹 Escuchar eventos globales del GameManager
         GameManager.OnPlayerDeath += Reiniciar;
         GameManager.OnLevelRestart += Reiniciar;
     }
 
-    void OnDisable()
+    private void OnDestroy()
     {
         GameManager.OnPlayerDeath -= Reiniciar;
         GameManager.OnLevelRestart -= Reiniciar;
     }
 
     // === CONSULTAS ===
-    public bool TieneCargas(int costo = 1)
-    {
-        return cargasDisponibles >= costo;
-    }
+    public bool TieneCargas(int costo = 1) => cargasDisponibles >= costo;
 
     // === USO / RECUPERACIÓN ===
     public void UsarCargas(int cantidad = 1)
@@ -90,11 +85,10 @@ public class HUDHabilidad : MonoBehaviour
 
         for (int i = 0; i < iconos.Length; i++)
         {
-            if (iconos[i] == null) continue; // Protección
+            if (iconos[i] == null) continue;
             iconos[i].sprite = i < cargasDisponibles ? spriteDisponible : spriteUsado;
         }
     }
-
 
     // === AVISOS ===
     public void MostrarAviso(string mensaje)

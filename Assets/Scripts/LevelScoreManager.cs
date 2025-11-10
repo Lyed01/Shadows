@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System;
 
-[System.Serializable]
+[Serializable]
 public class ScoreThreshold
 {
     [Header("Muertes (límites para 3-2-1-0 estrellas)")]
@@ -20,52 +21,94 @@ public class ScoreThreshold
     public int habilidades1 = 6;
 }
 
-public class LevelScoreManager : MonoBehaviour
+public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
 {
-    public static LevelScoreManager Instance { get; private set; }
-
-    [Header("Configuración del nivel")]
+    [Header("Configuración del nivel (runtime)")]
+    [Tooltip("ID visible en PlayerPrefs: Nivel_<id>_Estrellas, etc.")]
     public string idNivel = "Nivel1";
-    public ScoreThreshold configuracionNivel = new ScoreThreshold();
+    public ScoreThreshold configuracionNivel = new();
 
-    [Header("Estadísticas actuales")]
+    [Header("Estadísticas actuales (read-only)")]
     [SerializeField] private int muertes;
     [SerializeField] private int habilidadesUsadas;
     [SerializeField] private float tiempoActual;
 
-    private bool nivelFinalizado = false;
+    private bool nivelEnCurso;
+    private bool nivelFinalizado;
 
-    // === EVENTOS ===
-    public static Action<int> OnNivelCompletado; // devuelve estrellas totales (0–3)
+    // Eventos
+    public static Action<int> OnNivelCompletado; // estrellas (0–3)
+    public static Action OnNivelComenzo;
 
-    void Awake()
+    protected override void OnBoot()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
-
-    void Start()
-    {
-        GameManager.OnPlayerDeath += RegistrarMuerte;
+        // Reset cuando:
+        // - entra una escena de nivel
+        // - el GameManager reinicia tras muerte
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        GameManager.OnPlayerDeath += ReiniciarContadores;
         AbilityManager.OnUsarHabilidad += RegistrarUsoHabilidad;
     }
 
-    void Update()
+    private void OnDestroy()
     {
-        if (!nivelFinalizado && GameManager.Instance != null && GameManager.Instance.EstaJugando)
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        GameManager.OnPlayerDeath -= ReiniciarContadores;
+        AbilityManager.OnUsarHabilidad -= RegistrarUsoHabilidad;
+    }
+
+    private void OnSceneLoaded(Scene s, LoadSceneMode m)
+    {
+        // Heurística simple: si no es Hub/Menu, consideramos “nivel”
+        bool esNivel = !(s.name.Contains("Hub") || s.name.Contains("Menu"));
+        if (esNivel)
         {
-            tiempoActual += Time.deltaTime;
+            // Si querés IDs por escena: idNivel = s.name;
+            ReiniciarContadores();
+            nivelEnCurso = true;
+            nivelFinalizado = false;
+            OnNivelComenzo?.Invoke();
+        }
+        else
+        {
+            nivelEnCurso = false;
         }
     }
 
-    // === REGISTROS ===
-    public void RegistrarMuerte() => muertes++;
-    public void RegistrarUsoHabilidad() => habilidadesUsadas++;
+    private void Update()
+    {
+        if (!nivelEnCurso || nivelFinalizado) return;
+        // Avanza solo cuando estamos jugando (no en pausa ni transición)
+        if (GameManager.Instance != null && GameManager.Instance.EstaJugando)
+            tiempoActual += Time.deltaTime;
+    }
+
+    // ===== API pública =====
+
+    /// <summary> Úsalo si querés forzar ID y thresholds (ej: desde el nivel). </summary>
+    public void BeginLevel(string id, ScoreThreshold thresholds = null)
+    {
+        idNivel = string.IsNullOrEmpty(id) ? "Nivel1" : id;
+        if (thresholds != null) configuracionNivel = thresholds;
+        ReiniciarContadores();
+        nivelEnCurso = true;
+        nivelFinalizado = false;
+        OnNivelComenzo?.Invoke();
+    }
+
+    public void CompletarNivel()
+    {
+        if (!nivelEnCurso || nivelFinalizado) return;
+
+        nivelFinalizado = true;
+        int estrellasFinales = CalcularEstrellasFinales();
+
+        Debug.Log($"🏁 Nivel {idNivel} completado con {estrellasFinales}⭐ " +
+                  $"(Muertes: {muertes}, Tiempo: {tiempoActual:F1}s, Habs: {habilidadesUsadas})");
+
+        GuardarResultados(idNivel, estrellasFinales, tiempoActual, muertes, habilidadesUsadas);
+        OnNivelCompletado?.Invoke(estrellasFinales);
+    }
 
     public void ReiniciarContadores()
     {
@@ -75,12 +118,16 @@ public class LevelScoreManager : MonoBehaviour
         nivelFinalizado = false;
     }
 
-    // === CONSULTAS ===
+    // ===== Registros =====
+    public void RegistrarMuerte() => muertes++;
+    public void RegistrarUsoHabilidad() => habilidadesUsadas++;
+
+    // ===== Consultas =====
     public float GetTiempoNivel() => tiempoActual;
     public int GetMuertes() => muertes;
     public int GetHabilidadesUsadas() => habilidadesUsadas;
 
-    // === CÁLCULO DE ESTRELLAS ===
+    // ===== Cálculo de estrellas =====
     private int CalcularPorMuertes()
     {
         if (muertes <= configuracionNivel.muertes3) return 3;
@@ -107,30 +154,19 @@ public class LevelScoreManager : MonoBehaviour
 
     public int CalcularEstrellasFinales()
     {
-        int estrellasTiempo = CalcularPorTiempo();
-        int estrellasMuertes = CalcularPorMuertes();
-        int estrellasHabilidades = CalcularPorHabilidades();
+        int eT = CalcularPorTiempo();
+        int eM = CalcularPorMuertes();
+        int eH = CalcularPorHabilidades();
 
-        float promedio = (estrellasTiempo + estrellasMuertes + estrellasHabilidades) / 3f;
+        // Promedio redondeado (mantengo tu criterio)
+        float promedio = (eT + eM + eH) / 3f;
         return Mathf.RoundToInt(promedio);
+
+        // Alternativa más estricta (si querés castigar el peor eje):
+        // return Mathf.Min(eT, Mathf.Min(eM, eH));
     }
 
-    // === FINALIZACIÓN DE NIVEL ===
-    public void CompletarNivel()
-    {
-        if (nivelFinalizado) return;
-        nivelFinalizado = true;
-
-        int estrellasFinales = CalcularEstrellasFinales();
-
-        Debug.Log($"🏁 Nivel completado con {estrellasFinales}⭐ " +
-                  $"(Muertes: {muertes}, Tiempo: {tiempoActual:F1}s, Habilidades: {habilidadesUsadas})");
-
-        GuardarResultados(idNivel, estrellasFinales, tiempoActual, muertes, habilidadesUsadas);
-        OnNivelCompletado?.Invoke(estrellasFinales);
-    }
-
-    // === GUARDADO DE RESULTADOS ===
+    // ===== Guardado =====
     public void GuardarResultados(string nivelID, int estrellas, float tiempo, int muertes, int habilidades)
     {
         PlayerPrefs.SetInt($"Nivel_{nivelID}_Estrellas", estrellas);
@@ -139,27 +175,19 @@ public class LevelScoreManager : MonoBehaviour
         PlayerPrefs.SetInt($"Nivel_{nivelID}_Habilidades", habilidades);
         PlayerPrefs.Save();
 
-        Debug.Log($"💾 Guardado → {nivelID}: {estrellas}⭐ | {tiempo:F1}s | {muertes} muertes | {habilidades} habilidades");
+        Debug.Log($"💾 Guardado → {nivelID}: {estrellas}⭐ | {tiempo:F1}s | {muertes} muertes | {habilidades} habs");
     }
 
-    private void OnDisable()
-    {
-        GameManager.OnPlayerDeath -= RegistrarMuerte;
-        AbilityManager.OnUsarHabilidad -= RegistrarUsoHabilidad;
-    }
-
-    // === DEBUG / RESETEO ===
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     [ContextMenu("🧹 Limpiar progreso de niveles (DEBUG)")]
     public void ResetProgresoNiveles()
     {
         int cantidadReseteada = 0;
-
-        // 🔹 Borrar claves conocidas (Nivel_1 a Nivel_50)
         for (int i = 1; i <= 50; i++)
         {
             string nivel = $"Nivel{i}";
-            string[] claves = {
+            string[] claves =
+            {
                 $"Nivel_{nivel}_Estrellas",
                 $"Nivel_{nivel}_Tiempo",
                 $"Nivel_{nivel}_Muertes",
@@ -175,9 +203,8 @@ public class LevelScoreManager : MonoBehaviour
                 }
             }
         }
-
         PlayerPrefs.Save();
-        Debug.Log($"🧹 Progreso de niveles reseteado. Claves eliminadas: {cantidadReseteada}");
+        Debug.Log($"🧹 Progreso reseteado. Claves eliminadas: {cantidadReseteada}");
     }
 #endif
 }

@@ -1,15 +1,15 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
 public class DoorHub : MonoBehaviour
 {
     [Header("Datos del nivel")]
-    public string idNivel = "Nivel1";               // para PlayerPrefs
-    public string nombreEscenaNivel = "Nivel1";     // nombre exacto de la escena
+    public string idNivel = "Nivel1";
+    public string nombreEscenaNivel = "Nivel1";
     public string tituloNivel = "NIVEL 1 - ZONA 1";
-    [TextArea] public string descripcionNivel = "Primer desafÌo.";
+    [TextArea] public string descripcionNivel = "Primer desaf√≠o.";
 
-    [Header("DetecciÛn")]
+    [Header("Detecci√≥n")]
     public float distanciaActivacion = 2.5f;
 
     [Header("Indicador visual")]
@@ -18,21 +18,32 @@ public class DoorHub : MonoBehaviour
     public Sprite spriteEncendido;
 
     [Header("Spawn de retorno")]
-    [Tooltip("Punto donde el jugador aparecer· al volver desde este nivel.")]
+    [Tooltip("Punto donde el jugador aparecer√° al volver desde este nivel.")]
     public Transform puntoSpawnRetorno;
-    [Header("PosiciÛn del popup (opcional)")]
-    public Transform puntoPopup; // si lo dejas vacÌo, usa la posiciÛn de la puerta
+
+    [Header("Posici√≥n del popup (opcional)")]
+    public Transform puntoPopup;
 
     // runtime
     private Transform jugador;
     private bool popupVisible = false;
     private int estrellas = 0;
 
+    private void OnEnable()
+    {
+        GameManager.OnPlayerSpawned += OnPlayerSpawned;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnPlayerSpawned -= OnPlayerSpawned;
+    }
+
     void Start()
     {
         jugador = FindFirstObjectByType<Jugador>()?.transform;
 
-        // Cargar progreso
+        // Cargar progreso y luz
         estrellas = PlayerPrefs.GetInt($"Nivel_{idNivel}_Estrellas", 0);
         ActualizarLuz();
     }
@@ -49,17 +60,10 @@ public class DoorHub : MonoBehaviour
             if (!popupVisible)
             {
                 popupVisible = true;
-                PopupNivelUI.Instance.Mostrar(
-                    this,
-                    posReferencia,
-                    tituloNivel,
-                    descripcionNivel,
-                    estrellas
-                );
+                PopupNivelUI.Instance.Mostrar(this, posReferencia, tituloNivel, descripcionNivel, estrellas);
             }
             else
             {
-                // opcional: re-posicionar si el jugador se mueve
                 PopupNivelUI.Instance.ActualizarPosicion(posReferencia);
             }
         }
@@ -70,11 +74,27 @@ public class DoorHub : MonoBehaviour
         }
     }
 
+    // üîπ llamado autom√°ticamente por GameManager cuando se crea un nuevo jugador
+    private void OnPlayerSpawned(Jugador nuevoJugador)
+    {
+        if (nuevoJugador == null) return;
+
+        jugador = nuevoJugador.transform;
+        Debug.Log($"üîÅ DoorHub [{idNivel}] reenganch√≥ referencia al nuevo jugador.");
+
+        // üü° Chequeo inmediato por si el jugador renace dentro del √°rea de activaci√≥n
+        if (Vector2.Distance(jugador.position, transform.position) <= distanciaActivacion)
+        {
+            var posReferencia = (puntoPopup != null) ? puntoPopup.position : transform.position;
+            popupVisible = true;
+            PopupNivelUI.Instance?.Mostrar(this, posReferencia, tituloNivel, descripcionNivel, estrellas);
+        }
+    }
+
     public int ObtenerEstrellas() => estrellas;
 
     public void Entrar()
     {
-        // Sonido UI y puerta (si quieres desde aquÌ)
         AudioManager.Instance?.ReproducirUIClick();
         AudioManager.Instance?.ReproducirPuertaAbrir();
 
@@ -92,7 +112,10 @@ public class DoorHub : MonoBehaviour
     private void ActualizarLuz()
     {
         if (luzPuerta == null) return;
-        if (estrellas > 0 && spriteEncendido != null) luzPuerta.sprite = spriteEncendido;
-        else if (spriteApagado != null) luzPuerta.sprite = spriteApagado;
+
+        if (estrellas > 0 && spriteEncendido != null)
+            luzPuerta.sprite = spriteEncendido;
+        else if (spriteApagado != null)
+            luzPuerta.sprite = spriteApagado;
     }
 }
