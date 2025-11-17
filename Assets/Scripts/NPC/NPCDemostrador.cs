@@ -22,6 +22,9 @@ public class NPCDemostrador : MonoBehaviour
     public AudioClip fxAbyssFlame;
     public AudioClip fxMirror;
 
+    [Header("Pasos (igual que jugador)")]
+    public float pasoIntervalo = 0.35f;
+    private float pasoTimer = 0f;
 
     [Header("Recompensa final")]
     public bool otorgarHabilidadAlFinal = false;
@@ -106,9 +109,24 @@ public class NPCDemostrador : MonoBehaviour
         Vector2 destino2D = destino;
         while (Vector2.Distance(transform.position, destino2D) > 0.05f)
         {
+
             Vector2 direccion = (destino2D - (Vector2)transform.position).normalized;
             ultimaDireccion = direccion;
             rb.MovePosition(rb.position + direccion * velocidad * Time.fixedDeltaTime);
+            if (direccion.magnitude > 0.1f)
+            {
+                pasoTimer -= Time.fixedDeltaTime;
+
+                if (pasoTimer <= 0f)
+                {
+                    ReproducirPaso();
+                    pasoTimer = pasoIntervalo;
+                }
+            }
+            else
+            {
+                pasoTimer = 0.05f;
+            }
             ActualizarAnimacion(direccion);
             yield return new WaitForFixedUpdate();
         }
@@ -133,11 +151,11 @@ public class NPCDemostrador : MonoBehaviour
         if (dir.magnitude > 0.1f)
         {
             if (dir.y > 0.1f)
-                nuevaAnim = "WalkingUp";
+                nuevaAnim = "WalkUp";
             else if (dir.y < -0.1f)
-                nuevaAnim = "WalkingDown";
+                nuevaAnim = "WalkDown";
             else
-                nuevaAnim = "WalkingSide";
+                nuevaAnim = "WalkSide";
         }
         else
         {
@@ -227,7 +245,23 @@ public class NPCDemostrador : MonoBehaviour
 
         Debug.Log($"💠 NPC colocó bloque reflectivo en {pos}");
     }
-    
+
+    private void ReproducirPaso()
+    {
+        if (AudioManager.Instance == null) return;
+
+        var grid = FindFirstObjectByType<GridManager>();
+        if (grid == null || grid.sueloTilemap == null) return;
+
+        Vector3Int cell = grid.sueloTilemap.WorldToCell(transform.position);
+
+        bool esCorrupto = false;
+        if (grid.tileDesbloqueado != null &&
+            grid.sueloTilemap.GetTile(cell) == grid.tileDesbloqueado)
+            esCorrupto = true;
+
+        AudioManager.Instance.ReproducirPaso(esCorrupto);
+    }
 
 
 }

@@ -9,6 +9,7 @@ TagManager:
   - Switch
   - Walls
   - Receptor
+  - Door
   layers:
   - Default
   - TransparentFX
@@ -19,7 +20,7 @@ TagManager:
   - Jugador
   - ReflectiveBlock
   - Walls
-  - 
+  - Door
   - 
   - 
   - 

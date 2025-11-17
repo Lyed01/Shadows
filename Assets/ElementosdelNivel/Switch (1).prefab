@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8639628902660690835}
   - component: {fileID: 3086714125570845289}
   - component: {fileID: 7489993559823376211}
+  - component: {fileID: -3247408043031341404}
   m_Layer: 0
   m_Name: Switch (1)
   m_TagString: Switch
@@ -103,7 +104,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   puertas:
   - {fileID: 0}
-  - {fileID: 0}
   luces: []
   lucesParaApagar: []
   spriteApagado: {fileID: 846010472778899471, guid: 76c6c9652c9861749b82666841189767, type: 3}
@@ -155,3 +155,28 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.622, y: 0.62}
   m_EdgeRadius: 0
+--- !u!114 &-3247408043031341404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6082175970793960250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734e6fa73221fcc42865a02343087c27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMaterial: {fileID: 2100000, guid: 2274f61ef569b7b458ce6ad7a41f77c8, type: 2}
+  outlineColor: {r: 0.9622642, g: 0.9373888, b: 0.76708794, a: 1}
+  thicknessPx: 1
+  renderEncima: 1
+  orderOffset: 1
+  fadeSpeed: 8
+  pulseSpeed: 2
+  pulseStrength: 0.15
+  promptPrefab: {fileID: 6418489214501038596, guid: 5a46b4ef7dd7d0f4084cd9b75df6ef4e, type: 3}
+  promptOffset: {x: 0, y: 1.2, z: 0}
+  promptFadeSpeed: 6
+  playerTag: Player
+  useTriggerDetection: 1

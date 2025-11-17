@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
+using System.Collections.Generic;
 
 [Serializable]
 public class ScoreThreshold
@@ -23,12 +24,17 @@ public class ScoreThreshold
 
 public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
 {
-    [Header("Configuración del nivel (runtime)")]
-    [Tooltip("ID visible en PlayerPrefs: Nivel_<id>_Estrellas, etc.")]
+    [Header("ID actual del nivel")]
+    [Tooltip("ID visible en los PlayerPrefs (Nivel_<id>_...)")]
     public string idNivel = "Nivel1";
+
+    [Header("Configuración cargada (runtime)")]
     public ScoreThreshold configuracionNivel = new();
 
-    [Header("Estadísticas actuales (read-only)")]
+    [Header("Configuraciones por nivel (ScriptableObjects)")]
+    public List<ScoreThresholdSO> configuracionesSO = new();
+
+    [Header("Estadísticas actuales (solo lectura)")]
     [SerializeField] private int muertes;
     [SerializeField] private int habilidadesUsadas;
     [SerializeField] private float tiempoActual;
@@ -40,11 +46,11 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
     public static Action<int> OnNivelCompletado; // estrellas (0–3)
     public static Action OnNivelComenzo;
 
+    // ============================================================
+    // BOOT
+    // ============================================================
     protected override void OnBoot()
     {
-        // Reset cuando:
-        // - entra una escena de nivel
-        // - el GameManager reinicia tras muerte
         SceneManager.sceneLoaded += OnSceneLoaded;
         GameManager.OnPlayerDeath += ReiniciarContadores;
         AbilityManager.OnUsarHabilidad += RegistrarUsoHabilidad;
@@ -57,16 +63,21 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         AbilityManager.OnUsarHabilidad -= RegistrarUsoHabilidad;
     }
 
+    // ============================================================
+    // SCENE LOAD
+    // ============================================================
     private void OnSceneLoaded(Scene s, LoadSceneMode m)
     {
-        // Heurística simple: si no es Hub/Menu, consideramos “nivel”
         bool esNivel = !(s.name.Contains("Hub") || s.name.Contains("Menu"));
+
         if (esNivel)
         {
-            // Si querés IDs por escena: idNivel = s.name;
+            CargarConfiguracionDelNivel(s.name);
+
             ReiniciarContadores();
             nivelEnCurso = true;
             nivelFinalizado = false;
+
             OnNivelComenzo?.Invoke();
         }
         else
@@ -75,26 +86,51 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         }
     }
 
+    // ============================================================
+    // UPDATE (TIEMPO)
+    // ============================================================
     private void Update()
     {
         if (!nivelEnCurso || nivelFinalizado) return;
-        // Avanza solo cuando estamos jugando (no en pausa ni transición)
+
         if (GameManager.Instance != null && GameManager.Instance.EstaJugando)
             tiempoActual += Time.deltaTime;
     }
 
-    // ===== API pública =====
-
-    /// <summary> Úsalo si querés forzar ID y thresholds (ej: desde el nivel). </summary>
-    public void BeginLevel(string id, ScoreThreshold thresholds = null)
+    // ============================================================
+    // CARGA DE CONFIGURACIÓN POR SCRIPTABLEOBJECT
+    // ============================================================
+    private void CargarConfiguracionDelNivel(string escena)
     {
-        idNivel = string.IsNullOrEmpty(id) ? "Nivel1" : id;
-        if (thresholds != null) configuracionNivel = thresholds;
-        ReiniciarContadores();
-        nivelEnCurso = true;
-        nivelFinalizado = false;
-        OnNivelComenzo?.Invoke();
+        foreach (var so in configuracionesSO)
+        {
+            if (so != null && so.idNivel == escena)
+            {
+                configuracionNivel.muertes3 = so.muertes3;
+                configuracionNivel.muertes2 = so.muertes2;
+                configuracionNivel.muertes1 = so.muertes1;
+
+                configuracionNivel.tiempo3 = so.tiempo3;
+                configuracionNivel.tiempo2 = so.tiempo2;
+                configuracionNivel.tiempo1 = so.tiempo1;
+
+                configuracionNivel.habilidades3 = so.habilidades3;
+                configuracionNivel.habilidades2 = so.habilidades2;
+                configuracionNivel.habilidades1 = so.habilidades1;
+
+                idNivel = so.idNivel;
+
+                Debug.Log($"📌 Score config cargada desde ScriptableObject para {escena}");
+                return;
+            }
+        }
+
+        Debug.LogWarning($"⚠️ No encontré ScriptableObject para {escena}. Usando valores default.");
     }
+
+    // ============================================================
+    // API PÚBLICA
+    // ============================================================
 
     public void CompletarNivel()
     {
@@ -107,6 +143,7 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
                   $"(Muertes: {muertes}, Tiempo: {tiempoActual:F1}s, Habs: {habilidadesUsadas})");
 
         GuardarResultados(idNivel, estrellasFinales, tiempoActual, muertes, habilidadesUsadas);
+
         OnNivelCompletado?.Invoke(estrellasFinales);
     }
 
@@ -118,16 +155,16 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         nivelFinalizado = false;
     }
 
-    // ===== Registros =====
     public void RegistrarMuerte() => muertes++;
     public void RegistrarUsoHabilidad() => habilidadesUsadas++;
 
-    // ===== Consultas =====
     public float GetTiempoNivel() => tiempoActual;
     public int GetMuertes() => muertes;
     public int GetHabilidadesUsadas() => habilidadesUsadas;
 
-    // ===== Cálculo de estrellas =====
+    // ============================================================
+    // CÁLCULO DE ESTRELLAS
+    // ============================================================
     private int CalcularPorMuertes()
     {
         if (muertes <= configuracionNivel.muertes3) return 3;
@@ -158,15 +195,13 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         int eM = CalcularPorMuertes();
         int eH = CalcularPorHabilidades();
 
-        // Promedio redondeado (mantengo tu criterio)
         float promedio = (eT + eM + eH) / 3f;
         return Mathf.RoundToInt(promedio);
-
-        // Alternativa más estricta (si querés castigar el peor eje):
-        // return Mathf.Min(eT, Mathf.Min(eM, eH));
     }
 
-    // ===== Guardado =====
+    // ============================================================
+    // GUARDADO
+    // ============================================================
     public void GuardarResultados(string nivelID, int estrellas, float tiempo, int muertes, int habilidades)
     {
         PlayerPrefs.SetInt($"Nivel_{nivelID}_Estrellas", estrellas);
@@ -183,6 +218,7 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
     public void ResetProgresoNiveles()
     {
         int cantidadReseteada = 0;
+
         for (int i = 1; i <= 50; i++)
         {
             string nivel = $"Nivel{i}";
@@ -203,6 +239,7 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
                 }
             }
         }
+
         PlayerPrefs.Save();
         Debug.Log($"🧹 Progreso reseteado. Claves eliminadas: {cantidadReseteada}");
     }

@@ -12,8 +12,6 @@ public class GameManager : PersistentSingleton<GameManager>
     public static Action OnLevelRestart;
     public static Action OnPause;
     public static Action OnResume;
-
-    // 🔔 Nuevo: evento global al spawnear/re-spawnear jugador
     public static Action<Jugador> OnPlayerSpawned;
 
     [Header("Transición visual")]
@@ -29,12 +27,10 @@ public class GameManager : PersistentSingleton<GameManager>
     private Jugador jugadorActual;
     private string ultimaPuertaID;
     private Vector3 ultimaPuertaPosicion;
-    private bool regresoDesdeNivel = false; // ✅ indica si se vuelve desde un nivel
+    private bool regresoDesdeNivel = false;
     public float tiempoReinicio = 1.0f;
 
     private bool EsHub => SceneManager.GetActiveScene().name == "Hub";
- 
-
 
     // 🧠 Inicialización persistente
     protected override void OnBoot()
@@ -51,54 +47,65 @@ public class GameManager : PersistentSingleton<GameManager>
 
         grid = FindFirstObjectByType<GridManager>();
         ability = FindFirstObjectByType<AbilityManager>();
-        spawnTransform = grid?.spawnTransform;
+
+        // Mantener el del Inspector si ya está asignado
+        if (spawnTransform == null)
+            spawnTransform = grid?.spawnTransform;
 
         if (grid != null)
             grid.onPlayerDeath.AddListener(ManejarMuerteJugador);
 
-        // 🟣 Instanciar jugador si no existe
         SpawnJugadorEnEscena(escena);
-
-        // 🎥 Conectar cámara (en siguiente frame)
         StartCoroutine(EsperarYConectarCamara());
-
-        // 🧩 Sincronizar habilidades y HUD
         StartCoroutine(SincronizarDespuesDeFrame());
         ActivarHUD(escena);
 
-        // 🔔 Importante: anunciar spawn a todos los sistemas (Hub incluido)
         if (jugadorActual != null)
             OnPlayerSpawned?.Invoke(jugadorActual);
 
-        // 🧷 Si estamos en el Hub, asegurar que los popups queden operativos
         if (EsHub)
             ReactivarSistemaPopupsHub();
 
-        // 🩹 🔽 NUEVO BLOQUE DE REPARACIÓN DE UI 🔽
-        StartCoroutine(ReactivarSistemaUI());
+        UIManager.Instance?.ReinicializarUI();
     }
 
-    private void ActivarHUD(Scene escena)
-    {
-        if (escena.name != "Hub")
-        {
-            if (HUDHabilidad.Instance != null)
-                HUDHabilidad.Instance.gameObject.SetActive(true);
+    // =============================== SPAWN SYSTEM ===============================
 
-            UIManager.Instance?.MostrarHUD();
+    private Vector3 ResolverSpawn(Scene escena)
+    {
+        Vector3 posicionDefault = new Vector3(-4f, -25f, 0f);
+
+        Transform preferidoHub = (spawnTransform != null) ? spawnTransform : grid?.spawnTransform;
+        Transform preferidoNivel = (grid?.spawnTransform != null) ? grid.spawnTransform : spawnTransform;
+
+        if (escena.name == "Hub")
+        {
+            if (ultimaPuertaPosicion != Vector3.zero)
+            {
+                Debug.Log($"📍 Spawn en Hub: última puerta en {ultimaPuertaPosicion}");
+                return ultimaPuertaPosicion;
+            }
+
+            if (preferidoHub != null)
+            {
+                Debug.Log($"📍 Spawn en Hub: usando spawnTransform {preferidoHub.position}");
+                return preferidoHub.position;
+            }
+
+            Debug.Log($"📍 Spawn en Hub: posición por defecto {posicionDefault}");
+            return posicionDefault;
         }
         else
         {
-            Debug.Log("🏠 GameManager: En Hub, no se activa HUD del UIManager.");
+            if (preferidoNivel != null)
+            {
+                Debug.Log($"📍 Spawn en nivel: usando spawnTransform {preferidoNivel.position}");
+                return preferidoNivel.position;
+            }
+
+            Debug.Log($"📍 Spawn en nivel: Vector3.zero");
+            return Vector3.zero;
         }
-    }
-
-
-    private IEnumerator SincronizarDespuesDeFrame()
-    {
-        yield return null;
-        if (AbilityManager.Instance != null && jugadorActual != null)
-            AbilityManager.Instance.SincronizarJugador(jugadorActual);
     }
 
     private void SpawnJugadorEnEscena(Scene escena)
@@ -106,13 +113,7 @@ public class GameManager : PersistentSingleton<GameManager>
         jugadorActual = FindFirstObjectByType<Jugador>();
         if (jugadorActual != null) return;
 
-        Vector3 spawnPos = Vector3.zero;
-        Vector3 posicionDefault = new Vector3(-4f, -25f, 0f);
-
-        if (escena.name == "Hub")
-            spawnPos = (ultimaPuertaPosicion != Vector3.zero) ? ultimaPuertaPosicion : posicionDefault;
-        else
-            spawnPos = (spawnTransform != null) ? spawnTransform.position : Vector3.zero;
+        Vector3 spawnPos = ResolverSpawn(escena);
 
         if (jugadorPrefab != null)
         {
@@ -125,6 +126,22 @@ public class GameManager : PersistentSingleton<GameManager>
             Debug.LogWarning("⚠️ GameManager: no se encontró prefab del jugador.");
         }
     }
+
+    private void InstanciarJugador()
+    {
+        if (jugadorPrefab == null)
+        {
+            Debug.LogError("❌ GameManager: faltan referencias para instanciar jugador.");
+            return;
+        }
+
+        Vector3 spawnPos = ResolverSpawn(SceneManager.GetActiveScene());
+        jugadorActual = Instantiate(jugadorPrefab, spawnPos, Quaternion.identity);
+        jugadorActual.Inicializar(grid, HUDHabilidad.Instance);
+        StartCoroutine(EsperarYConectarCamara());
+    }
+
+    // =============================== UPDATE & GAME STATE ===============================
 
     void Update()
     {
@@ -152,7 +169,6 @@ public class GameManager : PersistentSingleton<GameManager>
     {
         yield return new WaitForSeconds(0.2f);
         if (fader != null) fader.FadeIn(duracionFade);
-
         yield return new WaitForSeconds(duracionFade);
 
         if (jugadorActual != null)
@@ -164,7 +180,6 @@ public class GameManager : PersistentSingleton<GameManager>
         InstanciarJugador();
         OnLevelRestart?.Invoke();
 
-        // 🔔 anunciar respawn y rearmar popups si estamos en Hub
         if (jugadorActual != null)
             OnPlayerSpawned?.Invoke(jugadorActual);
 
@@ -175,21 +190,6 @@ public class GameManager : PersistentSingleton<GameManager>
         if (fader != null) fader.FadeOut(duracionFade);
 
         EstadoActual = GameState.Jugando;
-    }
-
-    private void InstanciarJugador()
-    {
-        if (jugadorPrefab == null)
-        {
-            Debug.LogError("❌ GameManager: faltan referencias para instanciar jugador.");
-            return;
-        }
-
-        Vector3 spawnPos = (spawnTransform != null) ? spawnTransform.position : Vector3.zero;
-        jugadorActual = Instantiate(jugadorPrefab, spawnPos, Quaternion.identity);
-
-        jugadorActual.Inicializar(grid, HUDHabilidad.Instance);
-        StartCoroutine(EsperarYConectarCamara());
     }
 
     public void PausarJuego()
@@ -210,6 +210,14 @@ public class GameManager : PersistentSingleton<GameManager>
         UIManager.Instance?.MostrarHUD();
     }
 
+    // =============================== CARGA DE ESCENAS ===============================
+
+    public void VolverAlHub()
+    {
+        regresoDesdeNivel = true;
+        StartCoroutine(CargarHubAsync());
+    }
+
     private IEnumerator CargarHubAsync()
     {
         EstadoActual = GameState.Transicion;
@@ -223,7 +231,6 @@ public class GameManager : PersistentSingleton<GameManager>
 
         if (fader != null) fader.FadeOut(duracionFade);
 
-        // ✅ Si volvemos desde un nivel, colocar jugador en la última puerta usada
         if (regresoDesdeNivel)
         {
             regresoDesdeNivel = false;
@@ -231,7 +238,7 @@ public class GameManager : PersistentSingleton<GameManager>
             {
                 jugadorActual.transform.position = ultimaPuertaPosicion;
                 jugadorActual.StartCoroutine(EfectoAparicion(jugadorActual.transform));
-                Debug.Log($"🚪 Jugador reapareció frente a puerta en {ultimaPuertaPosicion} con efecto visual.");
+                Debug.Log($"🚪 Jugador reapareció frente a puerta en {ultimaPuertaPosicion}");
             }
         }
 
@@ -247,17 +254,13 @@ public class GameManager : PersistentSingleton<GameManager>
         }
 
         ultimaPuertaID = puerta.idNivel;
-
-        // 🟢 Guardamos la posición de retorno del Hub
         ultimaPuertaPosicion = puerta.puntoSpawnRetorno != null
             ? puerta.puntoSpawnRetorno.position
             : puerta.transform.position;
 
         Debug.Log($"📍 Guardando punto de retorno del Hub: {ultimaPuertaPosicion}");
-
         StartCoroutine(CargarEscenaAsync(puerta.nombreEscenaNivel));
     }
- 
 
     private IEnumerator CargarEscenaAsync(string nombreEscena)
     {
@@ -277,13 +280,7 @@ public class GameManager : PersistentSingleton<GameManager>
         EstadoActual = GameState.Jugando;
     }
 
-    public void VolverAlHub()
-{
-    regresoDesdeNivel = true;
-    StartCoroutine(CargarHubAsync());
-}
-    public void CambiarEstado(GameState nuevoEstado) => EstadoActual = nuevoEstado;
-    public bool EstaJugando => EstadoActual == GameState.Jugando;
+    // =============================== UTILIDADES ===============================
 
     private IEnumerator EsperarYConectarCamara()
     {
@@ -297,10 +294,30 @@ public class GameManager : PersistentSingleton<GameManager>
         }
     }
 
-    // ====== Hub helpers ======
+    private void ActivarHUD(Scene escena)
+    {
+        if (escena.name != "Hub")
+        {
+            HUDHabilidad.Instance?.gameObject.SetActive(true);
+            UIManager.Instance?.MostrarHUD();
+        }
+        else
+        {
+            Debug.Log("🏠 GameManager: En Hub, no se activa HUD del UIManager.");
+        }
+    }
+
+    private IEnumerator SincronizarDespuesDeFrame()
+    {
+        yield return null;
+        if (AbilityManager.Instance != null && jugadorActual != null)
+            AbilityManager.Instance.SincronizarJugador(jugadorActual);
+    }
+
+    // =============================== HUB HELPERS ===============================
+
     private void ReactivarSistemaPopupsHub()
     {
-        // 1) Asegurar que el popup global esté activo (si existe)
         var popup = FindFirstObjectByType<PopupNivelUI>(FindObjectsInactive.Include);
         if (popup != null)
         {
@@ -308,40 +325,31 @@ public class GameManager : PersistentSingleton<GameManager>
             Debug.Log("🟢 PopupNivelUI activo en Hub.");
         }
 
-        // 2) Reforzar chequeo inmediato de solape con puertas (por si el jugador renace dentro)
         var puertas = FindObjectsByType<DoorHub>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         if (puertas != null && jugadorActual != null)
         {
             foreach (var p in puertas)
             {
-                try
-                {
-                    // Si DoorHub implementa este método, lo llamamos:
-                    p.SendMessage("ForzarChequeoJugador", jugadorActual, SendMessageOptions.DontRequireReceiver);
-                }
-                catch { /* ignorar si no existe */ }
+                p.SendMessage("ForzarChequeoJugador", jugadorActual, SendMessageOptions.DontRequireReceiver);
             }
-            Debug.Log("🔁 Reforzado de detección de puertas en Hub tras respawn.");
+            Debug.Log("🔁 Detección de puertas reactivada.");
         }
     }
+
     private IEnumerator EfectoAparicion(Transform objetivo)
     {
         if (objetivo == null) yield break;
-
         Vector3 escalaInicial = Vector3.zero;
         Vector3 escalaFinal = Vector3.one;
-        float duracion = 0.35f;
-        float tiempo = 0f;
+        float duracion = 0.35f, tiempo = 0f;
 
         objetivo.localScale = escalaInicial;
-
-        // Esperá un frame por seguridad (por si el fade todavía está activo)
         yield return null;
 
         while (tiempo < duracion)
         {
             tiempo += Time.deltaTime;
-            float t = Mathf.Sin((tiempo / duracion) * (Mathf.PI * 0.5f)); // easing OutSine
+            float t = Mathf.Sin((tiempo / duracion) * (Mathf.PI * 0.5f));
             objetivo.localScale = Vector3.LerpUnclamped(escalaInicial, escalaFinal, t);
             yield return null;
         }
@@ -349,54 +357,20 @@ public class GameManager : PersistentSingleton<GameManager>
         objetivo.localScale = escalaFinal;
     }
 
-    private IEnumerator ReactivarSistemaUI()
+    // =============================== INTERFAZ PÚBLICA ===============================
+
+    /// <summary>
+    /// Permite consultar si el juego está en modo jugable (no pausado, muerto o en transición).
+    /// </summary>
+    public bool EstaJugando => EstadoActual == GameState.Jugando;
+
+    /// <summary>
+    /// Cambia manualmente el estado del juego (usado por triggers u otros sistemas).
+    /// </summary>
+    public void CambiarEstado(GameState nuevoEstado)
     {
-        // Espera un frame para asegurar que el Canvas se haya instanciado completamente
-        yield return null;
-
-        // Rehabilitar cualquier CanvasGroup que haya quedado bloqueado
-        foreach (var cg in FindObjectsByType<CanvasGroup>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-        {
-            if (cg.alpha > 0.9f)
-            {
-                cg.blocksRaycasts = true;
-                cg.interactable = true;
-            }
-        }
-
-        // Asegurar que el EventSystem esté activo
-        var ev = UnityEngine.EventSystems.EventSystem.current;
-        if (ev == null)
-        {
-            var es = FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>(FindObjectsInactive.Include);
-            if (es != null)
-            {
-                es.gameObject.SetActive(true);
-                Debug.Log("🎯 EventSystem reactivado correctamente.");
-            }
-            else
-            {
-                Debug.LogWarning("⚠️ No se encontró EventSystem activo en la escena.");
-            }
-        }
-        else
-        {
-            ev.enabled = true;
-        }
-
-        // Forzar selección de un botón si el menú de pausa está abierto
-        if (UIManager.Instance != null && UIManager.Instance.panelPausa != null &&
-            UIManager.Instance.panelPausa.activeInHierarchy)
-        {
-            var firstButton = UIManager.Instance.panelPausa.GetComponentInChildren<UnityEngine.UI.Button>();
-            if (firstButton != null)
-            {
-                UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(firstButton.gameObject);
-                Debug.Log("🟡 Primer botón del menú de pausa seleccionado automáticamente.");
-            }
-        }
-
-        Debug.Log("✅ Sistema de UI reactivado y listo.");
+        EstadoActual = nuevoEstado;
+        Debug.Log($"🔄 Estado del juego cambiado a: {nuevoEstado}");
     }
 
 }

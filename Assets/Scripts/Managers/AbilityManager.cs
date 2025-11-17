@@ -11,6 +11,7 @@ public enum AbilityType
     ShadowTp,
 }
 
+
 [System.Serializable]
 public class AbilityEvent : UnityEvent<AbilityType> { }
 
@@ -28,6 +29,10 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     // === Eventos locales (para UI y feedback) ===
     public AbilityEvent OnAbilityUnlocked = new();
     public AbilityEvent OnAbilityLocked = new();
+
+    [Header("Feedback visual")]
+    public PopupHabilidadUI popupHabilidad;
+
 
     protected override void OnBoot()
     {
@@ -64,6 +69,11 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
         OnAbilityUnlocked.Invoke(tipo);
         PlayerPrefs.SetInt($"Habilidad_{tipo}", 1);
         PlayerPrefs.Save();
+        if (popupHabilidad != null)
+        {
+            var datos = ObtenerDatosHabilidad(tipo);
+            popupHabilidad.Mostrar(datos.icono, datos.titulo, datos.descripcion);
+        }
 
         Debug.Log($"🌀 Habilidad desbloqueada: {tipo}");
     }
@@ -156,4 +166,54 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
         PlayerPrefs.Save();
         Debug.Log("🧹 PlayerPrefs limpiado: todas las habilidades bloqueadas.");
     }
+
+    [System.Serializable]
+    public class DatosHabilidad
+    {
+        public Sprite icono;
+        public string titulo;
+        public string descripcion;
+    }
+
+    public DatosHabilidad ObtenerDatosHabilidad(AbilityType tipo)
+    {
+        switch (tipo)
+        {
+            case AbilityType.ShadowBlocks:
+                return new DatosHabilidad
+                {
+                    icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/ShadowBLock"),
+                    titulo = "ShadowBLocks",
+                    descripcion = "Crea estructuras de oscuridad para bloquear la luz amarilla."
+                };
+
+            case AbilityType.ReflectiveBlocks:
+                return new DatosHabilidad
+                {
+                    icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/MirrorBLock"),
+                    titulo = "MirrorBlocks",
+                    descripcion = "Redirige la luz amarilla."
+                };
+
+            case AbilityType.AbyssFlame:
+                return new DatosHabilidad
+                {
+                    icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/AbyssFlame"),
+                    titulo = "AbyssFlame",
+                    descripcion = "Proyecta una llama oscura que corrompe e interactua con el entorno."
+                };
+
+            case AbilityType.ShadowTp:
+                return new DatosHabilidad
+                {
+                    icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/ShadowTp"),
+                    titulo = "ShadowTP",
+                    descripcion = "Teletransportate entre zonas corruptas en un instante."
+                };
+
+            default:
+                return new DatosHabilidad();
+        }
+    }
+
 }

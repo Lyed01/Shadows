@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
-
+using System.Collections;
 public class UIManager : PersistentSingleton<UIManager>
 {
     [Header("Paneles principales")]
@@ -146,4 +146,80 @@ public class UIManager : PersistentSingleton<UIManager>
             }
         }
     }
+    // === REPARADOR DE UI GLOBAL ===
+    public void ReinicializarUI()
+    {
+        StartCoroutine(ReinicializarUICoroutine());
+    }
+
+    private IEnumerator ReinicializarUICoroutine()
+    {
+        // Esperá un frame para que la escena haya cargado completamente
+        yield return null;
+
+        string escenaActual = SceneManager.GetActiveScene().name;
+        Debug.Log($"🧩 Reinicializando UI para escena '{escenaActual}'...");
+
+        // 1️⃣ Asegurar que haya un solo EventSystem activo
+        var systems = FindObjectsByType<UnityEngine.EventSystems.EventSystem>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        if (systems.Length == 0)
+        {
+            var nuevo = new GameObject("EventSystem").AddComponent<UnityEngine.EventSystems.EventSystem>();
+            nuevo.gameObject.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+            Debug.Log("🎯 EventSystem recreado automáticamente.");
+        }
+        else
+        {
+            bool firstActive = false;
+            foreach (var es in systems)
+            {
+                if (!firstActive)
+                {
+                    es.gameObject.SetActive(true);
+                    es.enabled = true;
+                    firstActive = true;
+                }
+                else
+                {
+                    Destroy(es.gameObject); // eliminar duplicados
+                    Debug.LogWarning("🗑️ EventSystem duplicado eliminado.");
+                }
+            }
+        }
+
+        // 2️⃣ Reactivar CanvasGroups visibles
+        foreach (var cg in FindObjectsByType<CanvasGroup>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (cg.alpha > 0.9f)
+            {
+                cg.blocksRaycasts = true;
+                cg.interactable = true;
+            }
+        }
+
+        // 3️⃣ Reconectar cámara del Canvas principal
+        var canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var c in canvases)
+        {
+            if (c.isRootCanvas && c.renderMode == RenderMode.ScreenSpaceCamera)
+                c.worldCamera = Camera.main;
+        }
+
+        // 4️⃣ Reactivar popup del Hub (si existe)
+        var popup = FindFirstObjectByType<PopupNivelUI>(FindObjectsInactive.Include);
+        if (popup != null)
+        {
+            popup.canvasGroup.blocksRaycasts = false;
+            popup.canvasGroup.interactable = false;
+            popup.gameObject.SetActive(true);
+            Debug.Log("📦 PopupNivelUI preparado.");
+        }
+
+        Debug.Log("✅ UI reactivada correctamente.");
+    }
+
+
+
 }

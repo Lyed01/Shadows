@@ -36,7 +36,6 @@ public class PopupNivelUI : MonoBehaviour
 
     void Awake()
     {
-        // Singleton local, sin persistencia
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -55,8 +54,22 @@ public class PopupNivelUI : MonoBehaviour
         if (panel != null)
             panel.localScale = escalaOculto;
 
+        // 🧩 NUEVO FIX — asegura que el canvas tenga cámara
+        if (canvas == null)
+            canvas = GetComponentInParent<Canvas>();
+
+        if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceCamera)
+        {
+            if (canvas.worldCamera == null)
+            {
+                canvas.worldCamera = Camera.main;
+                Debug.Log("🎯 Cámara principal asignada al Canvas del PopupNivelUI.");
+            }
+        }
+
         visible = false;
     }
+
 
     void Start()
     {

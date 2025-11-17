@@ -122,6 +122,15 @@ public class Switch : MonoBehaviour
 
         Debug.Log("Switch reseteado (luces amarillas)");
     }
+    public static void ResetearTodos()
+    {
+        // Buscar todos los switches sin ordenar (más rápido)
+        var switches = FindObjectsByType<Switch>(FindObjectsSortMode.None);
+
+        foreach (var s in switches)
+            s.ResetSwitch();
+    }
+
 
     public void Activar() => ActivarSwitch();
 }

@@ -201,7 +201,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53a326d4d43edd24b88f239e01462613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vidaBajoLuz: 20
+  vidaBajoLuz: 10
   barraPrefab: {fileID: 4951610743849140546, guid: b166a6038d419da4989dadf8b0c62e8e, type: 3}
   spriteOriginal: {fileID: -1561946731, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
   "spritesDa\xF1o":

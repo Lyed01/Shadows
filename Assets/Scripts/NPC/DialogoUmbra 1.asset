@@ -25,6 +25,17 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
+  - texto: "Luego de colocarlo puedes usar la acci\xF3n secundaria para cambiar la
+      direcci\xF3n del reflejo"
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
   accionFinal:
     tipo: 1
     habilidad: 1

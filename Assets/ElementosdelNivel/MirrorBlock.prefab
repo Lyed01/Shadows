@@ -77,7 +77,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 10
+  m_SortingOrder: 20
   m_Sprite: {fileID: -985395824052470088, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -147,7 +147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45602877b51bc4c4fa2f6431636a4ccb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vidaBajoLuz: 100
+  vidaBajoLuz: 35
   barraPrefab: {fileID: 4951610743849140546, guid: b166a6038d419da4989dadf8b0c62e8e, type: 3}
   spriteOriginal: {fileID: -985395824052470088, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
   "spritesDa\xF1o":

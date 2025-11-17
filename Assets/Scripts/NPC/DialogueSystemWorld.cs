@@ -60,7 +60,26 @@ public class DialogueSystemWorld : MonoBehaviour
                 return b != null && b.TerminoDeEscribir;
             });
 
-            yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.E));
+            // Esperar a que termine de escribirse
+            yield return new WaitUntil(() =>
+            {
+                var b = burbujaActual?.GetComponent<DialogueBubble>();
+                return b != null && b.TerminoDeEscribir;
+            });
+
+            // Esperar auto avance o permitir tecla manual
+            float autoAvanceDelay = 3f;
+            float timer = 0f;
+
+            while (timer < autoAvanceDelay)
+            {
+                if (Input.GetKeyDown(KeyCode.E))
+                    break;
+
+                timer += Time.deltaTime;
+                yield return null;
+            }
+
 
             if (linea.accionPorLinea != null)
                 EjecutarAccion(linea.accionPorLinea);
