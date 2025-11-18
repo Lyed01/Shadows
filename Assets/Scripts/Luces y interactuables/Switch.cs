@@ -9,8 +9,7 @@ public class Switch : MonoBehaviour
     [Header("Spotlights que controla este switch")]
     public LightControlSettings[] lucesConfiguradas;
 
-    [Header("Luces externas a encender/apagar")]
-    public GameObject[] lucesParaApagar;
+ 
 
     [Header("Sprites del switch")]
     public Sprite spriteApagado;
@@ -41,8 +40,7 @@ public class Switch : MonoBehaviour
         activado = !activado;
         spriteRenderer.sprite = activado ? spriteEncendido : spriteApagado;
 
-        AplicarAccionesDeLuz();
-        ControlLucesExtra();
+        AplicarAccionesDeLuz(activado);
         ControlPuertas();
 
         Debug.Log($"🔘 Switch {(activado ? "ON" : "OFF")}");
@@ -51,54 +49,60 @@ public class Switch : MonoBehaviour
     // ============================================================
     // 🔥 CONTROL PROFESIONAL DE CADA SPOTLIGHT
     // ============================================================
-    private void AplicarAccionesDeLuz()
+    private void AplicarAccionesDeLuz(bool estadoON)
     {
-        foreach (var config in lucesConfiguradas)
+        foreach (var cfg in lucesConfiguradas)
         {
-            if (config.luz == null) continue;
-            var luz = config.luz;
+            if (cfg == null || cfg.luz == null) continue;
+            var luz = cfg.luz;
 
-            // Cambiar tipo de luz
-            if (config.cambiarTipoLuz)
-                luz.AlternarTipoLuz();
-
-            // Titileo
-            if (config.modificarTitileo)
-                luz.titilar = activado ? config.titilarON : false;
-
-            // Rotación constante
-            if (config.modificarRotacionConstante)
-                luz.rotacionConstante = activado ? config.rotacionConstanteON : false;
-
-            // Oscilación
-            if (config.modificarOscilacion)
+            // ---------- Encender / Apagar ----------
+            if (cfg.modificarEncendido)
             {
-                luz.oscilacion = activado ? config.oscilacionON : false;
-                if (config.oscilacionON)
-                    luz.rangoOscilacion = config.nuevoRangoOscilacion;
+                bool encender = estadoON ? cfg.encendidoON : cfg.encendidoOFF;
+                luz.gameObject.SetActive(encender);
+
+                // si está apagada, no tiene sentido aplicar el resto
+                if (!encender)
+                    continue;
             }
 
-            // Daño base
-            if (config.modificarDaño)
-                luz.dañoBase = activado ? config.dañoON : config.dañoOFF;
+            // ---------- Cambiar tipo de luz ----------
+            if (cfg.cambiarTipoLuz && estadoON)
+            {
+                luz.AlternarTipoLuz();
+            }
 
-            // Alcance
-            if (config.modificarAlcance)
-                luz.alcance = activado ? config.alcanceON : config.alcanceOFF;
+            // ---------- Titileo ----------
+            if (cfg.modificarTitileo)
+            {
+                luz.titilar = estadoON ? cfg.titilarON : cfg.titilarOFF;
+            }
 
-            // Intensidad de luz 2D
-            if (config.modificarIntensidad)
-                luz.intensidadHaz = activado ? config.intensidadON : config.intensidadOFF;
+            // ---------- Rotación constante ----------
+            if (cfg.modificarRotacion)
+            {
+                luz.rotacionConstante = estadoON ? cfg.rotacionON : cfg.rotacionOFF;
+            }
+
+            // ---------- Oscilación ----------
+            if (cfg.modificarOscilacion)
+            {
+                luz.oscilacion = estadoON ? cfg.oscilacionON : cfg.oscilacionOFF;
+                if (estadoON && cfg.oscilacionON)
+                    luz.rangoOscilacion = cfg.rangoOscilacion;
+            }
+
+            // ---------- Alcance ----------
+            if (cfg.modificarAlcance)
+            {
+                luz.alcance = estadoON ? cfg.alcanceON : cfg.alcanceOFF;
+            }
         }
     }
 
     // ============================================================
-    private void ControlLucesExtra()
-    {
-        foreach (GameObject luz in lucesParaApagar)
-            if (luz != null)
-                luz.SetActive(!activado);
-    }
+
 
     // ============================================================
     private void ControlPuertas()
@@ -108,6 +112,8 @@ public class Switch : MonoBehaviour
             if (puerta == null) continue;
             if (activado) puerta.Open();
             else puerta.Close();
+
+           
         }
     }
 
@@ -134,15 +140,11 @@ public class Switch : MonoBehaviour
         spriteRenderer.sprite = spriteApagado;
 
         // Resetear luces a su estado inicial usando su propio método
-        foreach (var config in lucesConfiguradas)
-            if (config.luz != null)
-                config.luz.ResetToInitialState();
+        foreach (var cfg in lucesConfiguradas)
+            if (cfg != null && cfg.luz != null)
+                cfg.luz.ResetToInitialState();
 
-        // Luz externa ON
-        foreach (GameObject luz in lucesParaApagar)
-            if (luz != null)
-                luz.SetActive(true);
-
+    
         ControlPuertas();
 
         Debug.Log("🔄 Switch reseteado (spotlights restauradas)");

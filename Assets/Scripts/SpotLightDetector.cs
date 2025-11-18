@@ -65,6 +65,7 @@ public class SpotLightDetector : MonoBehaviour
     private float giroAcumulado;
     private bool luzEncendida = true;
     private float anguloBase;
+    private bool luzActiva = true;
 
     // ===== Estado inicial =====
     private Vector3 initialPosition;
@@ -123,8 +124,9 @@ public class SpotLightDetector : MonoBehaviour
 
         ActualizarTitileo();
 
-        if (luzEncendida)
+        if (luzActiva)
             GenerarLuzMesh();
+
 
         ActualizarPivotVisual();
     }
@@ -214,6 +216,9 @@ public class SpotLightDetector : MonoBehaviour
     // ------------------------------------------------------
     private void GenerarLuzMesh()
     {
+        if (!luzActiva)
+            return;
+
         Vector2 origen = (pivotRotacion != null)
             ? pivotRotacion.position
             : (Vector2)transform.position;
@@ -385,7 +390,30 @@ public class SpotLightDetector : MonoBehaviour
 #endif
     }
 
-    // ------------------------------------------------------
+    public void SetLuzActiva(bool encendida)
+    {
+        luzActiva = encendida;
+
+        // Apaga completamente el haz visual
+        if (meshRenderer != null)
+            meshRenderer.enabled = encendida;
+
+        // Apaga la luz 2D
+        if (luzHaz != null)
+            luzHaz.intensity = encendida ? intensidadHaz : 0f;
+
+        // Si está apagada, reiniciar variables de titileo/rotación
+        if (!encendida)
+        {
+            luzEncendida = false;     // evita titileo accidental
+            timerTitileo = 0;         // resetea flicker
+            giroAcumulado = 0;        // reinicia giro
+            offsetOscilacion = 0;     // frena movimiento
+        }
+    }
+
+
+
     // RESET TOTAL
     // ------------------------------------------------------
     public void ResetToInitialState()
