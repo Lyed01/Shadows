@@ -6,10 +6,10 @@ public class Switch : MonoBehaviour
     [Header("Puertas a activar")]
     public Door[] puertas;
 
-    [Header("Luces que alternarán de tipo (SpotLightDetector)")]
-    public SpotLightDetector[] luces; // ← 🔹 ahora sí está declarada
+    [Header("Spotlights que controla este switch")]
+    public LightControlSettings[] lucesConfiguradas;
 
-    [Header("Luces adicionales a apagar/encender")]
+    [Header("Luces externas a encender/apagar")]
     public GameObject[] lucesParaApagar;
 
     [Header("Sprites del switch")]
@@ -41,53 +41,76 @@ public class Switch : MonoBehaviour
         activado = !activado;
         spriteRenderer.sprite = activado ? spriteEncendido : spriteApagado;
 
-        CambiarTipoDeLuz();
+        AplicarAccionesDeLuz();
         ControlLucesExtra();
         ControlPuertas();
 
-        Debug.Log($"🔘 Switch {(activado ? "activado" : "desactivado")}: luces {(activado ? "ROJAS" : "AMARILLAS")}");
+        Debug.Log($"🔘 Switch {(activado ? "ON" : "OFF")}");
     }
 
     // ============================================================
-    // 🔸 Alternar tipo de luz usando su método interno
+    // 🔥 CONTROL PROFESIONAL DE CADA SPOTLIGHT
     // ============================================================
-    private void CambiarTipoDeLuz()
+    private void AplicarAccionesDeLuz()
     {
-        foreach (SpotLightDetector luz in luces)
+        foreach (var config in lucesConfiguradas)
         {
-            if (luz == null) continue;
-            luz.AlternarTipoLuz(); // ✅ Usa su método interno
+            if (config.luz == null) continue;
+            var luz = config.luz;
+
+            // Cambiar tipo de luz
+            if (config.cambiarTipoLuz)
+                luz.AlternarTipoLuz();
+
+            // Titileo
+            if (config.modificarTitileo)
+                luz.titilar = activado ? config.titilarON : false;
+
+            // Rotación constante
+            if (config.modificarRotacionConstante)
+                luz.rotacionConstante = activado ? config.rotacionConstanteON : false;
+
+            // Oscilación
+            if (config.modificarOscilacion)
+            {
+                luz.oscilacion = activado ? config.oscilacionON : false;
+                if (config.oscilacionON)
+                    luz.rangoOscilacion = config.nuevoRangoOscilacion;
+            }
+
+            // Daño base
+            if (config.modificarDaño)
+                luz.dañoBase = activado ? config.dañoON : config.dañoOFF;
+
+            // Alcance
+            if (config.modificarAlcance)
+                luz.alcance = activado ? config.alcanceON : config.alcanceOFF;
+
+            // Intensidad de luz 2D
+            if (config.modificarIntensidad)
+                luz.intensidadHaz = activado ? config.intensidadON : config.intensidadOFF;
         }
     }
 
-    // ============================================================
-    // 🔸 Control de luces externas
     // ============================================================
     private void ControlLucesExtra()
     {
         foreach (GameObject luz in lucesParaApagar)
-        {
             if (luz != null)
                 luz.SetActive(!activado);
-        }
     }
 
-    // ============================================================
-    // 🔸 Control de puertas
     // ============================================================
     private void ControlPuertas()
     {
         foreach (Door puerta in puertas)
         {
             if (puerta == null) continue;
-
             if (activado) puerta.Open();
             else puerta.Close();
         }
     }
 
-    // ============================================================
-    // 🔸 Colisiones e interacción
     // ============================================================
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -105,32 +128,30 @@ public class Switch : MonoBehaviour
     }
 
     // ============================================================
-    // 🔸 Reset total
-    // ============================================================
     public void ResetSwitch()
     {
         activado = false;
         spriteRenderer.sprite = spriteApagado;
 
-     
+        // Resetear luces a su estado inicial usando su propio método
+        foreach (var config in lucesConfiguradas)
+            if (config.luz != null)
+                config.luz.ResetToInitialState();
 
+        // Luz externa ON
         foreach (GameObject luz in lucesParaApagar)
             if (luz != null)
                 luz.SetActive(true);
 
         ControlPuertas();
 
-        Debug.Log("Switch reseteado (luces amarillas)");
+        Debug.Log("🔄 Switch reseteado (spotlights restauradas)");
     }
+
     public static void ResetearTodos()
     {
-        // Buscar todos los switches sin ordenar (más rápido)
         var switches = FindObjectsByType<Switch>(FindObjectsSortMode.None);
-
         foreach (var s in switches)
             s.ResetSwitch();
     }
-
-
-    public void Activar() => ActivarSwitch();
 }

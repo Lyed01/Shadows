@@ -11,7 +11,6 @@ public class SpotLightDetector : MonoBehaviour
     [Header("Configuración General")]
     public TipoLuz tipoLuz = TipoLuz.Amarilla;
 
-  
     [Header("Pivot de la lámpara / rotación conjunta")]
     public Transform pivotRotacion;
     public Transform lamparaPivot;
@@ -25,7 +24,6 @@ public class SpotLightDetector : MonoBehaviour
 
     [Header("Daño / Intensidad")]
     public float dañoBase = 1f;
-
 
     [Header("Capas")]
     public LayerMask mascaraBloqueos;
@@ -62,9 +60,22 @@ public class SpotLightDetector : MonoBehaviour
     private Light2D luzHaz;
 
     private float anguloActual;
-    private float faseOscilacion;
     private float timerTitileo;
+    private float tiempoOscilacion;
+    private float giroAcumulado;
     private bool luzEncendida = true;
+    private float anguloBase;
+
+    // ===== Estado inicial =====
+    private Vector3 initialPosition;
+    private Quaternion initialRotation;
+    private SpotLightDetector.TipoLuz initialTipoLuz;
+    private float initialAngulo;
+    private float initialAlcance;
+    private float initialDañoBase;
+    private bool initialRotacionConstante;
+    private bool initialTitilar;
+    private float offsetOscilacion; 
 
     // ------------------------------------------------------
     void Awake()
@@ -76,6 +87,17 @@ public class SpotLightDetector : MonoBehaviour
         meshFilter.sharedMesh = mesh;
 
         anguloActual = Mathf.Atan2(direccion.y, direccion.x) * Mathf.Rad2Deg;
+        anguloBase = anguloActual;
+
+        // Guardar estado inicial
+        initialPosition = transform.position;
+        initialRotation = transform.rotation;
+        initialTipoLuz = tipoLuz;
+        initialAngulo = anguloCono;
+        initialAlcance = alcance;
+        initialDañoBase = dañoBase;
+        initialRotacionConstante = rotacionConstante;
+        initialTitilar = titilar;
 
         if (luzSigueHaz)
             CrearLuzHaz();
@@ -88,66 +110,76 @@ public class SpotLightDetector : MonoBehaviour
         {
             meshRenderer.sharedMaterial = (tipoLuz == TipoLuz.Roja) ? materialRoja : materialAmarilla;
             GenerarLuzMesh();
-
-            if (lamparaPivot != null)
-            {
-                float z = Mathf.Atan2(direccion.y, direccion.x) * Mathf.Rad2Deg - 90f;
-                lamparaPivot.rotation = Quaternion.Euler(0, 0, z);
-                lamparaPivot.position = ((pivotRotacion != null) ? pivotRotacion.position : transform.position) + (Vector3)offsetLampara;
-            }
-
+            ActualizarPivotVisual();
             return;
         }
 #endif
+
         meshRenderer.sharedMaterial = (tipoLuz == TipoLuz.Roja) ? materialRoja : materialAmarilla;
 
-    
+        ActualizarRotacionConstante();
+        ActualizarOscilacion();
+        AplicarRotacionFinal();
 
-        ActualizarRotacionAutomatica();
-        direccion = AnguloAGradosAUnidad(anguloActual);
-        ActualizarRotacion();
         ActualizarTitileo();
 
         if (luzEncendida)
             GenerarLuzMesh();
 
-        if (lamparaPivot != null)
-            lamparaPivot.position = ((pivotRotacion != null) ? pivotRotacion.position : transform.position) + (Vector3)offsetLampara;
+        ActualizarPivotVisual();
     }
 
     // ------------------------------------------------------
-    // ROTACIÓN
+    // ROTACIÓN CONSTANTE + OSCILACIÓN
     // ------------------------------------------------------
-    private void ActualizarRotacionAutomatica()
+
+    private void ActualizarRotacionConstante()
     {
         if (!rotacionConstante) return;
 
-        if (oscilacion)
-        {
-            faseOscilacion += Time.deltaTime * velocidadRotacion;
-            float offset = Mathf.Sin(faseOscilacion * Mathf.Deg2Rad) * rangoOscilacion;
-            anguloActual += offset * Time.deltaTime;
-        }
-        else
-        {
-            anguloActual += velocidadRotacion * Time.deltaTime;
-        }
+        // Solo acumula el giro en grados
+        giroAcumulado += velocidadRotacion * Time.deltaTime;
     }
 
-    private void ActualizarRotacion()
+    private void ActualizarOscilacion()
     {
-        float z = Mathf.Atan2(direccion.y, direccion.x) * Mathf.Rad2Deg - 90f;
-        transform.rotation = Quaternion.Euler(0, 0, z);
+        if (!oscilacion)
+        {
+            offsetOscilacion = 0f;
+            return;
+        }
 
-        Transform pivVisual = lamparaPivot != null ? lamparaPivot : pivotRotacion;
-        if (pivVisual != null)
-            pivVisual.rotation = Quaternion.Euler(0, 0, z);
+        tiempoOscilacion += Time.deltaTime;
+
+        // Offset oscilatorio alrededor de 0
+        offsetOscilacion = Mathf.Sin(
+            tiempoOscilacion * velocidadRotacion * Mathf.Deg2Rad
+        ) * rangoOscilacion;
     }
 
-    private static Vector2 AnguloAGradosAUnidad(float grados)
+    private void AplicarRotacionFinal()
     {
-        float rad = grados * Mathf.Deg2Rad;
-        return new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)).normalized;
+        // Ángulo total: base + giro constante + oscilación
+        anguloActual = anguloBase + giroAcumulado + offsetOscilacion;
+
+        float rad = anguloActual * Mathf.Deg2Rad;
+        direccion = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)).normalized;
+    }
+
+    private void ActualizarPivotVisual()
+    {
+        if (lamparaPivot == null && pivotRotacion == null) return;
+
+        float z = anguloActual - 90f;
+
+        Transform piv = lamparaPivot != null ? lamparaPivot : pivotRotacion;
+        piv.rotation = Quaternion.Euler(0, 0, z);
+
+        if (lamparaPivot != null)
+        {
+            lamparaPivot.position = ((pivotRotacion != null) ? pivotRotacion.position : transform.position)
+                                    + (Vector3)offsetLampara;
+        }
     }
 
     // ------------------------------------------------------
@@ -157,8 +189,8 @@ public class SpotLightDetector : MonoBehaviour
     {
         if (!titilar)
         {
-            if (!meshRenderer.enabled) meshRenderer.enabled = true;
             luzEncendida = true;
+            meshRenderer.enabled = true;
             return;
         }
 
@@ -173,25 +205,23 @@ public class SpotLightDetector : MonoBehaviour
         }
 
         meshRenderer.enabled = luzEncendida;
-
         if (luzHaz != null)
             luzHaz.intensity = luzEncendida ? intensidadHaz : 0f;
     }
-
-
 
     // ------------------------------------------------------
     // MESH + LUZ
     // ------------------------------------------------------
     private void GenerarLuzMesh()
     {
-        Vector2 origen = (pivotRotacion != null) ? (Vector2)pivotRotacion.position : (Vector2)transform.position;
+        Vector2 origen = (pivotRotacion != null)
+            ? pivotRotacion.position
+            : (Vector2)transform.position;
+
         Vector2 dirBase = direccion.normalized;
         float angInicio = -anguloCono * 0.5f;
 
-        // 👉 Aquí está el cambio importante:
         Dictionary<ShadowBlock, float> iluminadosEsteFrame = new();
-
         List<Vector3> vertices = new() { Vector3.zero };
         List<int> triangles = new();
 
@@ -204,56 +234,34 @@ public class SpotLightDetector : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(origen, dirRay, alcance, mascaraBloqueos);
             Vector2 puntoMundo = hit.collider ? hit.point : origen + dirRay * alcance;
 
-            // Jugador
             if (hit.collider && hit.collider.TryGetComponent(out Jugador j))
                 j.Matar();
 
-            // Light receptors
             if (hit.collider && hit.collider.TryGetComponent(out LightReceptor receptor))
                 receptor.RecibirLuz(tipoLuz);
 
-            // ShadowBlocks → registro sin aplicar daño aún
             if (hit.collider && hit.collider.TryGetComponent(out ShadowBlock sb))
             {
                 float distancia = Vector2.Distance(origen, puntoMundo);
 
-                if (iluminadosEsteFrame.TryGetValue(sb, out float distGuardada))
-                {
-                    if (distancia < distGuardada)
-                        iluminadosEsteFrame[sb] = distancia;
-                }
-                else
-                {
-                    iluminadosEsteFrame.Add(sb, distancia);
-                }
+                if (!iluminadosEsteFrame.ContainsKey(sb) || distancia < iluminadosEsteFrame[sb])
+                    iluminadosEsteFrame[sb] = distancia;
             }
 
             vertices.Add(transform.InverseTransformPoint(puntoMundo));
         }
 
-        // 👉 Aplicar daño solo una vez por bloque
+        // Aplicar daño una vez por bloque
         foreach (var kvp in iluminadosEsteFrame)
         {
-            ShadowBlock sb = kvp.Key;
-            float distancia = kvp.Value;
-
-            float normalizado = Mathf.Clamp01(distancia / alcance);
-            float intensidad = 1f - Mathf.Clamp01(distancia / alcance);
+            float dist = kvp.Value;
+            float intensidad = 1f - Mathf.Clamp01(dist / alcance);
             float daño = dañoBase * intensidad * Time.deltaTime;
 
-            // 🔥 DEBUG AQUÍ
-            Debug.Log(
-                $"🟡 [Spotlight] {sb.name} | " +
-                $"Dist: {distancia:F2}/{alcance:F2} | " +
-                $"Norm: {normalizado:F2} | " +
-                $"Int:{intensidad:F3} | " +
-                $"Daño:{daño:F4}"
-            );
-
-            sb.RecibirLuz(daño, tipoLuz);
+            kvp.Key.RecibirLuz(daño, tipoLuz);
         }
 
-        // Triangles
+        // Triángulos
         for (int i = 1; i < vertices.Count - 1; i++)
         {
             triangles.Add(0);
@@ -278,14 +286,15 @@ public class SpotLightDetector : MonoBehaviour
         mesh.SetUVs(0, uvs);
         mesh.RecalculateBounds();
 
-        // LUZ 2D
+        // Luz 2D
         if (luzSigueHaz && luzHaz != null)
         {
             int count = vertices.Count;
             Vector3[] forma3D = new Vector3[count];
-            Vector2 origenLuz = origen;
 
+            Vector2 origenLuz = origen;
             forma3D[0] = transform.InverseTransformPoint(origenLuz);
+
             for (int i = 1; i < count; i++)
             {
                 Vector3 v = vertices[i];
@@ -374,5 +383,33 @@ public class SpotLightDetector : MonoBehaviour
 #if UNITY_EDITOR
         UnityEditor.SceneView.RepaintAll();
 #endif
+    }
+
+    // ------------------------------------------------------
+    // RESET TOTAL
+    // ------------------------------------------------------
+    public void ResetToInitialState()
+    {
+        transform.position = initialPosition;
+        transform.rotation = initialRotation;
+
+        tipoLuz = initialTipoLuz;
+        anguloCono = initialAngulo;
+        alcance = initialAlcance;
+        dañoBase = initialDañoBase;
+        rotacionConstante = initialRotacionConstante;
+        titilar = initialTitilar;
+
+        ActualizarEstadoLuz();
+
+        if (luzHaz != null)
+        {
+            luzHaz.intensity = intensidadHaz;
+            ActualizarColorLuzHaz();
+        }
+
+        GenerarLuzMesh();
+
+        Debug.Log($"🔄 Spotlight {name} reseteado a su estado inicial.");
     }
 }

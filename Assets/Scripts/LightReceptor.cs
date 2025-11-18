@@ -5,32 +5,33 @@ public class LightReceptor : MonoBehaviour
 {
     [Header("Acciones al activarse")]
     public Door[] puertas;
-    public SpotLightDetector[] luces; // luces que pueden cambiar de tipo
     public GameObject[] objetosParaActivar;
+
+    [Header("Control individual de luces (mismo sistema que Switch)")]
+    public LightControlSettings[] lucesControladas;
 
     [Header("Sprites visuales")]
     public Sprite spriteApagado;
     public Sprite spriteEncendido;
 
     [Header("Configuración")]
-    public float tiempoDesactivacion = 0.5f; // tiempo para apagarse si deja de recibir luz
-    public bool alternarTipoDeLuz = false;   // si true, cambia amarillo/rojo como switch
+    public float tiempoDesactivacion = 0.5f;
 
     private SpriteRenderer spriteRenderer;
     private bool activado = false;
     private float tiempoSinLuz = 0f;
-    private int lucesRecibiendo = 0; // cuántos haces están tocando al receptor
+    private int lucesRecibiendo = 0;
 
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.sprite = spriteApagado;
+
         GetComponent<Collider2D>().isTrigger = true;
     }
 
     void Update()
     {
-        // Si deja de recibir luz por un tiempo, se apaga
         if (activado && lucesRecibiendo == 0)
         {
             tiempoSinLuz += Time.deltaTime;
@@ -42,39 +43,34 @@ public class LightReceptor : MonoBehaviour
             tiempoSinLuz = 0f;
         }
 
-        // Reiniciar contador cada frame
         lucesRecibiendo = 0;
     }
 
     // ============================================================
-    // 🔸 Activación por luz (SpotLight o ReflectiveLight)
+    // 🔸 Activación del receptor
     // ============================================================
     public void RecibirLuz(SpotLightDetector.TipoLuz tipo)
     {
         lucesRecibiendo++;
-        if (!activado)
-            Debug.Log($"💡 Receptor {name} recibiendo {tipo} luz.");
 
         if (!activado)
             Activar();
     }
 
-
     private void Activar()
     {
-        CambiarTipoDeLuz();
         activado = true;
         spriteRenderer.sprite = spriteEncendido;
-        
-        foreach (Door puerta in puertas)
-            if (puerta != null) puerta.Open();
 
-        foreach (GameObject obj in objetosParaActivar)
+        AplicarAccionesEnLuces(true);
+
+        foreach (var p in puertas)
+            if (p != null) p.Open();
+
+        foreach (var obj in objetosParaActivar)
             if (obj != null) obj.SetActive(true);
 
-       
-
-        Debug.Log($"🔆 Receptor {name} activado por luz.");
+        Debug.Log($"🔆 Receptor {name} activado.");
     }
 
     private void Desactivar()
@@ -82,20 +78,61 @@ public class LightReceptor : MonoBehaviour
         activado = false;
         spriteRenderer.sprite = spriteApagado;
 
-        foreach (Door puerta in puertas)
-            if (puerta != null) puerta.Close();
+        AplicarAccionesEnLuces(false);
 
-        foreach (GameObject obj in objetosParaActivar)
+        foreach (var p in puertas)
+            if (p != null) p.Close();
+
+        foreach (var obj in objetosParaActivar)
             if (obj != null) obj.SetActive(false);
 
-        Debug.Log($"💤 Receptor {name} desactivado (sin luz).");
+        Debug.Log($"💤 Receptor {name} desactivado.");
     }
-    private void CambiarTipoDeLuz()
+
+    // ============================================================
+    // 🔥 CONTROL COMPLETO DE SPOTLIGHT (usando LightControlSettings)
+    // ============================================================
+    private void AplicarAccionesEnLuces(bool estadoON)
     {
-        foreach (SpotLightDetector luz in luces)
+        foreach (var control in lucesControladas)
         {
-            if (luz == null) continue;
-            luz.AlternarTipoLuz(); // ✅ Usa su método interno
+            if (control == null || control.luz == null) continue;
+
+            SpotLightDetector luz = control.luz;
+
+            // Cambiar tipo de luz
+            if (control.cambiarTipoLuz && estadoON)
+                luz.AlternarTipoLuz();
+
+            // Titileo
+            if (control.modificarTitileo)
+                luz.titilar = estadoON ? control.titilarON : false;
+
+            // Rotación constante
+            if (control.modificarRotacionConstante)
+                luz.rotacionConstante = estadoON ? control.rotacionConstanteON : false;
+
+            // Oscilación
+            if (control.modificarOscilacion)
+            {
+                luz.oscilacion = estadoON ? control.oscilacionON : false;
+                if (estadoON && control.oscilacionON)
+                    luz.rangoOscilacion = control.nuevoRangoOscilacion;
+            }
+
+            // Daño
+            if (control.modificarDaño)
+                luz.dañoBase = estadoON ? control.dañoON : control.dañoOFF;
+
+            // Alcance
+            if (control.modificarAlcance)
+                luz.alcance = estadoON ? control.alcanceON : control.alcanceOFF;
+
+            // Intensidad
+            if (control.modificarIntensidad)
+                luz.intensidadHaz = estadoON ? control.intensidadON : control.intensidadOFF;
+
+            
         }
     }
 }
