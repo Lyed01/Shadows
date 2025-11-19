@@ -11,6 +11,9 @@ public class SpotLightDetector : MonoBehaviour
     [Header("Configuración General")]
     public TipoLuz tipoLuz = TipoLuz.Amarilla;
 
+    [Header("Estado inicial")]
+    public bool empezarApagada = false;
+
     [Header("Pivot de la lámpara / rotación conjunta")]
     public Transform pivotRotacion;
     public Transform lamparaPivot;
@@ -79,10 +82,17 @@ public class SpotLightDetector : MonoBehaviour
     private float offsetOscilacion; 
 
     // ------------------------------------------------------
+
+    void Start()
+    {
+        if (empezarApagada)
+            SetLuzActiva(false);
+        
+    }
     void Awake()
     {
-        meshFilter = GetComponent<MeshFilter>();
-        meshRenderer = GetComponent<MeshRenderer>();
+        meshFilter = GetComponentInChildren<MeshFilter>();
+        meshRenderer = GetComponentInChildren<MeshRenderer>();
 
         mesh = meshFilter.sharedMesh ?? new Mesh { name = "SpotLightMesh" };
         meshFilter.sharedMesh = mesh;
@@ -129,6 +139,16 @@ public class SpotLightDetector : MonoBehaviour
 
 
         ActualizarPivotVisual();
+
+        if (lamparaPivot != null)
+        {
+            var sprites = lamparaPivot.GetComponentsInChildren<SpriteRenderer>(true);
+            foreach (var sr in sprites)
+            {
+                if (sr != null && !sr.enabled)
+                    sr.enabled = true;
+            }
+        }
     }
 
     // ------------------------------------------------------
@@ -153,11 +173,13 @@ public class SpotLightDetector : MonoBehaviour
 
         tiempoOscilacion += Time.deltaTime;
 
-        // Offset oscilatorio alrededor de 0
-        offsetOscilacion = Mathf.Sin(
-            tiempoOscilacion * velocidadRotacion * Mathf.Deg2Rad
-        ) * rangoOscilacion;
+        // Oscilación sólo hacia un lado (0 → rango)
+        float halfCycle = (Mathf.Sin(tiempoOscilacion * velocidadRotacion * Mathf.Deg2Rad) + 1f) * 0.5f;
+
+        // 0 a rangoOscilacion
+        offsetOscilacion = halfCycle * rangoOscilacion;
     }
+
 
     private void AplicarRotacionFinal()
     {
@@ -394,23 +416,40 @@ public class SpotLightDetector : MonoBehaviour
     {
         luzActiva = encendida;
 
-        // Apaga completamente el haz visual
-        if (meshRenderer != null)
-            meshRenderer.enabled = encendida;
-
-        // Apaga la luz 2D
-        if (luzHaz != null)
-            luzHaz.intensity = encendida ? intensidadHaz : 0f;
-
-        // Si está apagada, reiniciar variables de titileo/rotación
         if (!encendida)
         {
-            luzEncendida = false;     // evita titileo accidental
-            timerTitileo = 0;         // resetea flicker
-            giroAcumulado = 0;        // reinicia giro
-            offsetOscilacion = 0;     // frena movimiento
+            // Apagar completamente el haz
+            if (meshRenderer != null)
+                meshRenderer.enabled = false;
+
+            // Apagar la luz 2D
+            if (luzHaz != null)
+                luzHaz.intensity = 0f;
+
+            // ❗ LIMPIAR EL MESH PARA QUE NO SE VEA MÁS
+            if (mesh != null)
+                mesh.Clear();
+
+            // Reset estados
+            luzEncendida = false;
+            timerTitileo = 0f;
+            giroAcumulado = 0f;
+            offsetOscilacion = 0f;
+
+            return;
         }
+
+        // SI ENCENDER
+        if (meshRenderer != null)
+            meshRenderer.enabled = true;
+
+        if (luzHaz != null)
+            luzHaz.intensity = intensidadHaz;
+
+        // Forzar regeneración inmediata del haz
+        GenerarLuzMesh();
     }
+
 
 
 

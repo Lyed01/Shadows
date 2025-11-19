@@ -5,6 +5,123 @@ TextureImporter:
   - first:
       213: -2168154153789935225
     second: CaminosTiles_0
+  - first:
+      213: -388149958948898628
+    second: CaminosTiles_1
+  - first:
+      213: -8508123419762348884
+    second: CaminosTiles_2
+  - first:
+      213: 4707053899200518542
+    second: CaminosTiles_3
+  - first:
+      213: 9112902759036894252
+    second: CaminosTiles_4
+  - first:
+      213: -1204564461549860763
+    second: CaminosTiles_5
+  - first:
+      213: -6762423875048132330
+    second: CaminosTiles_6
+  - first:
+      213: -1208141369776479318
+    second: CaminosTiles_7
+  - first:
+      213: 3081832201720155489
+    second: CaminosTiles_8
+  - first:
+      213: 2584991595525717971
+    second: CaminosTiles_9
+  - first:
+      213: -4597235651690203666
+    second: CaminosTiles_10
+  - first:
+      213: -6097970926541887342
+    second: CaminosTiles_11
+  - first:
+      213: 5577470475926679557
+    second: CaminosTiles_12
+  - first:
+      213: -5983630453389119735
+    second: CaminosTiles_13
+  - first:
+      213: -5455039656136646853
+    second: CaminosTiles_14
+  - first:
+      213: 1198900561982474389
+    second: CaminosTiles_15
+  - first:
+      213: 9005134768429084353
+    second: CaminosTiles_16
+  - first:
+      213: 4089337375865732345
+    second: CaminosTiles_17
+  - first:
+      213: -4623409978338772457
+    second: CaminosTiles_18
+  - first:
+      213: -8232019165379897985
+    second: CaminosTiles_19
+  - first:
+      213: -554847255389964304
+    second: CaminosTiles_20
+  - first:
+      213: 8712680313305432404
+    second: CaminosTiles_21
+  - first:
+      213: -3523568571727484951
+    second: CaminosTiles_22
+  - first:
+      213: 8892879032133527351
+    second: CaminosTiles_23
+  - first:
+      213: 6761287876879666970
+    second: CaminosTiles_24
+  - first:
+      213: 2447734590617274492
+    second: CaminosTiles_25
+  - first:
+      213: 2595205947036517131
+    second: CaminosTiles_26
+  - first:
+      213: -7681101494123077826
+    second: CaminosTiles_27
+  - first:
+      213: 82683887706125538
+    second: CaminosTiles_28
+  - first:
+      213: -6697155063577193478
+    second: CaminosTiles_29
+  - first:
+      213: 5900072689120397453
+    second: CaminosTiles_30
+  - first:
+      213: 3781333311140791160
+    second: CaminosTiles_31
+  - first:
+      213: -4741542012645688735
+    second: CaminosTiles_32
+  - first:
+      213: 2226733855788760259
+    second: CaminosTiles_33
+  - first:
+      213: 1991365626676660930
+    second: CaminosTiles_34
+  - first:
+      213: 2019846338278202421
+    second: CaminosTiles_35
+  - first:
+      213: -1840350239620008350
+    second: CaminosTiles_36
+  - first:
+      213: 6906703020752927495
+    second: CaminosTiles_37
+  - first:
+      213: -1340571888145748030
+    second: CaminosTiles_38
+  - first:
+      213: -4440027505010540911
+    second: CaminosTiles_39
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -103,10 +220,10 @@ TextureImporter:
       name: CaminosTiles_0
       rect:
         serializedVersion: 2
-        x: 1
-        y: 73
-        width: 16
-        height: 16
+        x: 2
+        y: 182
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -125,20 +242,20 @@ TextureImporter:
       name: CaminosTiles_1
       rect:
         serializedVersion: 2
-        x: 17
-        y: 73
-        width: 16
-        height: 16
+        x: 2
+        y: 165
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 6a2d8330b1538294a949a2088fce46e9
-      internalID: 1240179607
+      spriteID: cb8b4493ba30d9af0800000000000000
+      internalID: -388149958948898628
       vertices: []
       indices: 
       edges: []
@@ -147,20 +264,20 @@ TextureImporter:
       name: CaminosTiles_2
       rect:
         serializedVersion: 2
-        x: 33
-        y: 73
-        width: 16
-        height: 16
+        x: 21
+        y: 182
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: a65ca76694d66a7458c07ed95f994469
-      internalID: -897681705
+      spriteID: cac22e3e3d21de980800000000000000
+      internalID: -8508123419762348884
       vertices: []
       indices: 
       edges: []
@@ -169,20 +286,20 @@ TextureImporter:
       name: CaminosTiles_3
       rect:
         serializedVersion: 2
-        x: 49
-        y: 73
-        width: 16
-        height: 16
+        x: 21
+        y: 165
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 8df82bd0f9e71024ba516c05464f1b66
-      internalID: 1122400180
+      spriteID: e89d6701590d25140800000000000000
+      internalID: 4707053899200518542
       vertices: []
       indices: 
       edges: []
@@ -191,20 +308,20 @@ TextureImporter:
       name: CaminosTiles_4
       rect:
         serializedVersion: 2
-        x: 65
-        y: 73
-        width: 16
-        height: 16
+        x: 40
+        y: 182
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 621d266cc030d4d42ad7351be4526e31
-      internalID: 624297142
+      spriteID: c2c3211f6c8877e70800000000000000
+      internalID: 9112902759036894252
       vertices: []
       indices: 
       edges: []
@@ -213,20 +330,20 @@ TextureImporter:
       name: CaminosTiles_5
       rect:
         serializedVersion: 2
-        x: 1
-        y: 57
-        width: 16
-        height: 16
+        x: 40
+        y: 165
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 04a2cf5d2f7cd554ca386997dd07aadd
-      internalID: -1476920653
+      spriteID: 568c2481107884fe0800000000000000
+      internalID: -1204564461549860763
       vertices: []
       indices: 
       edges: []
@@ -235,20 +352,20 @@ TextureImporter:
       name: CaminosTiles_6
       rect:
         serializedVersion: 2
-        x: 17
-        y: 57
-        width: 16
-        height: 16
+        x: 59
+        y: 182
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: c771de693fe616f49815739d2dad74e0
-      internalID: 177382048
+      spriteID: 611b223805b0722a0800000000000000
+      internalID: -6762423875048132330
       vertices: []
       indices: 
       edges: []
@@ -257,20 +374,20 @@ TextureImporter:
       name: CaminosTiles_7
       rect:
         serializedVersion: 2
-        x: 33
-        y: 57
-        width: 16
-        height: 16
+        x: 59
+        y: 165
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: dbd32ed2deb1d5c4c92427746525e90c
-      internalID: -1285744690
+      spriteID: aa3e40043d1db3fe0800000000000000
+      internalID: -1208141369776479318
       vertices: []
       indices: 
       edges: []
@@ -279,20 +396,20 @@ TextureImporter:
       name: CaminosTiles_8
       rect:
         serializedVersion: 2
-        x: 49
-        y: 57
-        width: 16
-        height: 16
+        x: 78
+        y: 182
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 3f3ee3ec187b59c4d960053a486f6b13
-      internalID: -1341346845
+      spriteID: 16dc3e82f0ed4ca20800000000000000
+      internalID: 3081832201720155489
       vertices: []
       indices: 
       edges: []
@@ -301,20 +418,20 @@ TextureImporter:
       name: CaminosTiles_9
       rect:
         serializedVersion: 2
-        x: 65
-        y: 57
-        width: 16
-        height: 16
+        x: 78
+        y: 165
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: a10f9b35410beaf4c98d27ae3a735530
-      internalID: -1347542967
+      spriteID: 3df3ea6092cbfd320800000000000000
+      internalID: 2584991595525717971
       vertices: []
       indices: 
       edges: []
@@ -323,20 +440,20 @@ TextureImporter:
       name: CaminosTiles_10
       rect:
         serializedVersion: 2
-        x: 1
-        y: 41
-        width: 16
-        height: 16
+        x: 2
+        y: 148
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 1362510ef61a72a40acd5b9badf75eaf
-      internalID: 1969666200
+      spriteID: ee57e3038865330c0800000000000000
+      internalID: -4597235651690203666
       vertices: []
       indices: 
       edges: []
@@ -345,20 +462,20 @@ TextureImporter:
       name: CaminosTiles_11
       rect:
         serializedVersion: 2
-        x: 17
-        y: 41
-        width: 16
-        height: 16
+        x: 2
+        y: 131
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 3dc774163eb4fe34aa813e37d5f51155
-      internalID: -651395637
+      spriteID: 298afc030c7af5ba0800000000000000
+      internalID: -6097970926541887342
       vertices: []
       indices: 
       edges: []
@@ -367,20 +484,20 @@ TextureImporter:
       name: CaminosTiles_12
       rect:
         serializedVersion: 2
-        x: 33
-        y: 41
-        width: 16
-        height: 16
+        x: 21
+        y: 148
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: bec41add5035614498aecf7256df4e14
-      internalID: 581483530
+      spriteID: 500b6ded8d7276d40800000000000000
+      internalID: 5577470475926679557
       vertices: []
       indices: 
       edges: []
@@ -389,20 +506,20 @@ TextureImporter:
       name: CaminosTiles_13
       rect:
         serializedVersion: 2
-        x: 49
-        y: 41
-        width: 16
-        height: 16
+        x: 21
+        y: 131
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: b4293db1f1772c04cb502f376496e012
-      internalID: -220207110
+      spriteID: 90f28862ecfd5fca0800000000000000
+      internalID: -5983630453389119735
       vertices: []
       indices: 
       edges: []
@@ -411,20 +528,20 @@ TextureImporter:
       name: CaminosTiles_14
       rect:
         serializedVersion: 2
-        x: 65
-        y: 41
-        width: 16
-        height: 16
+        x: 40
+        y: 148
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 04b7927c113666c4289dfa0ac5dd3db9
-      internalID: -940049841
+      spriteID: b3f5e44b55ecb44b0800000000000000
+      internalID: -5455039656136646853
       vertices: []
       indices: 
       edges: []
@@ -433,20 +550,20 @@ TextureImporter:
       name: CaminosTiles_15
       rect:
         serializedVersion: 2
-        x: 1
-        y: 25
-        width: 16
-        height: 16
+        x: 40
+        y: 131
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: d4042fe2101841048a8f5230c31c3dc5
-      internalID: -1482451108
+      spriteID: 5984bf585b953a010800000000000000
+      internalID: 1198900561982474389
       vertices: []
       indices: 
       edges: []
@@ -455,20 +572,20 @@ TextureImporter:
       name: CaminosTiles_16
       rect:
         serializedVersion: 2
-        x: 17
-        y: 25
-        width: 16
-        height: 16
+        x: 59
+        y: 148
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: f793172a1be58374ab15e1bc50f538bd
-      internalID: 415900773
+      spriteID: 1ce2cb25c5aa8fc70800000000000000
+      internalID: 9005134768429084353
       vertices: []
       indices: 
       edges: []
@@ -477,20 +594,20 @@ TextureImporter:
       name: CaminosTiles_17
       rect:
         serializedVersion: 2
-        x: 33
-        y: 25
-        width: 16
-        height: 16
+        x: 59
+        y: 131
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 9d628a3ff0c604949aed8a04c7e7bc42
-      internalID: 1519268179
+      spriteID: 9fc74375dae30c830800000000000000
+      internalID: 4089337375865732345
       vertices: []
       indices: 
       edges: []
@@ -499,20 +616,20 @@ TextureImporter:
       name: CaminosTiles_18
       rect:
         serializedVersion: 2
-        x: 49
-        y: 25
-        width: 16
-        height: 16
+        x: 78
+        y: 148
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: d4a676c6f1fecac40bedbc14a7dd8984
-      internalID: -856635508
+      spriteID: 71afe1ede1956dfb0800000000000000
+      internalID: -4623409978338772457
       vertices: []
       indices: 
       edges: []
@@ -521,20 +638,20 @@ TextureImporter:
       name: CaminosTiles_19
       rect:
         serializedVersion: 2
-        x: 65
-        y: 25
-        width: 16
-        height: 16
+        x: 78
+        y: 131
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 92e0a6186ab35c4448b5ff699f7b57c1
-      internalID: 2001100302
+      spriteID: f75d2572f2ef1cd80800000000000000
+      internalID: -8232019165379897985
       vertices: []
       indices: 
       edges: []
@@ -543,20 +660,20 @@ TextureImporter:
       name: CaminosTiles_20
       rect:
         serializedVersion: 2
-        x: 1
-        y: 9
-        width: 16
-        height: 16
+        x: 2
+        y: 114
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 738c6b082925e674baded38301e95d24
-      internalID: 902828870
+      spriteID: 0f771e56c59cc48f0800000000000000
+      internalID: -554847255389964304
       vertices: []
       indices: 
       edges: []
@@ -565,20 +682,20 @@ TextureImporter:
       name: CaminosTiles_21
       rect:
         serializedVersion: 2
-        x: 17
-        y: 9
-        width: 16
-        height: 16
+        x: 2
+        y: 97
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: a04bea3c085884a42b37cc8ebcee4d36
-      internalID: 390946883
+      spriteID: 4510c1c4598a9e870800000000000000
+      internalID: 8712680313305432404
       vertices: []
       indices: 
       edges: []
@@ -587,20 +704,20 @@ TextureImporter:
       name: CaminosTiles_22
       rect:
         serializedVersion: 2
-        x: 33
-        y: 9
-        width: 16
-        height: 16
+        x: 21
+        y: 114
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 82568b5eed6dd914ab4c8c93cda89955
-      internalID: 1418773960
+      spriteID: 9e7e37c7d05c91fc0800000000000000
+      internalID: -3523568571727484951
       vertices: []
       indices: 
       edges: []
@@ -609,20 +726,20 @@ TextureImporter:
       name: CaminosTiles_23
       rect:
         serializedVersion: 2
-        x: 49
-        y: 9
-        width: 16
-        height: 16
+        x: 21
+        y: 97
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 937c6498e9da7d643b20a56a48c7bf2b
-      internalID: 1210282648
+      spriteID: 737a6dcfc5ad96b70800000000000000
+      internalID: 8892879032133527351
       vertices: []
       indices: 
       edges: []
@@ -631,20 +748,372 @@ TextureImporter:
       name: CaminosTiles_24
       rect:
         serializedVersion: 2
-        x: 65
-        y: 9
-        width: 16
-        height: 16
+        x: 40
+        y: 114
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1f419d408be4dd50800000000000000
+      internalID: 6761287876879666970
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_25
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 97
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c78cd2a34a918f120800000000000000
+      internalID: 2447734590617274492
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_26
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 114
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b03c7101f06040420800000000000000
+      internalID: 2595205947036517131
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_27
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 97
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3f521723ee376590800000000000000
+      internalID: -7681101494123077826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_28
+      rect:
+        serializedVersion: 2
+        x: 78
+        y: 114
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e43f5bce80c52100800000000000000
+      internalID: 82683887706125538
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_29
+      rect:
+        serializedVersion: 2
+        x: 78
+        y: 97
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af3d5c5e3fcee03a0800000000000000
+      internalID: -6697155063577193478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_30
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 80
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d884100d9d441e150800000000000000
+      internalID: 5900072689120397453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_31
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 63
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87306e3bc9ef97430800000000000000
+      internalID: 3781333311140791160
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_32
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 80
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16ab9a849a8a23eb0800000000000000
+      internalID: -4741542012645688735
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_33
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 63
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ccff93e4a2f6ee10800000000000000
+      internalID: 2226733855788760259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_34
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 80
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ca4cfb9c70c2ab10800000000000000
+      internalID: 1991365626676660930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_35
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 63
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53c12f50b8fe70c10800000000000000
+      internalID: 2019846338278202421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_36
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 80
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 266f4292533c576e0800000000000000
+      internalID: -1840350239620008350
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_37
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 63
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70b7819ddc989df50800000000000000
+      internalID: 6906703020752927495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_38
+      rect:
+        serializedVersion: 2
+        x: 78
+        y: 80
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2cfa23b68f4556de0800000000000000
+      internalID: -1340571888145748030
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_39
+      rect:
+        serializedVersion: 2
+        x: 78
+        y: 63
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 19ef1ea228ad162c0800000000000000
+      internalID: -4440027505010540911
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CaminosTiles_40
+      rect:
+        serializedVersion: 2
+        x: 80
+        y: 42
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c96cf4bcb35edc043bfd4c0fa9a4db35
-      internalID: 1730004066
+      spriteID: 05fd52ec4e0103144b4d2669cfd30a22
+      internalID: 693451372
       vertices: []
       indices: 
       edges: []
@@ -653,7 +1122,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 3d44462cdac97f6468c48dfba1b21f0a
+    spriteID: ab68c378b14bedd4e91868188faf67cc
     internalID: 0
     vertices: []
     indices: 
@@ -661,35 +1130,49 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":16.0,"y":16.0},"gridSpriteOffset":{"x":1.0,"y":1.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
       CaminosTiles_0: -2168154153789935225
-      CaminosTiles_1: 1240179607
-      CaminosTiles_10: 1969666200
-      CaminosTiles_11: -651395637
-      CaminosTiles_12: 581483530
-      CaminosTiles_13: -220207110
-      CaminosTiles_14: -940049841
-      CaminosTiles_15: -1482451108
-      CaminosTiles_16: 415900773
-      CaminosTiles_17: 1519268179
-      CaminosTiles_18: -856635508
-      CaminosTiles_19: 2001100302
-      CaminosTiles_2: -897681705
-      CaminosTiles_20: 902828870
-      CaminosTiles_21: 390946883
-      CaminosTiles_22: 1418773960
-      CaminosTiles_23: 1210282648
-      CaminosTiles_24: 1730004066
-      CaminosTiles_3: 1122400180
-      CaminosTiles_4: 624297142
-      CaminosTiles_5: -1476920653
-      CaminosTiles_6: 177382048
-      CaminosTiles_7: -1285744690
-      CaminosTiles_8: -1341346845
-      CaminosTiles_9: -1347542967
+      CaminosTiles_1: -388149958948898628
+      CaminosTiles_10: -4597235651690203666
+      CaminosTiles_11: -6097970926541887342
+      CaminosTiles_12: 5577470475926679557
+      CaminosTiles_13: -5983630453389119735
+      CaminosTiles_14: -5455039656136646853
+      CaminosTiles_15: 1198900561982474389
+      CaminosTiles_16: 9005134768429084353
+      CaminosTiles_17: 4089337375865732345
+      CaminosTiles_18: -4623409978338772457
+      CaminosTiles_19: -8232019165379897985
+      CaminosTiles_2: -8508123419762348884
+      CaminosTiles_20: -554847255389964304
+      CaminosTiles_21: 8712680313305432404
+      CaminosTiles_22: -3523568571727484951
+      CaminosTiles_23: 8892879032133527351
+      CaminosTiles_24: 6761287876879666970
+      CaminosTiles_25: 2447734590617274492
+      CaminosTiles_26: 2595205947036517131
+      CaminosTiles_27: -7681101494123077826
+      CaminosTiles_28: 82683887706125538
+      CaminosTiles_29: -6697155063577193478
+      CaminosTiles_3: 4707053899200518542
+      CaminosTiles_30: 5900072689120397453
+      CaminosTiles_31: 3781333311140791160
+      CaminosTiles_32: -4741542012645688735
+      CaminosTiles_33: 2226733855788760259
+      CaminosTiles_34: 1991365626676660930
+      CaminosTiles_35: 2019846338278202421
+      CaminosTiles_36: -1840350239620008350
+      CaminosTiles_37: 6906703020752927495
+      CaminosTiles_38: -1340571888145748030
+      CaminosTiles_39: -4440027505010540911
+      CaminosTiles_4: 9112902759036894252
+      CaminosTiles_40: 693451372
+      CaminosTiles_5: -1204564461549860763
+      CaminosTiles_6: -6762423875048132330
+      CaminosTiles_7: -1208141369776479318
+      CaminosTiles_8: 3081832201720155489
+      CaminosTiles_9: 2584991595525717971
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

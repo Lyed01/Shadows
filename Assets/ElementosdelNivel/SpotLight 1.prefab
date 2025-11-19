@@ -196,10 +196,10 @@ MonoBehaviour:
   anguloCono: 36
   alcance: 8
   cantidadRayos: 30
-  "da\xF1oBase": 1
+  "da\xF1oBase": 5
   mascaraBloqueos:
     serializedVersion: 2
-    m_Bits: 960
+    m_Bits: 968
   materialAmarilla: {fileID: 2100000, guid: b6dd62502bb314140843627070279e55, type: 2}
   materialRoja: {fileID: 2100000, guid: 80c3bd99266f97840b2c5a55fe2ab6f3, type: 2}
   multiplicadorAnchoUV: -1.68

@@ -47,7 +47,7 @@ public class LightReceptor : MonoBehaviour
     }
 
     // ============================================================
-    // 🔸 Activación del receptor por luz
+    // 🔸 Activación por luz
     // ============================================================
     public void RecibirLuz(SpotLightDetector.TipoLuz tipo)
     {
@@ -63,12 +63,8 @@ public class LightReceptor : MonoBehaviour
         spriteRenderer.sprite = spriteEncendido;
 
         AplicarAccionesEnLuces(true);
-
-        foreach (var p in puertas)
-            if (p != null) p.Open();
-
-        foreach (var obj in objetosParaActivar)
-            if (obj != null) obj.SetActive(true);
+        AbrirPuertas();
+        ActivarObjetos();
 
         Debug.Log($"🔆 Receptor {name} activado.");
     }
@@ -79,18 +75,14 @@ public class LightReceptor : MonoBehaviour
         spriteRenderer.sprite = spriteApagado;
 
         AplicarAccionesEnLuces(false);
-
-        foreach (var p in puertas)
-            if (p != null) p.Close();
-
-        foreach (var obj in objetosParaActivar)
-            if (obj != null) obj.SetActive(false);
+        CerrarPuertas();
+        DesactivarObjetos();
 
         Debug.Log($"💤 Receptor {name} desactivado.");
     }
 
     // ============================================================
-    // 🔥 CONTROL COMPLETO DE SPOTLIGHT (igual que Switch)
+    // 🔥 CONTROL DE SPOTLIGHT (igual que Switch)
     // ============================================================
     private void AplicarAccionesEnLuces(bool estadoON)
     {
@@ -104,7 +96,7 @@ public class LightReceptor : MonoBehaviour
             if (cfg.modificarEncendido)
             {
                 bool encender = estadoON ? cfg.encendidoON : cfg.encendidoOFF;
-                luz.gameObject.SetActive(encender);
+                luz.SetLuzActiva(encender);
 
                 if (!encender)
                     continue;
@@ -112,21 +104,15 @@ public class LightReceptor : MonoBehaviour
 
             // ---------- Cambiar tipo de luz ----------
             if (cfg.cambiarTipoLuz && estadoON)
-            {
                 luz.AlternarTipoLuz();
-            }
 
             // ---------- Titileo ----------
             if (cfg.modificarTitileo)
-            {
                 luz.titilar = estadoON ? cfg.titilarON : cfg.titilarOFF;
-            }
 
-            // ---------- Rotación constante ----------
+            // ---------- Rotación ----------
             if (cfg.modificarRotacion)
-            {
                 luz.rotacionConstante = estadoON ? cfg.rotacionON : cfg.rotacionOFF;
-            }
 
             // ---------- Oscilación ----------
             if (cfg.modificarOscilacion)
@@ -139,9 +125,37 @@ public class LightReceptor : MonoBehaviour
 
             // ---------- Alcance ----------
             if (cfg.modificarAlcance)
-            {
                 luz.alcance = estadoON ? cfg.alcanceON : cfg.alcanceOFF;
-            }
         }
+    }
+
+    // ============================================================
+    // 🔓 FUNCIONES NUEVAS PARA CONTROLAR PUERTAS
+    // ============================================================
+    public void AbrirPuertas()
+    {
+        foreach (var p in puertas)
+            if (p != null) p.Open();
+    }
+
+    public void CerrarPuertas()
+    {
+        foreach (var p in puertas)
+            if (p != null) p.Close();
+    }
+
+    // ============================================================
+    // 🔹 Control de objetos
+    // ============================================================
+    private void ActivarObjetos()
+    {
+        foreach (var obj in objetosParaActivar)
+            if (obj != null) obj.SetActive(true);
+    }
+
+    private void DesactivarObjetos()
+    {
+        foreach (var obj in objetosParaActivar)
+            if (obj != null) obj.SetActive(false);
     }
 }

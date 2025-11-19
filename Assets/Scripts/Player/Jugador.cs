@@ -79,6 +79,20 @@ public class Jugador : MonoBehaviour
     {
         if (!vivo || inputBloqueado) return;
 
+        // 🟣 Si el jugador está en modo habilidad y se mueve: salir del modo habilidad
+        if (enModoHabilidad)
+        {
+            float movX = Input.GetAxisRaw("Horizontal");
+            float movY = Input.GetAxisRaw("Vertical");
+
+            if (movX != 0 || movY != 0)
+            {
+                DesactivarModoHabilidad();
+                // permitir que el movimiento se procese normalmente
+            }
+        }
+        if (!vivo || inputBloqueado) return;
+
         // === Movimiento ===
         if (controlActivo && !enModoHabilidad)
         {
@@ -200,7 +214,7 @@ public class Jugador : MonoBehaviour
 
         DesactivarModoHabilidad();
         vivo = false;
-        anim?.Play("Dying");
+        anim?.Play("Dying"); 
         AudioManager.Instance?.ReproducirMuerte();
 
 

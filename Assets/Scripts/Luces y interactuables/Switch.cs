@@ -9,7 +9,7 @@ public class Switch : MonoBehaviour
     [Header("Spotlights que controla este switch")]
     public LightControlSettings[] lucesConfiguradas;
 
- 
+    
 
     [Header("Sprites del switch")]
     public Sprite spriteApagado;
@@ -60,9 +60,9 @@ public class Switch : MonoBehaviour
             if (cfg.modificarEncendido)
             {
                 bool encender = estadoON ? cfg.encendidoON : cfg.encendidoOFF;
-                luz.gameObject.SetActive(encender);
+                luz.SetLuzActiva(encender);
 
-                // si está apagada, no tiene sentido aplicar el resto
+                // Si está apagada, no aplicar el resto de cambios
                 if (!encender)
                     continue;
             }
