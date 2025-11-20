@@ -148,9 +148,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   puertas: []
-  luces: []
   objetosParaActivar: []
+  lucesControladas: []
   spriteApagado: {fileID: 542715568151684843, guid: 549130bc3938f074088d16a356378c15, type: 3}
   spriteEncendido: {fileID: 6895072459339741658, guid: 549130bc3938f074088d16a356378c15, type: 3}
-  tiempoDesactivacion: 300000
-  alternarTipoDeLuz: 0
+  tiempoDesactivacion: 10

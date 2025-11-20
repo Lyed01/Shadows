@@ -59,9 +59,11 @@ public class LightReceptor : MonoBehaviour
 
     private void Activar()
     {
+
+     
         activado = true;
         spriteRenderer.sprite = spriteEncendido;
-
+        
         AplicarAccionesEnLuces(true);
         AbrirPuertas();
         ActivarObjetos();
@@ -135,7 +137,14 @@ public class LightReceptor : MonoBehaviour
     public void AbrirPuertas()
     {
         foreach (var p in puertas)
-            if (p != null) p.Open();
+        {
+            // si la puerta ya està abierta cerrarla 
+            if (p.IsOpen)
+            {
+                if (p != null) p.Close();
+            }
+            else if (p != null) p.Open();
+        }
     }
 
     public void CerrarPuertas()

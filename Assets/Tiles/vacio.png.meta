@@ -5,6 +5,15 @@ TextureImporter:
   - first:
       213: 4042982645892843274
     second: vacio_0
+  - first:
+      213: 8972886312469187638
+    second: vacio_1
+  - first:
+      213: 4278060292819411516
+    second: vacio_2
+  - first:
+      213: -2071272452630059385
+    second: vacio_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -104,8 +113,8 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 82
-        width: 15
+        y: 80
+        width: 16
         height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -125,8 +134,8 @@ TextureImporter:
       name: vacio_1
       rect:
         serializedVersion: 2
-        x: 15
-        y: 82
+        x: 16
+        y: 80
         width: 16
         height: 16
       alignment: 0
@@ -135,10 +144,10 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 26716c264e5dc954ba020289b3e60941
-      internalID: -963934990
+      spriteID: 63cc0b09f88168c70800000000000000
+      internalID: 8972886312469187638
       vertices: []
       indices: 
       edges: []
@@ -147,9 +156,53 @@ TextureImporter:
       name: vacio_2
       rect:
         serializedVersion: 2
-        x: 31
-        y: 82
-        width: 15
+        x: 32
+        y: 80
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c3264319b29be5b30800000000000000
+      internalID: 4278060292819411516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vacio_3
+      rect:
+        serializedVersion: 2
+        x: 49
+        y: 80
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 786eeebadac5143e0800000000000000
+      internalID: -2071272452630059385
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vacio_7
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 64
+        width: 16
         height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -159,20 +212,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 62f054234bc1a2f4f898869f9e7e8138
-      internalID: 1448054288
+      spriteID: a00312a176af91a4bbc4114101ff13f7
+      internalID: 1484605890
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: vacio_3
+      name: vacio_8
       rect:
         serializedVersion: 2
-        x: 0
-        y: 67
-        width: 15
-        height: 15
+        x: 16
+        y: 64
+        width: 16
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -181,8 +234,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: be502601486f53e43ad91e1be53cd2a7
-      internalID: -1205987070
+      spriteID: aa4591cf51d48ac42808021e46051a5f
+      internalID: 1653249617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vacio_9
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 64
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b05c73abbe12f5043928e8bf73e49bc7
+      internalID: -1488096532
       vertices: []
       indices: 
       edges: []
@@ -191,10 +266,10 @@ TextureImporter:
       name: vacio_4
       rect:
         serializedVersion: 2
-        x: 15
-        y: 67
+        x: 87
+        y: 80
         width: 16
-        height: 15
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -203,8 +278,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d42f2838f10155548a56fe4d87ad6a91
-      internalID: 1822628134
+      spriteID: 34426df1124e67143aa519a5a8de800b
+      internalID: 641291715
       vertices: []
       indices: 
       edges: []
@@ -213,10 +288,10 @@ TextureImporter:
       name: vacio_5
       rect:
         serializedVersion: 2
-        x: 31
-        y: 67
-        width: 15
-        height: 15
+        x: 55
+        y: 64
+        width: 16
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -225,8 +300,74 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bb4994aeda3ad754288b0e54a503ef43
-      internalID: -1059109422
+      spriteID: ce5f00d6596cedc4cad6eddda3ba2c22
+      internalID: 631090591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vacio_6
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 64
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5620416238d8ac241b93bee5a612bd15
+      internalID: -220056987
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vacio_10
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 64
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6d8bf5d3c97a6fb4a9cc83ff3a00976f
+      internalID: 2096269155
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vacio_11
+      rect:
+        serializedVersion: 2
+        x: 103
+        y: 64
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 34f7ed57584e0984f8527e1d7bb1dffc
+      internalID: -412092730
       vertices: []
       indices: 
       edges: []
@@ -235,7 +376,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: c54f4e25cc7ce8347a618f036dd73369
+    spriteID: 0e0d5941a1118f44399ea961258a41a5
     internalID: 0
     vertices: []
     indices: 
@@ -243,14 +384,25 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":16.0,"y":16.0},"gridSpriteOffset":{"x":0.0,"y":4.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       vacio_0: 4042982645892843274
-      vacio_1: -963934990
-      vacio_2: 1448054288
-      vacio_3: -1205987070
-      vacio_4: 1822628134
-      vacio_5: -1059109422
+      vacio_1: 8972886312469187638
+      vacio_10: 2096269155
+      vacio_11: -412092730
+      vacio_12: -1682091768
+      vacio_13: 1059955780
+      vacio_14: 341634073
+      vacio_2: 4278060292819411516
+      vacio_3: -2071272452630059385
+      vacio_4: 641291715
+      vacio_5: 631090591
+      vacio_6: -220056987
+      vacio_7: 1484605890
+      vacio_8: 1653249617
+      vacio_9: -1488096532
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
