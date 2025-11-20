@@ -6,64 +6,86 @@ using UnityEngine.Rendering.Universal;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class TopLightDetector : MonoBehaviour
 {
-    public enum TipoLuz { Amarilla, Roja }
+    // Usamos el MISMO enum que el Spotlight
+    public SpotLightDetector.TipoLuz tipoLuz = SpotLightDetector.TipoLuz.Amarilla;
 
+    // ============================================================
+    // CONFIGURACIÓN GENERAL
+    // ============================================================
     [Header("Configuración General")]
-    public TipoLuz tipoLuz = TipoLuz.Amarilla;
-
-    [Header("Movimiento")]
-    public Transform[] puntosPatrulla;
-    public float velocidadMovimiento = 2f;
-    public bool idaYVuelta = true;
-    private int indiceObjetivo = 0;
-    private bool retrocediendo = false;
-
-    [Header("Parámetros del haz")]
-    public float radio = 4f;
-    [Range(10, 100)] public int resolucion = 32;
     public float dañoBase = 1f;
     public AnimationCurve curvaIntensidad = AnimationCurve.EaseInOut(0, 1, 1, 0);
 
-    [Header("Capas")]
+    [Header("Capas de impacto")]
     public LayerMask mascaraBloqueos;
 
+    // ============================================================
+    // MOVIMIENTO ENTRE PUNTOS
+    // ============================================================
+    [Header("Movimiento en Patrulla")]
+    public Transform[] puntosPatrulla;
+    public float velocidadMovimiento = 2f;
+    public bool idaYVuelta = true;
+
+    private int indiceObjetivo = 0;
+    private bool retrocediendo = false;
+
+    // ============================================================
+    // PARÁMETROS DEL HAZ (CIRCULAR)
+    // ============================================================
+    [Header("Haz Cenital Circular")]
+    public float radio = 4f;
+    [Range(12, 128)] public int resolucion = 48;
+
+    // ============================================================
+    // MATERIAL VISUAL
+    // ============================================================
     [Header("Materiales Mesh")]
     public Material materialAmarilla;
     public Material materialRoja;
 
-    [Header("Titileo / Apagones")]
+    // ============================================================
+    // TITILEO / APAGONES
+    // ============================================================
+    [Header("Titileo")]
     public bool titilar = false;
-    public Vector2 tiempoEncendida = new Vector2(2f, 4f);
-    public Vector2 tiempoApagada = new Vector2(0.3f, 1.2f);
-    private float timerTitileo = 0f;
-    private bool luzEncendida = true;
+    public Vector2 tiempoEncendida = new(2f, 4f);
+    public Vector2 tiempoApagada = new(0.3f, 1.2f);
 
-    // -------------------------
-    // NUEVO: LÁMPARA SPRITE
-    // -------------------------
-    [Header("Lámpara visual")]
+    private bool luzEncendida = true;
+    private float timerTitileo;
+
+    // ============================================================
+    // LÁMPARA VISUAL
+    // ============================================================
+    [Header("Sprite Lámpara")]
     public Sprite lampSprite;
     public Vector3 lampOffset = Vector3.zero;
     public float lampScale = 1f;
 
     private SpriteRenderer lampRenderer;
 
-    // -------------------------
-    // NUEVO: LUZ 2D
-    // -------------------------
-    [Header("Luz 2D como Spotlight")]
+    // ============================================================
+    // LUZ 2D
+    // ============================================================
+    [Header("Luz 2D")]
     public bool usarLuz2D = true;
-    [Range(0f, 2f)] public float intensidadLuz2D = 1f;
+    [Range(0f, 2f)] public float intensidadLuz2D = 0.8f;
     public float multiplicadorRadioLuz = 1.1f;
+
     private Light2D luz2D;
 
-    // Internos mesh
+    // ============================================================
+    // INTERNOS MESH
+    // ============================================================
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
     private Mesh mesh;
 
     private HashSet<ShadowBlock> iluminadosPrev = new();
 
+    // ============================================================
+    // AWAKE
     // ============================================================
     void Awake()
     {
@@ -75,57 +97,55 @@ public class TopLightDetector : MonoBehaviour
             mesh = new Mesh { name = "TopLightMesh" };
             meshFilter.sharedMesh = mesh;
         }
-        else
-        {
-            mesh = meshFilter.sharedMesh;
-        }
+        else mesh = meshFilter.sharedMesh;
 
-        // CREAR LÁMPARA
         CrearLampara();
 
-        // CREAR LUZ 2D
         if (usarLuz2D)
             CrearLuz2D();
     }
 
     // ============================================================
+    // UPDATE
+    // ============================================================
     void Update()
     {
-        if (!Application.isPlaying) return;
+        if (!Application.isPlaying)
+            return;
 
-        meshRenderer.sharedMaterial = (tipoLuz == TipoLuz.Roja) ? materialRoja : materialAmarilla;
+        meshRenderer.sharedMaterial =
+            tipoLuz == SpotLightDetector.TipoLuz.Roja ? materialRoja : materialAmarilla;
 
-        // Patrulla
-        if (puntosPatrulla != null && puntosPatrulla.Length > 1)
-            MoverEntrePuntos();
-
-        // Titileo
+        ActualizarMovimiento();
         ActualizarTitileo();
 
-        // Generar mesh
         if (luzEncendida)
             GenerarLuzCircular();
 
-        // Actualizar luz2D intensidad
         if (usarLuz2D && luz2D != null)
             luz2D.intensity = luzEncendida ? intensidadLuz2D : 0f;
 
-        // Actualizar lámpara encendido
         if (lampRenderer != null)
+        {
             lampRenderer.enabled = luzEncendida;
-
-        // Mantener lámpara en posición
-        if (lampRenderer != null)
             lampRenderer.transform.localPosition = lampOffset;
+        }
     }
 
     // ============================================================
-    // MOVIMIENTO
+    // MOVIMIENTO ENTRE PUNTOS
     // ============================================================
-    private void MoverEntrePuntos()
+    private void ActualizarMovimiento()
     {
+        if (puntosPatrulla == null || puntosPatrulla.Length <= 1) return;
+
         Transform objetivo = puntosPatrulla[indiceObjetivo];
-        transform.position = Vector2.MoveTowards(transform.position, objetivo.position, velocidadMovimiento * Time.deltaTime);
+
+        transform.position = Vector2.MoveTowards(
+            transform.position,
+            objetivo.position,
+            velocidadMovimiento * Time.deltaTime
+        );
 
         if (Vector2.Distance(transform.position, objetivo.position) < 0.05f)
         {
@@ -152,10 +172,7 @@ public class TopLightDetector : MonoBehaviour
                     }
                 }
             }
-            else
-            {
-                indiceObjetivo = (indiceObjetivo + 1) % puntosPatrulla.Length;
-            }
+            else indiceObjetivo = (indiceObjetivo + 1) % puntosPatrulla.Length;
         }
     }
 
@@ -166,8 +183,8 @@ public class TopLightDetector : MonoBehaviour
     {
         if (!titilar)
         {
-            meshRenderer.enabled = true;
             luzEncendida = true;
+            meshRenderer.enabled = true;
             return;
         }
 
@@ -176,16 +193,17 @@ public class TopLightDetector : MonoBehaviour
         if (timerTitileo <= 0f)
         {
             luzEncendida = !luzEncendida;
-            timerTitileo = luzEncendida ?
-                Random.Range(tiempoEncendida.x, tiempoEncendida.y) :
-                Random.Range(tiempoApagada.x, tiempoApagada.y);
+
+            timerTitileo = luzEncendida
+                ? Random.Range(tiempoEncendida.x, tiempoEncendida.y)
+                : Random.Range(tiempoApagada.x, tiempoApagada.y);
         }
 
         meshRenderer.enabled = luzEncendida;
     }
 
     // ============================================================
-    // MESH CIRCULAR
+    // LÓGICA PRINCIPAL DEL HAZ CIRCULAR
     // ============================================================
     private void GenerarLuzCircular()
     {
@@ -201,28 +219,40 @@ public class TopLightDetector : MonoBehaviour
         {
             float ang = i * Mathf.PI * 2f / resolucion;
             Vector2 dir = new(Mathf.Cos(ang), Mathf.Sin(ang));
-            RaycastHit2D hit = Physics2D.Raycast(origen, dir, radio, mascaraBloqueos);
 
+            RaycastHit2D hit = Physics2D.Raycast(origen, dir, radio, mascaraBloqueos);
             Vector2 punto = hit.collider ? hit.point : origen + dir * radio;
 
-            if (hit.collider)
-            {
-                if (hit.collider.TryGetComponent(out Jugador j))
-                    j.Matar();
+            // --- JUGADOR ---
+            if (hit.collider && hit.collider.TryGetComponent(out Jugador j))
+                j.Matar();
 
-                if (hit.collider.TryGetComponent(out ShadowBlock sb))
+            // --- BLOQUES ---
+            if (hit.collider && hit.collider.TryGetComponent(out ShadowBlock sb))
+            {
+                float dist = Vector2.Distance(origen, punto);
+                float intensidad = curvaIntensidad.Evaluate(1f - dist / radio);
+                float daño = dañoBase * intensidad * Time.deltaTime;
+
+                // LUZ ROJA DESTRUYE
+                if (tipoLuz == SpotLightDetector.TipoLuz.Roja)
                 {
-                    float dist = Vector2.Distance(origen, punto);
-                    float intensidad = curvaIntensidad.Evaluate(1f - dist / radio);
-                    sb.RecibirLuz(dañoBase * intensidad * Time.deltaTime);
+                    sb.RecibirLuz(9999f, tipoLuz);
+                }
+                else
+                {
+                    sb.RecibirLuz(daño, tipoLuz);
                     iluminadosEsteFrame.Add(sb);
                 }
+
+                // MirrorBlock → lo agregamos en la próxima versión
+                // (si querés ya mismo te lo integro)
             }
 
             vertices.Add(transform.InverseTransformPoint(punto));
         }
 
-        // Triángulos
+        // Triángulos del mesh
         for (int i = 1; i < vertices.Count - 1; i++)
         {
             triangles.Add(0);
@@ -243,29 +273,26 @@ public class TopLightDetector : MonoBehaviour
         mesh.SetUVs(0, uvs);
         mesh.RecalculateBounds();
 
-        // Salir de luz
+        // Salir de la luz
         foreach (var sb in iluminadosPrev)
             if (!iluminadosEsteFrame.Contains(sb))
                 sb.SalirDeLuz();
 
         iluminadosPrev = new(iluminadosEsteFrame);
 
-        // Actualizar luz 2D
         ActualizarFormaLuz2D();
     }
 
     // ============================================================
-    // LUZ 2D FREEFORM CIRCULAR
+    // LUZ 2D
     // ============================================================
     private void CrearLuz2D()
     {
         var existentes = GetComponentsInChildren<Light2D>(true);
         foreach (var l in existentes)
         {
-            if (Application.isPlaying)
-                Destroy(l.gameObject);
-            else
-                DestroyImmediate(l.gameObject);
+            if (Application.isPlaying) Destroy(l.gameObject);
+            else DestroyImmediate(l.gameObject);
         }
 
         GameObject luzObj = new("Luz2D_TopLight");
@@ -274,8 +301,8 @@ public class TopLightDetector : MonoBehaviour
 
         luz2D = luzObj.AddComponent<Light2D>();
         luz2D.lightType = Light2D.LightType.Freeform;
-        luz2D.shadowIntensity = 0.2f;
-        luz2D.falloffIntensity = 0.35f;
+        luz2D.shadowIntensity = 0.25f;
+        luz2D.falloffIntensity = 0.4f;
         luz2D.intensity = intensidadLuz2D;
 
         ActualizarColorLuz2D();
@@ -286,7 +313,7 @@ public class TopLightDetector : MonoBehaviour
     {
         if (luz2D == null) return;
 
-        int puntos = Mathf.Clamp(resolucion, 16, 256);
+        int puntos = Mathf.Clamp(resolucion, 12, 256);
         Vector3[] shape = new Vector3[puntos];
 
         float r = radio * multiplicadorRadioLuz;
@@ -304,22 +331,22 @@ public class TopLightDetector : MonoBehaviour
     {
         if (luz2D == null) return;
 
-        luz2D.color = (tipoLuz == TipoLuz.Roja)
-            ? new Color(1f, 0.25f, 0.2f)
+        luz2D.color = tipoLuz == SpotLightDetector.TipoLuz.Roja
+            ? new Color(1f, 0.2f, 0.2f)
             : new Color(1f, 0.95f, 0.7f);
     }
 
     // ============================================================
-    // LÁMPARA SPRITE
+    // LÁMPARA VISUAL
     // ============================================================
     private void CrearLampara()
     {
         if (lampSprite == null) return;
 
-        Transform existing = transform.Find("LampSprite");
-        if (existing != null)
+        Transform exist = transform.Find("LampSprite");
+        if (exist != null)
         {
-            lampRenderer = existing.GetComponent<SpriteRenderer>();
+            lampRenderer = exist.GetComponent<SpriteRenderer>();
             return;
         }
 
@@ -329,13 +356,12 @@ public class TopLightDetector : MonoBehaviour
 
         lampRenderer = lampObj.AddComponent<SpriteRenderer>();
         lampRenderer.sprite = lampSprite;
+        lampRenderer.transform.localScale = Vector3.one * lampScale;
+
         lampRenderer.sortingLayerID = meshRenderer.sortingLayerID;
         lampRenderer.sortingOrder = meshRenderer.sortingOrder + 5;
 
-        lampObj.transform.localScale = Vector3.one * lampScale;
-
-        // Color inicial
-        if (tipoLuz == TipoLuz.Roja)
+        if (tipoLuz == SpotLightDetector.TipoLuz.Roja)
             lampRenderer.color = new Color(1f, 0.4f, 0.4f);
         else
             lampRenderer.color = new Color(1f, 1f, 0.85f);
@@ -344,16 +370,19 @@ public class TopLightDetector : MonoBehaviour
     // ============================================================
     // CAMBIO DE TIPO DE LUZ
     // ============================================================
-    public void SetTipoLuz(TipoLuz nuevoTipo)
+    public void SetTipoLuz(SpotLightDetector.TipoLuz nuevoTipo)
     {
         tipoLuz = nuevoTipo;
-        meshRenderer.sharedMaterial = (tipoLuz == TipoLuz.Roja) ? materialRoja : materialAmarilla;
+
+        meshRenderer.sharedMaterial =
+            tipoLuz == SpotLightDetector.TipoLuz.Roja ? materialRoja : materialAmarilla;
 
         ActualizarColorLuz2D();
 
         if (lampRenderer != null)
         {
-            lampRenderer.color = (tipoLuz == TipoLuz.Roja)
+            lampRenderer.color =
+                tipoLuz == SpotLightDetector.TipoLuz.Roja
                 ? new Color(1f, 0.4f, 0.4f)
                 : new Color(1f, 1f, 0.85f);
         }
@@ -366,7 +395,9 @@ public class TopLightDetector : MonoBehaviour
     // ============================================================
     void OnDrawGizmos()
     {
-        Gizmos.color = (tipoLuz == TipoLuz.Roja) ? Color.red : Color.yellow;
+        Gizmos.color =
+            tipoLuz == SpotLightDetector.TipoLuz.Roja ? Color.red : Color.yellow;
+
         Gizmos.DrawWireSphere(transform.position, radio);
     }
 }

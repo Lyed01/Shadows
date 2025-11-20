@@ -51,6 +51,12 @@ public class SpotLightDetector : MonoBehaviour
     public Vector2 tiempoEncendida = new(2f, 4f);
     public Vector2 tiempoApagada = new(0.3f, 1.2f);
 
+    [Tooltip("Fase del ciclo de titileo (0 = normal, 0.5 = invertido).")]
+    [Range(0f, 1f)]
+    public float fase = 0f;
+
+    private float reloj = 0f;
+
     [Header("Luz 2D del haz")]
     public bool luzSigueHaz = true;
     [Range(0f, 2f)] public float intensidadHaz = 0.8f;
@@ -127,10 +133,13 @@ public class SpotLightDetector : MonoBehaviour
 #endif
 
         meshRenderer.sharedMaterial = (tipoLuz == TipoLuz.Roja) ? materialRoja : materialAmarilla;
-
+        
         ActualizarRotacionConstante();
         ActualizarOscilacion();
         AplicarRotacionFinal();
+
+        if (titilar)
+            reloj += Time.deltaTime;
 
         ActualizarTitileo();
 
@@ -218,28 +227,38 @@ public class SpotLightDetector : MonoBehaviour
             return;
         }
 
-        timerTitileo -= Time.deltaTime;
+        float duracionOn = Random.Range(tiempoEncendida.x, tiempoEncendida.y);
+        float duracionOff = Random.Range(tiempoApagada.x, tiempoApagada.y);
+        float duracionTotal = duracionOn + duracionOff;
 
-        if (timerTitileo <= 0f)
-        {
-            luzEncendida = !luzEncendida;
-            timerTitileo = luzEncendida
-                ? Random.Range(tiempoEncendida.x, tiempoEncendida.y)
-                : Random.Range(tiempoApagada.x, tiempoApagada.y);
-        }
+        // Fase temporal independiente por luz
+        float t = (reloj / duracionTotal + fase) % 1f;
 
+        // En qué parte del ciclo está
+        luzEncendida = t < (duracionOn / duracionTotal);
+
+        // Aplicar
         meshRenderer.enabled = luzEncendida;
         if (luzHaz != null)
             luzHaz.intensity = luzEncendida ? intensidadHaz : 0f;
     }
+
 
     // ------------------------------------------------------
     // MESH + LUZ
     // ------------------------------------------------------
     private void GenerarLuzMesh()
     {
+        // 1. Si fue apagada manualmente
         if (!luzActiva)
             return;
+
+        // 2. Si titileo la apagó en este frame → APAGAR TODO
+        if (!luzEncendida)
+        {
+            mesh.Clear(); // elimina el haz visual
+            return;       // evita raycasts y daño
+        }
 
         Vector2 origen = (pivotRotacion != null)
             ? pivotRotacion.position

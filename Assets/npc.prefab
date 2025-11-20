@@ -153,7 +153,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teclaInteraccion: 101
   rangoInteraccion: 1
-  sonidoDialogo: {fileID: 0}
+  sonidoDialogo: {fileID: 8300000, guid: a1010ba5437a4b245b367e9283d926ee, type: 3}
   dialogos:
   - idCondicion: Inicio
     dialogo: {fileID: 11400000, guid: 083566fde43cbac498da2a2ba9df9008, type: 2}
@@ -230,6 +230,7 @@ MonoBehaviour:
   fxShadowBlock: {fileID: 0}
   fxAbyssFlame: {fileID: 0}
   fxMirror: {fileID: 0}
+  fxTeleport: {fileID: 0}
   pasoIntervalo: 0.35
   otorgarHabilidadAlFinal: 1
   habilidadEntregada: 1

@@ -12,11 +12,17 @@ public class MirrorBlock : ShadowBlock
 
     [Header("Sprites")]
     public Sprite spriteActivo;
+    public Sprite spriteNormal;
+
+    // --- Nueva lógica de encendido/apagado ---
+    private bool recibiendoLuz = false;
+    private float tiempoSinLuz = 0f;
+    public float tiempoApagado = 0.1f;
 
     private GameObject luzInstancia;
     private ReflectiveLightEmitter emisor;
     private Vector2 direccionActual;
-    public Vector2 DireccionActual => direccionActual; // (opcional) solo lectura
+    public Vector2 DireccionActual => direccionActual;
 
     protected override void Start()
     {
@@ -24,13 +30,46 @@ public class MirrorBlock : ShadowBlock
         direccionActual = direccionInicial;
     }
 
+    void Update()
+    {
+        // Si en este frame NO recibió luz → contar tiempo
+        if (!recibiendoLuz)
+        {
+            tiempoSinLuz += Time.deltaTime;
+
+            if (tiempoSinLuz >= tiempoApagado)
+                ApagarLuzReflejada();
+        }
+
+        // Reset para el próximo frame (si recibe luz, RecibirLuz() lo marcará)
+        recibiendoLuz = false;
+    }
+
+    // --- RECEPCIÓN DE LUZ (SpotLightDetector) ---
     public override void RecibirLuz(float daño, SpotLightDetector.TipoLuz tipo)
     {
+        recibiendoLuz = true;
+        tiempoSinLuz = 0f;
+
         base.RecibirLuz(daño, tipo);
+
         if (vidaActual > 0f && tipo != SpotLightDetector.TipoLuz.Roja)
             ActivarLuzReflejada(tipo);
     }
 
+    // --- RECEPCIÓN DE LUZ REFLEJADA (ReflectiveLightEmitter) ---
+    public void RecibirLuz(Vector2 dirLuz, float daño, SpotLightDetector.TipoLuz tipo, Vector2 normal, float alcanceOriginal, Vector2 puntoImpacto)
+    {
+        recibiendoLuz = true;
+        tiempoSinLuz = 0f;
+
+        RecibirLuz(daño, tipo);
+
+        if (vidaActual > 0f && tipo != SpotLightDetector.TipoLuz.Roja)
+            ActivarLuzReflejada(tipo);
+    }
+
+    // --- ENCIENDE O CREA LA LUZ REFLECTIVA ---
     private void ActivarLuzReflejada(SpotLightDetector.TipoLuz tipo)
     {
         if (luzInstancia == null)
@@ -58,6 +97,24 @@ public class MirrorBlock : ShadowBlock
         }
     }
 
+    // --- APAGA LA LUZ CUANDO DEJA DE RECIBIR ---
+    private void ApagarLuzReflejada()
+    {
+        if (luzInstancia != null)
+        {
+            Destroy(luzInstancia);
+            luzInstancia = null;
+            emisor = null;
+
+            if (spriteNormal != null)
+            {
+                SpriteRenderer sr = GetComponent<SpriteRenderer>();
+                if (sr != null) sr.sprite = spriteNormal;
+            }
+        }
+    }
+
+    // --- ROTAR HAZ (clic derecho) ---
     public void RotarHaz()
     {
         direccionActual = new Vector2(direccionActual.y, -direccionActual.x);
@@ -69,36 +126,25 @@ public class MirrorBlock : ShadowBlock
             emisor.SetDireccion(direccionActual);
     }
 
-    public override void DestruirBloque()
-    {
-        if (luzInstancia != null)
-            Destroy(luzInstancia);
-        base.DestruirBloque();
-    }
-
-    public void RecibirLuz(Vector2 dirLuz, float daño, SpotLightDetector.TipoLuz tipo, Vector2 normal, float alcanceOriginal, Vector2 puntoImpacto)
-    {
-        RecibirLuz(daño, tipo);
-
-        if (vidaActual > 0f && tipo != SpotLightDetector.TipoLuz.Roja)
-            ActivarLuzReflejada(tipo);
-    }
-    // --- NUEVO MÉTODO PARA NPCDemostrADOR ---
+    // --- NPC Demostrador: setear dirección manual ---
     public void SetDireccionInicial(Vector2 dir)
     {
         if (dir == Vector2.zero) return;
 
         direccionInicial = dir.normalized;
-
-        // si direcciónActual es privada, asegurate de tenerla declarada así arriba:
-        // private Vector2 direccionActual;
         direccionActual = direccionInicial;
 
-        // Si ya tiene emisor, actualizarlo inmediatamente
         if (emisor != null)
             emisor.SetDireccion(direccionActual);
 
         Debug.Log($"🔁 MirrorBlock ajustó dirección inicial a {direccionActual}");
     }
 
+    public override void DestruirBloque()
+    {
+        if (luzInstancia != null)
+            Destroy(luzInstancia);
+
+        base.DestruirBloque();
+    }
 }

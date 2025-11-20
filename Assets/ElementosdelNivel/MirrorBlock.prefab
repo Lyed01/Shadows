@@ -164,8 +164,10 @@ MonoBehaviour:
   hudHabilidad: {fileID: 0}
   prefabLuzReflectiva: {fileID: 920859950915848304, guid: 63767a6da4619f64c953d06bc3fa26f8, type: 3}
   direccionInicial: {x: 1, y: 0}
-  alcance: 16.56
+  alcance: 36.1
   mascaraBloqueos:
     serializedVersion: 2
     m_Bits: 456
   spriteActivo: {fileID: -427553547, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
+  spriteNormal: {fileID: -985395824052470088, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
+  tiempoApagado: 3

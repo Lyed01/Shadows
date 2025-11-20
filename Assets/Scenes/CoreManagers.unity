@@ -3944,7 +3944,6 @@ GameObject:
   - component: {fileID: 778070043}
   - component: {fileID: 778070042}
   - component: {fileID: 778070041}
-  - component: {fileID: 778070044}
   m_Layer: 0
   m_Name: General
   m_TagString: Untagged
@@ -4014,18 +4013,6 @@ RectTransform:
   m_AnchoredPosition: {x: 129.42, y: 0.28}
   m_SizeDelta: {x: 600, y: 452.5}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &778070044
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 778070040}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27d5395b1e42e4d47a603a6b77d0714c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &790528784
 GameObject:
   m_ObjectHideFlags: 0
@@ -4876,7 +4863,7 @@ MonoBehaviour:
   titulo: {fileID: 724878553}
   descripcion: {fileID: 105203496}
   fadeSpeed: 2
-  tiempoVisible: 10
+  tiempoVisible: 6
   scaleIn: {x: 1, y: 1, z: 1}
   scaleOut: {x: 0.7, y: 0.7, z: 0.7}
 --- !u!222 &924756527
@@ -7013,9 +7000,9 @@ MonoBehaviour:
   panelHUD: {fileID: 6851754690872910307}
   panelPausa: {fileID: 807472282}
   panelOpciones: {fileID: 858395245}
-  panelGeneral: {fileID: 0}
-  panelControles: {fileID: 0}
-  panelSonido: {fileID: 0}
+  panelGeneral: {fileID: 778070040}
+  panelControles: {fileID: 1123720851}
+  panelSonido: {fileID: 1347254480}
   canvasMenues: {fileID: 1531755539}
 --- !u!4 &1468096421 stripped
 Transform:
@@ -7504,7 +7491,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Renaudar
+  m_text: Reanudar
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c0ec89606fcdccd45a84e761f3452d37, type: 2}
   m_sharedMaterial: {fileID: 8984345566460453430, guid: c0ec89606fcdccd45a84e761f3452d37, type: 2}

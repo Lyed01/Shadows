@@ -23,6 +23,9 @@ public class GridManager : MonoBehaviour
         public Vector3Int cellPos;
     }
 
+    [Header("Tilemaps de corrupción")]
+    public Tilemap tilemapCorrupcion;
+
     [Header("Referencias")]
     public Tilemap sueloTilemap;
     public Tile tileDesbloqueado;
@@ -46,6 +49,7 @@ public class GridManager : MonoBehaviour
     void Start()
     {
         InicializarCeldas();
+        AplicarCorrupcionPrecolocada();
     }
 
     // === INICIALIZACIÓN ===
@@ -228,6 +232,37 @@ public class GridManager : MonoBehaviour
     {
         Debug.Log("🕯️ Muerte del jugador detectada (GridManager)");
         onPlayerDeath?.Invoke();
+    }
+    void AplicarCorrupcionPrecolocada()
+    {
+        if (tilemapCorrupcion == null)
+        {
+            Debug.LogWarning("⚠️ No hay tilemapCorrupcion asignado.");
+            return;
+        }
+
+        BoundsInt bounds = tilemapCorrupcion.cellBounds;
+
+        foreach (var pos in bounds.allPositionsWithin)
+        {
+            if (!tilemapCorrupcion.HasTile(pos))
+                continue; // no hay corrupción precolocada aquí
+
+            // Asegurar que esta celda existe en el tilemap de suelo
+            if (!celdas.ContainsKey(pos))
+                continue;
+
+            // Marcar como desbloqueada
+            var data = celdas[pos];
+            data.unlocked = true;
+            celdas[pos] = data;
+
+            // Pintar tile desbloqueado en el suelo
+            if (tileDesbloqueado != null)
+                sueloTilemap.SetTile(pos, tileDesbloqueado);
+        }
+
+        Debug.Log("🔻 Corrupción precolocada aplicada en el nivel.");
     }
 
 

@@ -100,14 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tipoLuz: 0
-  puntosPatrulla:
-  - {fileID: 0}
-  - {fileID: 0}
-  velocidadMovimiento: 0.78
-  idaYVuelta: 1
-  radio: 1.27
-  resolucion: 32
-  "da\xF1oBase": 1
+  "da\xF1oBase": 5
   curvaIntensidad:
     serializedVersion: 2
     m_Curve:
@@ -135,6 +128,13 @@ MonoBehaviour:
   mascaraBloqueos:
     serializedVersion: 2
     m_Bits: 456
+  puntosPatrulla:
+  - {fileID: 0}
+  - {fileID: 0}
+  velocidadMovimiento: 0.78
+  idaYVuelta: 1
+  radio: 1.27
+  resolucion: 32
   materialAmarilla: {fileID: 2100000, guid: b6dd62502bb314140843627070279e55, type: 2}
   materialRoja: {fileID: 2100000, guid: 80c3bd99266f97840b2c5a55fe2ab6f3, type: 2}
   titilar: 0

@@ -45,12 +45,14 @@ public class GameManager : PersistentSingleton<GameManager>
     {
         Debug.Log($"🌍 Escena cargada: {escena.name}");
 
+        // CoreManagers NO debe instanciar jugador
+        if (escena.name == "CoreManagers")
+        {
+            return;
+        }
+
         grid = FindFirstObjectByType<GridManager>();
         ability = FindFirstObjectByType<AbilityManager>();
-
-        // Mantener el del Inspector si ya está asignado
-        if (spawnTransform == null)
-            spawnTransform = grid?.spawnTransform;
 
         if (grid != null)
             grid.onPlayerDeath.AddListener(ManejarMuerteJugador);
@@ -69,43 +71,37 @@ public class GameManager : PersistentSingleton<GameManager>
         UIManager.Instance?.ReinicializarUI();
     }
 
+
     // =============================== SPAWN SYSTEM ===============================
 
     private Vector3 ResolverSpawn(Scene escena)
     {
-        Vector3 posicionDefault = new Vector3(-4f, -25f, 0f);
-
-        Transform preferidoHub = (spawnTransform != null) ? spawnTransform : grid?.spawnTransform;
-        Transform preferidoNivel = (grid?.spawnTransform != null) ? grid.spawnTransform : spawnTransform;
-
-        if (escena.name == "Hub")
+        // 1 — Si volvemos al Hub, respetamos la última puerta
+        if (escena.name == "Hub" && ultimaPuertaPosicion != Vector3.zero)
         {
-            if (ultimaPuertaPosicion != Vector3.zero)
-            {
-                Debug.Log($"📍 Spawn en Hub: última puerta en {ultimaPuertaPosicion}");
-                return ultimaPuertaPosicion;
-            }
-
-            if (preferidoHub != null)
-            {
-                Debug.Log($"📍 Spawn en Hub: usando spawnTransform {preferidoHub.position}");
-                return preferidoHub.position;
-            }
-
-            Debug.Log($"📍 Spawn en Hub: posición por defecto {posicionDefault}");
-            return posicionDefault;
+            Debug.Log("📍 Volviendo al Hub desde nivel, usando última puerta");
+            return ultimaPuertaPosicion;
         }
-        else
+
+        // 2 — Buscar SpawnPoint en la escena del nivel
+        SpawnPoint sp = FindFirstObjectByType<SpawnPoint>();
+
+        if (sp != null)
         {
-            if (preferidoNivel != null)
-            {
-                Debug.Log($"📍 Spawn en nivel: usando spawnTransform {preferidoNivel.position}");
-                return preferidoNivel.position;
-            }
-
-            Debug.Log($"📍 Spawn en nivel: Vector3.zero");
-            return Vector3.zero;
+            Debug.Log($"📍 SpawnPoint encontrado: {sp.transform.position}");
+            return sp.transform.position;
         }
+
+        // 3 — Fallback usando GridManager (si existe)
+        if (grid != null && grid.spawnTransform != null)
+        {
+            Debug.Log($"📍 Usando spawnTransform del GridManager: {grid.spawnTransform.position}");
+            return grid.spawnTransform.position;
+        }
+
+        // 4 — Último recurso
+        Debug.LogWarning("⚠ Nivel sin SpawnPoint ni spawnTransform. Usando Vector3.zero.");
+        return Vector3.zero;
     }
 
     private void SpawnJugadorEnEscena(Scene escena)
@@ -115,17 +111,13 @@ public class GameManager : PersistentSingleton<GameManager>
 
         Vector3 spawnPos = ResolverSpawn(escena);
 
-        if (jugadorPrefab != null)
-        {
-            jugadorActual = Instantiate(jugadorPrefab, spawnPos, Quaternion.identity);
-            jugadorActual.Inicializar(grid, HUDHabilidad.Instance);
-            Debug.Log($"👤 Jugador instanciado en {escena.name} en {spawnPos}");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ GameManager: no se encontró prefab del jugador.");
-        }
+        jugadorActual = Instantiate(jugadorPrefab, spawnPos, Quaternion.identity);
+        jugadorActual.Inicializar(grid, HUDHabilidad.Instance);
+
+        Debug.Log($"👤 Jugador instanciado en {escena.name} en {spawnPos}");
     }
+
+
 
     private void InstanciarJugador()
     {

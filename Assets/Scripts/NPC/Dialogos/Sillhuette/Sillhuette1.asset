@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f28f1ba5ca3e0d74c918894bf572cad2, type: 3}
+  m_Name: Sillhuette1
+  m_EditorClassIdentifier: 
+  idDialogo: 
+  lineas:
+  - texto: "\xA1Hey, peque\xF1o! Vi c\xF3mo esquivaste esas luces\u2026 nada mal. "
+    retrato: {fileID: 0}
+    nombreNPC: Sillhuette
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Quiz\xE1s tengas m\xE1s talento del que aparentas."
+    retrato: {fileID: 0}
+    nombreNPC: Sillhuette
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Oh! casi lo olvido, Soy Silhuette\u2026 otra sombra atrapada aqu\xED.\n"
+    retrato: {fileID: 0}
+    nombreNPC: Sillhuette
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "A veces, cuando est\xE1s encerrada por demasiado tiempo, descubres maneras
+      nuevas de moverte."
+    retrato: {fileID: 0}
+    nombreNPC: Sillhuette
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Te voy a ense\xF1ar una..."
+    retrato: {fileID: 0}
+    nombreNPC: Sillhuette
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  accionFinal:
+    tipo: 0
+    habilidad: 0
+    objetoActivar: {fileID: 0}
+    activar: 1
+    sonido: {fileID: 0}
+    idPuerta: 

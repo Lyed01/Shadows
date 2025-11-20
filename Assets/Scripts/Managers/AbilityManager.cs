@@ -184,7 +184,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
                 {
                     icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/ShadowBLock"),
                     titulo = "ShadowBLocks",
-                    descripcion = "Crea estructuras de oscuridad para bloquear la luz amarilla."
+                    descripcion = "Coloca bloques de sombra para bloquear la luz. ¡Cuidado, no duran para siempre!."
                 };
 
             case AbilityType.ReflectiveBlocks:
@@ -192,7 +192,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
                 {
                     icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/MirrorBLock"),
                     titulo = "MirrorBlocks",
-                    descripcion = "Redirige la luz amarilla."
+                    descripcion = "Redirige la luz amarilla, cuidado donde apuntas."
                 };
 
             case AbilityType.AbyssFlame:

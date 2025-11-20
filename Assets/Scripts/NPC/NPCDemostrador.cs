@@ -16,11 +16,13 @@ public class NPCDemostrador : MonoBehaviour
     [Header("Prefabs de habilidades")]
     public GameObject prefabShadowBlock;
     public GameObject prefabAbyssFlame;
-    public GameObject prefabMirrorBlock; 
+    public GameObject prefabMirrorBlock;
+
     [Header("Sonidos")]
     public AudioClip fxShadowBlock;
     public AudioClip fxAbyssFlame;
     public AudioClip fxMirror;
+    public AudioClip fxTeleport;
 
     [Header("Pasos (igual que jugador)")]
     public float pasoIntervalo = 0.35f;
@@ -89,8 +91,18 @@ public class NPCDemostrador : MonoBehaviour
                 break;
 
             case PasoTipo.UsarHabilidad:
-                EjecutarHabilidad(paso.habilidad, paso.objetivo ? paso.objetivo.position : transform.position);
-                yield return new WaitForSeconds(1f);
+
+                // ShadowTp usa un sistema distinto
+                if (paso.habilidad == AbilityType.ShadowTp)
+                {
+                    Vector3 destinoTp = paso.objetivo ? paso.objetivo.position : transform.position;
+                    yield return TeleportNPC(destinoTp);
+                }
+                else
+                {
+                    EjecutarHabilidad(paso.habilidad, paso.objetivo ? paso.objetivo.position : transform.position);
+                    yield return new WaitForSeconds(1f);
+                }
                 break;
 
             case PasoTipo.Hablar:
@@ -109,10 +121,10 @@ public class NPCDemostrador : MonoBehaviour
         Vector2 destino2D = destino;
         while (Vector2.Distance(transform.position, destino2D) > 0.05f)
         {
-
             Vector2 direccion = (destino2D - (Vector2)transform.position).normalized;
             ultimaDireccion = direccion;
             rb.MovePosition(rb.position + direccion * velocidad * Time.fixedDeltaTime);
+
             if (direccion.magnitude > 0.1f)
             {
                 pasoTimer -= Time.fixedDeltaTime;
@@ -127,6 +139,7 @@ public class NPCDemostrador : MonoBehaviour
             {
                 pasoTimer = 0.05f;
             }
+
             ActualizarAnimacion(direccion);
             yield return new WaitForFixedUpdate();
         }
@@ -162,7 +175,6 @@ public class NPCDemostrador : MonoBehaviour
             nuevaAnim = "Idle";
         }
 
-        // Flip lateral
         if (dir.x > 0.1f)
             transform.localScale = new Vector3(1, 1, 1);
         else if (dir.x < -0.1f)
@@ -175,7 +187,7 @@ public class NPCDemostrador : MonoBehaviour
         }
     }
 
-    // === Habilidades (sin animaciones) ===
+    // === Habilidades (NPC simplificado) ===
     private void EjecutarHabilidad(AbilityType tipo, Vector3 pos)
     {
         var grid = FindFirstObjectByType<GridManager>();
@@ -193,7 +205,6 @@ public class NPCDemostrador : MonoBehaviour
                 {
                     var bloque = Instantiate(prefabShadowBlock, pos, Quaternion.identity);
                     bloque.name = "ShadowBlock_NPC";
-                    Debug.Log($"🧱 NPC creó bloque en {pos}");
 
                     var sr = bloque.GetComponent<SpriteRenderer>();
                     if (sr != null)
@@ -212,7 +223,6 @@ public class NPCDemostrador : MonoBehaviour
                 {
                     var flame = Instantiate(prefabAbyssFlame, pos, Quaternion.identity);
                     flame.name = "AbyssFlame_NPC";
-                    Debug.Log($"🔥 NPC lanzó llama en {pos}");
 
                     if (fxAbyssFlame)
                         AudioManager.Instance?.ReproducirFX(fxAbyssFlame);
@@ -220,7 +230,7 @@ public class NPCDemostrador : MonoBehaviour
                 break;
 
             case AbilityType.ReflectiveBlocks:
-                CrearMirrorBlock(pos); // 💠 ahora sí lo llama
+                CrearMirrorBlock(pos);
                 break;
         }
     }
@@ -233,17 +243,47 @@ public class NPCDemostrador : MonoBehaviour
         mirror.name = "MirrorBlock_NPC";
 
         var pasoActual = pasos.Find(p => p.tipo == PasoTipo.UsarHabilidad && p.habilidad == AbilityType.ReflectiveBlocks);
+
         if (pasoActual != null && pasoActual.direccionPersonalizada != Vector2.zero)
         {
             var comp = mirror.GetComponent<MirrorBlock>();
             if (comp != null)
-                comp.SetDireccionInicial(pasoActual.direccionPersonalizada); // ✅ en vez de tocar direccionActual
+                comp.SetDireccionInicial(pasoActual.direccionPersonalizada);
         }
 
         if (fxMirror)
             AudioManager.Instance?.ReproducirFX(fxMirror);
+    }
 
-        Debug.Log($"💠 NPC colocó bloque reflectivo en {pos}");
+    // === TELETRANSPORTE PARA NPC ===
+    private IEnumerator TeleportNPC(Vector3 destino)
+    {
+        var grid = FindFirstObjectByType<GridManager>();
+        if (grid != null && grid.sueloTilemap != null)
+        {
+            Vector3Int celda = grid.sueloTilemap.WorldToCell(destino);
+            destino = grid.sueloTilemap.GetCellCenterWorld(celda);
+        }
+        destino.z = 0;
+
+        if (anim != null)
+        {
+            anim.Play("Teleport_Disappear");
+            yield return new WaitForSeconds(0.25f);
+        }
+
+        transform.position = destino;
+
+        if (anim != null)
+        {
+            anim.Play("Teleport_Appear");
+            yield return new WaitForSeconds(0.25f);
+        }
+
+        if (fxTeleport)
+            AudioManager.Instance?.ReproducirFX(fxTeleport);
+
+        Debug.Log($"✨ NPC Teleport a {destino}");
     }
 
     private void ReproducirPaso()
@@ -254,14 +294,9 @@ public class NPCDemostrador : MonoBehaviour
         if (grid == null || grid.sueloTilemap == null) return;
 
         Vector3Int cell = grid.sueloTilemap.WorldToCell(transform.position);
-
-        bool esCorrupto = false;
-        if (grid.tileDesbloqueado != null &&
-            grid.sueloTilemap.GetTile(cell) == grid.tileDesbloqueado)
-            esCorrupto = true;
+        bool esCorrupto = grid.tileDesbloqueado != null &&
+                          grid.sueloTilemap.GetTile(cell) == grid.tileDesbloqueado;
 
         AudioManager.Instance.ReproducirPaso(esCorrupto);
     }
-
-
 }
