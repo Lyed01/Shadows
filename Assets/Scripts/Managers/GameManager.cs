@@ -76,33 +76,27 @@ public class GameManager : PersistentSingleton<GameManager>
 
     private Vector3 ResolverSpawn(Scene escena)
     {
-        // 1 — Si volvemos al Hub, respetamos la última puerta
+        // 1 — Si volvemos al Hub, usar última puerta
         if (escena.name == "Hub" && ultimaPuertaPosicion != Vector3.zero)
-        {
-            Debug.Log("📍 Volviendo al Hub desde nivel, usando última puerta");
             return ultimaPuertaPosicion;
-        }
 
-        // 2 — Buscar SpawnPoint en la escena del nivel
-        SpawnPoint sp = FindFirstObjectByType<SpawnPoint>();
-
+        // 2 — Buscar solo en ESTA escena
+        var sp = FindSpawnPointSoloDeLaEscena(escena);
         if (sp != null)
         {
-            Debug.Log($"📍 SpawnPoint encontrado: {sp.transform.position}");
+            Debug.Log("📍 SpawnPoint ENCONTRADO EN ESTA ESCENA: " + sp.transform.position);
             return sp.transform.position;
         }
 
-        // 3 — Fallback usando GridManager (si existe)
+        // 3 — fallback GridManager
         if (grid != null && grid.spawnTransform != null)
-        {
-            Debug.Log($"📍 Usando spawnTransform del GridManager: {grid.spawnTransform.position}");
             return grid.spawnTransform.position;
-        }
 
-        // 4 — Último recurso
-        Debug.LogWarning("⚠ Nivel sin SpawnPoint ni spawnTransform. Usando Vector3.zero.");
+        // 4 — fallback final
+        Debug.LogWarning("⚠ No hay SpawnPoint en esta escena. Usando Vector3.zero");
         return Vector3.zero;
     }
+
 
     private void SpawnJugadorEnEscena(Scene escena)
     {
@@ -127,11 +121,32 @@ public class GameManager : PersistentSingleton<GameManager>
             return;
         }
 
-        Vector3 spawnPos = ResolverSpawn(SceneManager.GetActiveScene());
+        Scene escenaActual = SceneManager.GetActiveScene();
+        SpawnPoint sp = FindSpawnPointSoloDeLaEscena(escenaActual);
+
+        Vector3 spawnPos;
+
+        if (sp != null)
+        {
+            Debug.Log("📍 Respawn usando SpawnPoint de esta escena: " + sp.transform.position);
+            spawnPos = sp.transform.position;
+        }
+        else if (grid != null && grid.spawnTransform != null)
+        {
+            Debug.Log("📍 Respawn usando spawnTransform del GridManager");
+            spawnPos = grid.spawnTransform.position;
+        }
+        else
+        {
+            Debug.LogWarning("⚠ Respawn sin SpawnPoint. Usando Vector3.zero.");
+            spawnPos = Vector3.zero;
+        }
+
         jugadorActual = Instantiate(jugadorPrefab, spawnPos, Quaternion.identity);
         jugadorActual.Inicializar(grid, HUDHabilidad.Instance);
         StartCoroutine(EsperarYConectarCamara());
     }
+
 
     // =============================== UPDATE & GAME STATE ===============================
 
@@ -363,6 +378,31 @@ public class GameManager : PersistentSingleton<GameManager>
     {
         EstadoActual = nuevoEstado;
         Debug.Log($"🔄 Estado del juego cambiado a: {nuevoEstado}");
+    }
+    private SpawnPoint FindSpawnPointSoloDeLaEscena(Scene escenaNivel)
+    {
+        // Buscar todos los SpawnPoints, incluso inactivos
+        var todos = GameObject.FindObjectsByType<SpawnPoint>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None
+        );
+
+        foreach (var sp in todos)
+        {
+            if (sp == null) continue;
+
+            // Ignorar CoreManagers SIEMPRE
+            if (sp.gameObject.scene.name == "CoreManagers")
+                continue;
+
+            // Ignorar cualquier escena que no sea la que Unity tiene activa
+            if (sp.gameObject.scene != escenaNivel)
+                continue;
+
+            return sp;
+        }
+
+        return null;
     }
 
 }

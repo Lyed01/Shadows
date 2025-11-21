@@ -1,8 +1,9 @@
 using UnityEngine;
 
 public class SpawnPoint : MonoBehaviour
+    
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // Start is called once baefore the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         
