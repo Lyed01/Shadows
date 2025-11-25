@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/CoreManagers.unity
+    guid: 6938faae92b3c22429840cae668f0500
+  - enabled: 1
     path: Assets/Scenes/SplashScreen.unity
     guid: b6dffd6c5e78b9e47b523635c9586c3d
   - enabled: 1
@@ -39,11 +42,44 @@ EditorBuildSettings:
     path: Assets/Scenes/Nivel7.unity
     guid: b6e482cab37e1bf468bfabed3a033615
   - enabled: 1
+    path: Assets/Scenes/Nivel8.unity
+    guid: bb746511cae25984ca0a31b69ceee147
+  - enabled: 1
     path: Assets/Scenes/Nivel9.unity
     guid: 4dbd48dfd5088df4eb99b8bb98aaf25e
   - enabled: 1
     path: Assets/Scenes/Nivel10.unity
     guid: 64fcd1493158aef488112045a968b93c
+  - enabled: 1
+    path: Assets/Scenes/Nivel11.unity
+    guid: 7a36f762d88f85a41bea32eb7f61c63c
+  - enabled: 1
+    path: Assets/Scenes/Nivel12.unity
+    guid: 829d8b7cf877ddf4295467f6b4f33856
+  - enabled: 1
+    path: Assets/Scenes/Nivel13.unity
+    guid: eae9567ce2311c6449cd525c875210a6
+  - enabled: 1
+    path: Assets/Scenes/Nivel14.unity
+    guid: 757634bbd4f69954a825401aa41caa48
+  - enabled: 1
+    path: Assets/Scenes/Nivel15.unity
+    guid: 8e80b796f631c964ca8b298fbe2f358b
+  - enabled: 1
+    path: Assets/Scenes/Nivel16.unity
+    guid: 161b0ceeed145de44a2002390511d8bf
+  - enabled: 1
+    path: Assets/Scenes/Nivel17.unity
+    guid: 1c5f8cdfe4858c546a252a5354e43e9f
+  - enabled: 1
+    path: Assets/Scenes/Nivel18.unity
+    guid: cba2b1bd7e908fa4aab4013c10cee897
+  - enabled: 1
+    path: Assets/Scenes/Nivel19.unity
+    guid: 2931c2a82bc92c045b377e0666bb812d
+  - enabled: 1
+    path: Assets/Scenes/Nivel20.unity
+    guid: 64b7d8faeb6b20f46b09f6c1ab91b0cf
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

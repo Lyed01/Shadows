@@ -22,14 +22,16 @@ public class UIManager : PersistentSingleton<UIManager>
     protected override void OnBoot()
     {
         string escenaActual = SceneManager.GetActiveScene().name;
-        if (escenaActual == "Hub")
+        if (escenaActual == "MainMenu")
         {
-            Debug.Log("🏠 UIManager: Hub detectado, no se muestra HUD persistente.");
+            Debug.Log("🎛 UIManager: Escena de menú detectada, ocultando HUD.");
+            OcultarTodo();
         }
         else
         {
             MostrarHUD();
         }
+
 
 
         // Registrar evento de escena

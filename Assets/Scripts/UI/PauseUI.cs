@@ -7,7 +7,8 @@ public class PauseI : MonoBehaviour
     [Header("Configuración del menú")]
     [Tooltip("Nombre de la escena del menú principal")]
     public string nombreEscenaMenuPrincipal = "MainMenu";
-
+    [Tooltip("Nombre de la escena del hub")]
+    public string nombreEscenaHub = "Hub";
     private bool bloqueado;
     private bool uiActiva;
 
@@ -75,7 +76,18 @@ public class PauseI : MonoBehaviour
 
         StartCoroutine(DesbloquearEnRealtime(0.5f));
     }
+    public void VolverAlHub()
+    {
+        if (!PuedeEjecutar("VolverAlHub")) return;
 
+        bloqueado = true;
+        
+
+        GameManager.Instance?.ReanudarJuego();
+        SceneManager.LoadScene(nombreEscenaHub);
+
+        StartCoroutine(DesbloquearEnRealtime(0.5f));
+    }
     // === UTILS ===
     private bool PuedeEjecutar(string accion)
     {

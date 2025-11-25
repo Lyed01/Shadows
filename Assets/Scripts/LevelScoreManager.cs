@@ -213,7 +213,6 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         Debug.Log($"💾 Guardado → {nivelID}: {estrellas}⭐ | {tiempo:F1}s | {muertes} muertes | {habilidades} habs");
     }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
     [ContextMenu("🧹 Limpiar progreso de niveles (DEBUG)")]
     public void ResetProgresoNiveles()
     {
@@ -243,5 +242,5 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         PlayerPrefs.Save();
         Debug.Log($"🧹 Progreso reseteado. Claves eliminadas: {cantidadReseteada}");
     }
-#endif
+
 }
