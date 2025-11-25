@@ -62,24 +62,22 @@ public class MainMenu : MonoBehaviour
             Debug.Log("⬅️ Volviendo al menú principal");
         }
     }
-    public void Nivel1()
+
+    public void ReiniciarProgresoTotal()
     {
-        SceneManager.LoadScene("Nivel1");
+        Debug.Log("🧹 Reiniciando TODO el progreso...");
+
+        // Reset LevelScoreManager
+        LevelScoreManager.Instance?.ResetProgresoNiveles();
+
+        // Reset AbilityManager (usa tu función ya existente)
+        AbilityManager.Instance?.ResetearProgresoDebug();
+
+        // Guardar PlayerPrefs
+        PlayerPrefs.Save();
+
+        Debug.Log("✨ Progreso reseteado completamente.");
     }
-    public void Nivel2()
-    {
-        SceneManager.LoadScene("Nivel2");
-    }
-    public void Nivel3()
-    {
-        SceneManager.LoadScene("Nivel3");
-    }
-    public void mostrarControles()
-    {
-        panelControles.SetActive(true);
-    }
-    public void cerrarControles()
-    {
-        panelControles.SetActive(false);
-    }
+
+
 }

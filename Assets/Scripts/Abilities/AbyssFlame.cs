@@ -15,6 +15,8 @@ public class AbyssFlame : MonoBehaviour
     private GridManager gridManager;
     private bool viva = true;
     private Vector2 movimiento;
+    public bool controlNPC = false;
+    private Vector2 direccionNPC = Vector2.zero;
 
     void Awake()
     {
@@ -25,18 +27,22 @@ public class AbyssFlame : MonoBehaviour
 
     public void Inicializar(Jugador owner)
     {
-        jugador = owner;
-        gridManager = owner.gridManager;
+        jugador = owner; // puede ser null si es NPC
+        gridManager = owner != null ? owner.gridManager : FindFirstObjectByType<GridManager>();
 
-        // Ignorar colisión con el jugador
-        var myCol = GetComponent<Collider2D>();
-        var playerCol = owner.GetComponent<Collider2D>();
-        if (myCol && playerCol)
-            Physics2D.IgnoreCollision(myCol, playerCol, true);
+        // Ignorar colisión con el jugador si lo hay
+        if (owner != null)
+        {
+            var myCol = GetComponent<Collider2D>();
+            var playerCol = owner.GetComponent<Collider2D>();
+            if (myCol && playerCol)
+                Physics2D.IgnoreCollision(myCol, playerCol, true);
+        }
 
-        // Muerte automática tras X segundos
+        // MUERTE AUTOMÁTICA universal
         Invoke(nameof(Extinguir), duracion);
     }
+
 
     void Update()
     {
@@ -50,8 +56,18 @@ public class AbyssFlame : MonoBehaviour
         }
 
         // Movimiento
-        movimiento.x = Input.GetAxisRaw("Horizontal");
-        movimiento.y = Input.GetAxisRaw("Vertical");
+        if (!controlNPC)
+        {
+            // Control normal del jugador
+            movimiento.x = Input.GetAxisRaw("Horizontal");
+            movimiento.y = Input.GetAxisRaw("Vertical");
+        }
+        else
+        {
+            // Controlado por NPC
+            movimiento = direccionNPC;
+        }
+
         movimiento.Normalize();
 
         ActualizarAnimacion();
@@ -98,29 +114,51 @@ public class AbyssFlame : MonoBehaviour
             other.SendMessage("ActivarSwitch", SendMessageOptions.DontRequireReceiver);
     }
 
-    private void Extinguir()
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("Objetos"))
+        {
+            Physics2D.IgnoreCollision(
+                collision.collider,
+                GetComponent<Collider2D>()
+            );
+        }
+    }
+
+
+    public void Extinguir()
     {
         if (!viva) return;
         viva = false;
 
         anim?.Play("AbyssFlameDie");
 
-        // 🔥 Corromper SOLO el tile exacto bajo la llama
+        // 🔥 Corromper celda
         if (gridManager != null && gridManager.sueloTilemap != null)
         {
             Vector3Int cell = gridManager.sueloTilemap.WorldToCell(transform.position);
             gridManager.CorromperCeldaUnica(cell);
         }
 
-        // 🎥 Restaurar cámara al jugador
-        var cineCam = Object.FindFirstObjectByType<CinemachineCamera>();
-        if (cineCam != null)
-            cineCam.Follow = jugador.transform;
+        // 🔥 SOLO si es del jugador, restaurar cámara y controles
+        if (jugador != null)
+        {
+            var cineCam = Object.FindFirstObjectByType<CinemachineCamera>();
+            if (cineCam != null)
+                cineCam.Follow = jugador.transform;
 
-        // ✅ Desbloquear controles del jugador
-        jugador?.SetInputBloqueado(false);
-        jugador?.SetControlActivo(true);
+            jugador.SetInputBloqueado(false);
+            jugador.SetControlActivo(true);
+        }
 
+        // 🧽 Finalmente destruir
         Destroy(gameObject, 0.5f);
+    }
+
+
+    public void SetDireccionNPC(Vector2 dir)
+    {
+        controlNPC = true;
+        direccionNPC = dir.normalized;
     }
 }

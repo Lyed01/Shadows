@@ -25,10 +25,13 @@ public class ShadowBlock : MonoBehaviour
     // 🔸 Marca de tiempo para evitar liberar celdas si se destruye instantáneamente
     private float tiempoCreacion;
 
+    protected virtual void Awake()
+    {
+        tiempoCreacion = Time.time;
+    }
     // === Ciclo de vida ===
     protected virtual void Start()
     {
-        tiempoCreacion = Time.time; // guarda el momento en que se creó el bloque
         vidaActual = vidaBajoLuz;
         spriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -56,6 +59,10 @@ public class ShadowBlock : MonoBehaviour
     // === Recibir luz (daño normal) ===
     public virtual void RecibirLuz(float daño)
     {
+        // 🛡 Protección: NO recibir daño en los primeros ms de vida
+        if (Time.time - tiempoCreacion < 0.1f)
+            return;
+
         if (!bajoLuz && barraInstanciada != null)
             barraInstanciada.gameObject.SetActive(true);
 
@@ -72,15 +79,15 @@ public class ShadowBlock : MonoBehaviour
     // === Recibir luz (con tipo de luz) ===
     public virtual void RecibirLuz(float daño, SpotLightDetector.TipoLuz tipo)
     {
+        // Luz roja → daño multiplicado
         if (tipo == SpotLightDetector.TipoLuz.Roja)
         {
-            // 🔥 Luz roja inflige muchísimo más daño
             float dañoAmplificado = daño * 10f;
             RecibirLuz(dañoAmplificado);
             return;
         }
 
-        // Luz amarilla → daño normal
+        // Luz normal
         RecibirLuz(daño);
     }
 
@@ -91,11 +98,39 @@ public class ShadowBlock : MonoBehaviour
             return;
 
         float porcentajeVida = vidaActual / vidaBajoLuz;
-        int index = Mathf.Clamp(Mathf.FloorToInt((1f - porcentajeVida) * spritesDaño.Length), 0, spritesDaño.Length - 1);
 
-        Sprite spriteActual = (porcentajeVida >= 1f) ? spriteOriginal : spritesDaño[index];
-        spriteRenderer.sprite = spriteActual;
+        int total = spritesDaño.Length;
+        int index;
+
+        
+        if (porcentajeVida <= 0.15f)
+        {
+            // cuánta vida le queda en la zona final
+            float t = Mathf.InverseLerp(0.10f, 0f, porcentajeVida); // 1 → 0
+
+            // velocidad del final (entre 2x y 4x más rápido)
+            float velocidadFinal = 3f;
+
+            int inicioExpl = Mathf.FloorToInt((total - 1) * 0.90f);  // sprites desde el 90% al 100%
+
+            int cantidadFinales = total - inicioExpl;
+
+            int idxFinal = inicioExpl + Mathf.FloorToInt((1f - t) * cantidadFinales * velocidadFinal);
+
+            index = Mathf.Clamp(idxFinal, inicioExpl, total - 1);
+        }
+        else
+        {
+            // 🟡 VIDA NORMAL (100% → 10%): todos los sprites progresivos
+            float t = Mathf.InverseLerp(1f, 0.10f, porcentajeVida); // 0 → 1
+            index = Mathf.FloorToInt(t * (total * 0.90f));          // hasta el 90%
+            index = Mathf.Clamp(index, 0, total - 1);
+        }
+
+        spriteRenderer.sprite = spritesDaño[index];
     }
+
+
 
     // === Cuando sale de la luz ===
     public virtual void SalirDeLuz()

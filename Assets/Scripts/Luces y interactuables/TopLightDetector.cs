@@ -11,7 +11,9 @@ public class TopLightDetector : MonoBehaviour
 
     // ============================================================
     // CONFIGURACIÓN GENERAL
-    // ============================================================
+    // ============================================================\\
+    [HideInInspector] public bool noReset = false;
+
     [Header("Configuración General")]
     public float dañoBase = 1f;
     public AnimationCurve curvaIntensidad = AnimationCurve.EaseInOut(0, 1, 1, 0);
@@ -26,7 +28,7 @@ public class TopLightDetector : MonoBehaviour
     public Transform[] puntosPatrulla;
     public float velocidadMovimiento = 2f;
     public bool idaYVuelta = true;
-
+    public bool moverEntrePuntos = true;
     private int indiceObjetivo = 0;
     private bool retrocediendo = false;
 
@@ -36,6 +38,7 @@ public class TopLightDetector : MonoBehaviour
     [Header("Haz Cenital Circular")]
     public float radio = 4f;
     [Range(12, 128)] public int resolucion = 48;
+
 
     // ============================================================
     // MATERIAL VISUAL
@@ -83,6 +86,34 @@ public class TopLightDetector : MonoBehaviour
     private Mesh mesh;
 
     private HashSet<ShadowBlock> iluminadosPrev = new();
+    // RESET
+
+    private bool resetInProgress = false;
+
+
+    // === Estado inicial ===
+    private Vector3 initPos;
+    private Quaternion initRot;
+
+    private float initRadio;
+    private int initResolucion;
+    private bool initTitilar;
+    private bool initLuzEncendida;
+
+    private SpotLightDetector.TipoLuz initTipo;
+
+
+    private int initIndiceObjetivo;
+    private bool initRetrocediendo;
+    
+    private Vector3 initLampOffset;
+    private Color initLampColor; 
+    private bool initMoverEntrePuntos;
+    private bool initUsarLuz2D;
+    private float initIntensidadLuz2D;
+    private float initMultiplicadorRadioLuz;
+    private bool luzActiva = true;      // ON/OFF manual (switch)
+
 
     // ============================================================
     // AWAKE
@@ -101,8 +132,32 @@ public class TopLightDetector : MonoBehaviour
 
         CrearLampara();
 
-        if (usarLuz2D)
-            CrearLuz2D();
+        if (usarLuz2D) CrearLuz2D();
+
+
+        // === Guardar estado inicial del TopLight ===
+        initPos = transform.position;
+        initRot = transform.rotation;
+        initMoverEntrePuntos = moverEntrePuntos;
+        initRadio = radio;
+        initResolucion = resolucion;
+        initTitilar = titilar;
+        initLuzEncendida = luzEncendida;
+        initTipo = tipoLuz;
+        
+
+        initIndiceObjetivo = indiceObjetivo;
+        initRetrocediendo = retrocediendo;
+
+        initLampOffset = lampOffset;
+        if (lampRenderer != null)
+            initLampColor = lampRenderer.color;
+
+        initUsarLuz2D = usarLuz2D;
+        initIntensidadLuz2D = intensidadLuz2D;
+        initMultiplicadorRadioLuz = multiplicadorRadioLuz;
+
+
     }
 
     // ============================================================
@@ -110,33 +165,81 @@ public class TopLightDetector : MonoBehaviour
     // ============================================================
     void Update()
     {
+        if (resetInProgress)
+            return;
+
         if (!Application.isPlaying)
             return;
 
+        // MATERIAL
         meshRenderer.sharedMaterial =
             tipoLuz == SpotLightDetector.TipoLuz.Roja ? materialRoja : materialAmarilla;
 
+        // ⚠ APAGADO MANUAL → luzActiva controla TODO el apagado real
+        if (!luzActiva)
+        {
+            if (meshRenderer != null)
+                meshRenderer.enabled = false;
+
+            if (mesh != null)
+                mesh.Clear();
+
+            if (usarLuz2D && luz2D != null)
+                luz2D.intensity = 0f;
+
+            // LÁMPARA PERMANENTE
+            if (lampRenderer != null)
+                lampRenderer.enabled = true;
+
+            return;
+        }
+
+        // MOVIMIENTO
         ActualizarMovimiento();
+
+        // TITILEO
         ActualizarTitileo();
 
-        if (luzEncendida)
-            GenerarLuzCircular();
-
-        if (usarLuz2D && luz2D != null)
-            luz2D.intensity = luzEncendida ? intensidadLuz2D : 0f;
-
-        if (lampRenderer != null)
+        // ⚠ SI EL TITILEO APAGA → SOLO APAGA EL HAZ, NO LA LÁMPARA
+        if (!luzEncendida)
         {
-            lampRenderer.enabled = luzEncendida;
-            lampRenderer.transform.localPosition = lampOffset;
+            if (meshRenderer != null)
+                meshRenderer.enabled = false;
+
+            if (mesh != null)
+                mesh.Clear();
+
+            if (usarLuz2D && luz2D != null)
+                luz2D.intensity = 0f;
+
+            if (lampRenderer != null)
+                lampRenderer.enabled = true;
+
+            return;
         }
+
+        // GENERAR LUZ
+        GenerarLuzCircular();
+
+        // LUZ 2D
+        if (usarLuz2D && luz2D != null)
+            luz2D.intensity = intensidadLuz2D;
+
+        // LÁMPARA (siempre visible)
+        if (lampRenderer != null)
+            lampRenderer.enabled = true;
     }
+
+
 
     // ============================================================
     // MOVIMIENTO ENTRE PUNTOS
     // ============================================================
     private void ActualizarMovimiento()
     {
+        if (!moverEntrePuntos)
+            return;
+
         if (puntosPatrulla == null || puntosPatrulla.Length <= 1) return;
 
         Transform objetivo = puntosPatrulla[indiceObjetivo];
@@ -226,6 +329,15 @@ public class TopLightDetector : MonoBehaviour
             // --- JUGADOR ---
             if (hit.collider && hit.collider.TryGetComponent(out Jugador j))
                 j.Matar();
+            // 🔥 LUZ ROJA cenital elimina AbyssFlame
+            if (tipoLuz == SpotLightDetector.TipoLuz.Roja &&
+                hit.collider &&
+                hit.collider.TryGetComponent(out AbyssFlame flame))
+            {
+                flame.Extinguir();
+            }
+
+
 
             // --- BLOQUES ---
             if (hit.collider && hit.collider.TryGetComponent(out ShadowBlock sb))
@@ -393,6 +505,41 @@ public class TopLightDetector : MonoBehaviour
     }
 
     // ============================================================
+    // ENCENDER / APAGAR LUZ (igual que SpotLightDetector)
+    // ============================================================
+    public void SetLuzActiva(bool encendida)
+    {
+        luzActiva = encendida;
+
+        if (!encendida)
+        {
+            if (meshRenderer != null)
+                meshRenderer.enabled = false;
+
+            if (mesh != null)
+                mesh.Clear();
+
+            if (usarLuz2D && luz2D != null)
+                luz2D.intensity = 0f;
+
+            if (lampRenderer != null)
+                lampRenderer.enabled = true;
+
+            return;
+        }
+
+        if (meshRenderer != null)
+            meshRenderer.enabled = true;
+
+        if (usarLuz2D && luz2D != null)
+            luz2D.intensity = intensidadLuz2D;
+
+        GenerarLuzCircular();
+    }
+
+
+
+    // ============================================================
     void OnDrawGizmos()
     {
         Gizmos.color =
@@ -400,4 +547,89 @@ public class TopLightDetector : MonoBehaviour
 
         Gizmos.DrawWireSphere(transform.position, radio);
     }
+
+
+    // --- Estado inicial guardado ---
+    private Vector3 initialPos;
+    private Quaternion initialRot;
+    private float initialRadio;
+    private bool initialTitilar;
+    private SpotLightDetector.TipoLuz initialTipo;
+    private bool initialLuzEncendida;
+    private int initialIndiceObjetivo;
+    private bool initialRetrocediendo;
+
+    void Start()
+    {
+        // Guardamos estado inicial una sola vez cuando comienza la escena
+        initialPos = transform.position;
+        initialRot = transform.rotation;
+        initialRadio = radio;
+        initialTitilar = titilar;
+        initialTipo = tipoLuz;
+        initialLuzEncendida = luzEncendida;
+        initialIndiceObjetivo = indiceObjetivo;
+        initialRetrocediendo = retrocediendo;
+    }
+
+    // 🔥 MÉTODO QUE PIDE GameManager PARA REINICIAR LA LUZ
+    public void ResetToInitialState()
+    {
+        if (noReset) return;
+        StartCoroutine(ProcesarReset());
+    }
+
+    private System.Collections.IEnumerator ProcesarReset()
+    {
+        resetInProgress = true;
+
+        // === Transform ===
+        transform.position = initPos;
+        transform.rotation = initRot;
+
+        // === Parámetros de luz ===
+        radio = initRadio;
+        resolucion = initResolucion;
+        titilar = initTitilar;
+        luzEncendida = initLuzEncendida;
+        tipoLuz = initTipo;
+
+        // === Movimiento ===
+        indiceObjetivo = initIndiceObjetivo;
+        retrocediendo = initRetrocediendo;
+        moverEntrePuntos = initMoverEntrePuntos;
+        // === Material ===
+        meshRenderer.sharedMaterial =
+            tipoLuz == SpotLightDetector.TipoLuz.Roja ? materialRoja : materialAmarilla;
+
+        // === LUZ 2D ===
+        usarLuz2D = initUsarLuz2D;
+        intensidadLuz2D = initIntensidadLuz2D;
+        multiplicadorRadioLuz = initMultiplicadorRadioLuz;
+
+        if (luz2D != null)
+        {
+            luz2D.intensity = intensidadLuz2D;
+            ActualizarColorLuz2D();
+            ActualizarFormaLuz2D();
+        }
+
+        // === Reconstrucción del haz ===
+        GenerarLuzCircular();
+
+        // === Lámpara ===
+        if (lampRenderer != null)
+        {
+            lampRenderer.color = initLampColor;
+            lampRenderer.transform.localPosition = initLampOffset;
+            lampRenderer.enabled = luzEncendida;
+        }
+
+        // === Congelar 1 frame ===
+        yield return null;
+
+        resetInProgress = false;
+        Debug.Log($"🔄 TopLight {name} reseteada.");
+    }
+
 }

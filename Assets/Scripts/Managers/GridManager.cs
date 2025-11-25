@@ -80,6 +80,11 @@ public class GridManager : MonoBehaviour
     // === BLOQUES Y CELDAS ===
     public ResultadoColocacion IntentarColocarBloque(Vector3 worldPos, bool reflectante, Vector3 jugadorPos, float rango)
     {
+        // worldPos Viene del mouse → hay que corregirlo
+        float ppu = 16f;
+        worldPos.x = Mathf.Round(worldPos.x * ppu) / ppu;
+        worldPos.y = Mathf.Round(worldPos.y * ppu) / ppu;
+
         Vector3Int cellPos = sueloTilemap.WorldToCell(worldPos);
 
         // Si la celda no existe o no tiene tile de suelo, buscar una cercana hacia abajo

@@ -43,9 +43,14 @@ public class DialogueBubble : MonoBehaviour
 
     public void MostrarTexto(string contenido)
     {
-        if (escribirCoroutine != null) StopCoroutine(escribirCoroutine);
+        contenido = DialogueHighlighter.Procesar(contenido); // 🟣 aplicar resaltado
+
+        if (escribirCoroutine != null)
+            StopCoroutine(escribirCoroutine);
+
         escribirCoroutine = StartCoroutine(EscribirTexto(contenido));
     }
+
 
     private IEnumerator EscribirTexto(string contenido)
     {
@@ -53,23 +58,43 @@ public class DialogueBubble : MonoBehaviour
         TerminoDeEscribir = false;
 
         int contador = 0;
-        foreach (char c in contenido)
+        int i = 0;
+
+        while (i < contenido.Length)
         {
-            texto.text += c;
+            // Detectar etiqueta de RichText
+            if (contenido[i] == '<')
+            {
+                int cierre = contenido.IndexOf('>', i);
+                if (cierre != -1)
+                {
+                    // Copiar etiqueta completa instantáneamente
+                    string etiqueta = contenido.Substring(i, cierre - i + 1);
+                    texto.text += etiqueta;
+                    i = cierre + 1;
+                    continue;
+                }
+            }
+
+            // Escribir letra normal
+            texto.text += contenido[i];
             contador++;
 
+            // Sonido
             if (sonidoDialogo && contador % Mathf.RoundToInt(1f / frecuenciaSonido) == 0)
             {
                 if (audioSource == null)
                     audioSource = gameObject.AddComponent<AudioSource>();
 
                 audioSource.pitch = Random.Range(0.95f, 1.05f);
-                audioSource.PlayOneShot(sonidoDialogo, 0.8f);
+                audioSource.PlayOneShot(sonidoDialogo, 0.4f);
             }
 
+            i++;
             yield return new WaitForSeconds(velocidadEscritura);
         }
 
         TerminoDeEscribir = true;
     }
+
 }

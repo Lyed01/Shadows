@@ -29,6 +29,7 @@ public class GameManager : PersistentSingleton<GameManager>
     private Vector3 ultimaPuertaPosicion;
     private bool regresoDesdeNivel = false;
     public float tiempoReinicio = 1.0f;
+    private bool primeraVezEnHub = true;
 
     private bool EsHub => SceneManager.GetActiveScene().name == "Hub";
 
@@ -43,8 +44,18 @@ public class GameManager : PersistentSingleton<GameManager>
 
     private void OnSceneLoaded(Scene escena, LoadSceneMode modo)
     {
+
         Debug.Log($"🌍 Escena cargada: {escena.name}");
 
+
+        if (escena.name == "Hub")
+        {
+            if (primeraVezEnHub)
+            {
+                primeraVezEnHub = false;
+                Debug.Log("🏠 Marcando primera visita REAL al Hub");
+            }
+        }
         // CoreManagers NO debe instanciar jugador
         if (escena.name == "CoreManagers")
         {
@@ -76,9 +87,16 @@ public class GameManager : PersistentSingleton<GameManager>
 
     private Vector3 ResolverSpawn(Scene escena)
     {
-        // 1 — Si volvemos al Hub, usar última puerta
-        if (escena.name == "Hub" && ultimaPuertaPosicion != Vector3.zero)
-            return ultimaPuertaPosicion;
+        // Caso especial: HUB
+        if (escena.name == "Hub")
+        {
+            // NO es la primera vez → volver frente a la puerta
+            if (ultimaPuertaPosicion != Vector3.zero && !primeraVezEnHub)
+            {
+                Debug.Log("🚪 Regresando al Hub desde nivel → usando puerta");
+                return ultimaPuertaPosicion;
+            }
+        }
 
         // 2 — Buscar solo en ESTA escena
         var sp = FindSpawnPointSoloDeLaEscena(escena);
@@ -96,6 +114,7 @@ public class GameManager : PersistentSingleton<GameManager>
         Debug.LogWarning("⚠ No hay SpawnPoint en esta escena. Usando Vector3.zero");
         return Vector3.zero;
     }
+
 
 
     private void SpawnJugadorEnEscena(Scene escena)
@@ -152,6 +171,8 @@ public class GameManager : PersistentSingleton<GameManager>
 
     void Update()
     {
+        if (SceneManager.GetActiveScene().name == "MainMenu")
+            return;
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (EstadoActual == GameState.Jugando)
@@ -183,7 +204,7 @@ public class GameManager : PersistentSingleton<GameManager>
 
         grid?.EliminarShadowBlocks();
         grid?.ResetearCeldas();
-
+        ResetearEntornoInteractivo();
         InstanciarJugador();
         OnLevelRestart?.Invoke();
 
@@ -238,19 +259,36 @@ public class GameManager : PersistentSingleton<GameManager>
 
         if (fader != null) fader.FadeOut(duracionFade);
 
+        // ========= Lógica correcta de retorno =========
+
+        // Solo teletransportar si realmente venimos desde un nivel
         if (regresoDesdeNivel)
         {
             regresoDesdeNivel = false;
-            if (jugadorActual != null)
+
+            // No teletransportar en la primera visita al Hub
+            if (!primeraVezEnHub)
             {
-                jugadorActual.transform.position = ultimaPuertaPosicion;
-                jugadorActual.StartCoroutine(EfectoAparicion(jugadorActual.transform));
-                Debug.Log($"🚪 Jugador reapareció frente a puerta en {ultimaPuertaPosicion}");
+                // Solo mover si la puerta tiene un valor válido
+                if (ultimaPuertaPosicion != Vector3.zero && jugadorActual != null)
+                {
+                    jugadorActual.transform.position = ultimaPuertaPosicion;
+                    jugadorActual.StartCoroutine(EfectoAparicion(jugadorActual.transform));
+
+                    Debug.Log($"🚪 Jugador reapareció frente a puerta en {ultimaPuertaPosicion}");
+                }
+                else
+                {
+                    Debug.Log("⚠ No hay posición válida de puerta para teletransporte.");
+                }
             }
         }
 
+        // ==============================================
+
         EstadoActual = GameState.Jugando;
     }
+
 
     public void CargarNivelDesdePuerta(DoorHub puerta)
     {
@@ -303,6 +341,12 @@ public class GameManager : PersistentSingleton<GameManager>
 
     private void ActivarHUD(Scene escena)
     {
+        if (escena.name == "MainMenu" || escena.name == "Menu" || escena.name == "MainMenuScene")
+        {
+            HUDHabilidad.Instance?.gameObject.SetActive(false);
+            return;
+        }
+
         if (escena.name != "Hub")
         {
             HUDHabilidad.Instance?.gameObject.SetActive(true);
@@ -404,5 +448,26 @@ public class GameManager : PersistentSingleton<GameManager>
 
         return null;
     }
+    private void ResetearEntornoInteractivo()
+    {
+        // 🔘 Reiniciar TODOS los switches
+        foreach (var sw in FindObjectsByType<Switch>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            sw.ResetSwitch();
 
+        // 🔆 Reiniciar TODOS los receptores de luz
+        foreach (var rec in FindObjectsByType<LightReceptor>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            rec.ResetReceptor();
+
+        // 💡 Reiniciar TODOS los SpotLights cónicos
+        foreach (var luz in FindObjectsByType<SpotLightDetector>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            luz.ResetToInitialState();
+
+        // 🔆 Reiniciar TopLights cenitales (si querés lo mismo)
+        foreach (var top in FindObjectsByType<TopLightDetector>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            top.ResetToInitialState();
+
+        // 🚪 Reiniciar todas las puertas a su estado inicial
+        foreach (var p in FindObjectsByType<Door>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            p.ResetToInitialState();
+    }
 }

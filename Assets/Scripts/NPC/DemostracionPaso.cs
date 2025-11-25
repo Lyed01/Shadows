@@ -6,8 +6,9 @@ public enum PasoTipo
     MirarA,        // Gira hacia un objetivo
     Esperar,       // Espera un tiempo determinado
     UsarHabilidad, // Usa una habilidad en un punto
-    Hablar         // Inicia un diálogo
-
+    Hablar,     // Inicia un diálogo
+    MoverAbyssFlame,
+    Morir
 }
 
 [System.Serializable]
@@ -29,4 +30,9 @@ public class DemostracionPaso
     public AbilityType habilidad;
     [Header("Dirección personalizada (solo ReflectiveBlock)")]
     public Vector2 direccionPersonalizada = Vector2.zero;
+
+    [Header("Dirección personalizada AbyssFlame")]
+    public Transform[] rutaPuntos;   // puntos para la ruta
+    public float velocidadLlama = 3f;
+
 }

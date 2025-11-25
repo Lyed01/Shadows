@@ -1,0 +1,116 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f28f1ba5ca3e0d74c918894bf572cad2, type: 3}
+  m_Name: Ignos1 1
+  m_EditorClassIdentifier: 
+  idDialogo: 
+  lineas:
+  - texto: "VV-ver\xE1s... A veces hay lugares a los necesitamos ir, pero no podemos."
+    retrato: {fileID: 0}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: Por eso mismo es que nuestros antepasados inventaron la AbyssFlame
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "E-ee-\xC9sta peque\xF1a llamita te ayudar\xE1 a resolver cualquier desaf\xEDo
+      que cruce tu camino"
+    retrato: {fileID: 0}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: Usarla es muy sencillo, es casi como controlarse a uno mismo.
+    retrato: {fileID: 0}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Siempre que la usaba en el Abismo, todos se quejaban de que corromp\xEDa
+      todo el suelo."
+    retrato: {fileID: 0}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: AH, CASI LO OLVIDO
+    retrato: {fileID: 0}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: Por alguna razon a la llama no le afectan esas luces humanas.
+    retrato: {fileID: 0}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: Al menos no las amarillas.
+    retrato: {fileID: 0}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: Creo que quieres ver como funciona. Lo siento, hace mucho no hablaba con
+      nadie.
+    retrato: {fileID: 0}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  accionFinal:
+    tipo: 0
+    habilidad: 0
+    objetoActivar: {fileID: 0}
+    activar: 1
+    sonido: {fileID: 0}
+    idPuerta: 

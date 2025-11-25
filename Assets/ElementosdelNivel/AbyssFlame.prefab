@@ -99,6 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   velocidad: 4
   duracion: 5
+  controlNPC: 0
 --- !u!212 &5977687833617555952
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -188,5 +189,5 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.0106090605, y: -0.06577593}
-  m_Radius: 0.29630736
+  m_Offset: {x: 0.0012870133, y: -0.13848823}
+  m_Radius: 0.21613795

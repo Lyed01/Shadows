@@ -57,6 +57,7 @@ public static class ShadowTpAbility
 
         // 🔹 Fase 2 — Mover al destino
         Vector3 destino = grid.sueloTilemap.GetCellCenterWorld(cellDestino);
+        destino.y += 0.8f;
         jugador.transform.position = destino;
 
         // 🔹 Fase 3 — Aparecer

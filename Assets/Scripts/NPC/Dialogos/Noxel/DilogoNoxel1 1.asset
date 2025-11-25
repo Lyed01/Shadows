@@ -25,7 +25,7 @@ MonoBehaviour:
       sonido: {fileID: 0}
       idPuerta: 
   accionFinal:
-    tipo: 1
+    tipo: 0
     habilidad: 0
     objetoActivar: {fileID: 0}
     activar: 1

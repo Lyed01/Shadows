@@ -337,5 +337,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3770d61c0d29388488748e44a3dab697, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  anim: {fileID: 0}
+  anim: {fileID: 876568248467431450}
   IsOpen: 0
+  initialIsOpen: 0

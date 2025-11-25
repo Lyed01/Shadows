@@ -5,6 +5,7 @@ using UnityEngine.Events;
 
 public enum AbilityType
 {
+    AbilityMode,
     ShadowBlocks,
     ReflectiveBlocks,
     AbyssFlame,
@@ -63,12 +64,31 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     // === GESTIÓN DE HABILIDADES ===
     public void Unlock(AbilityType tipo)
     {
-        if (habilidades.TryGetValue(tipo, out bool activa) && activa) return;
+        // 🟦 CASO ESPECIAL: AbilityMode NO SE DESBLOQUEA
+        if (tipo == AbilityType.AbilityMode)
+        {
+            Debug.Log("ℹ️ AbilityMode no se desbloquea; solo muestra el pop-up.");
+
+            if (popupHabilidad != null)
+            {
+                var datos = ObtenerDatosHabilidad(tipo);
+                popupHabilidad.Mostrar(datos.icono, datos.titulo, datos.descripcion);
+            }
+
+            return; // ⛔ No continúa hacia el desbloqueo real
+        }
+
+        // === DESBLOQUEO NORMAL PARA OTRAS HABILIDADES ===
+        if (habilidades.TryGetValue(tipo, out bool activa) && activa)
+            return;
 
         habilidades[tipo] = true;
+
         OnAbilityUnlocked.Invoke(tipo);
+
         PlayerPrefs.SetInt($"Habilidad_{tipo}", 1);
         PlayerPrefs.Save();
+
         if (popupHabilidad != null)
         {
             var datos = ObtenerDatosHabilidad(tipo);
@@ -77,6 +97,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
 
         Debug.Log($"🌀 Habilidad desbloqueada: {tipo}");
     }
+
 
     public void Lock(AbilityType tipo)
     {
@@ -179,12 +200,14 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     {
         switch (tipo)
         {
+           
+
             case AbilityType.ShadowBlocks:
                 return new DatosHabilidad
                 {
                     icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/ShadowBLock"),
                     titulo = "ShadowBLocks",
-                    descripcion = "Coloca bloques de sombra para bloquear la luz. ¡Cuidado, no duran para siempre!."
+                    descripcion = "Coloca bloques de sombra para bloquear la luz. ¡Cuidado, no duran para siempre!. \n MouseButton1"
                 };
 
             case AbilityType.ReflectiveBlocks:
@@ -192,7 +215,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
                 {
                     icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/MirrorBLock"),
                     titulo = "MirrorBlocks",
-                    descripcion = "Redirige la luz amarilla, cuidado donde apuntas."
+                    descripcion = "Redirige la luz amarilla, cuidado donde apuntas. \n pulsa MouseButton2 en el bloque para cambiar su dirección"
                 };
 
             case AbilityType.AbyssFlame:
@@ -200,7 +223,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
                 {
                     icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/AbyssFlame"),
                     titulo = "AbyssFlame",
-                    descripcion = "Proyecta una llama oscura que corrompe e interactua con el entorno."
+                    descripcion = "Proyecta una llama oscura que corrompe e interactua con el entorno.\n Muevete con WASD y extinguela con MouseButton2"
                 };
 
             case AbilityType.ShadowTp:
@@ -208,7 +231,16 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
                 {
                     icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/ShadowTp"),
                     titulo = "ShadowTP",
-                    descripcion = "Teletransportate entre zonas corruptas en un instante."
+                    descripcion = "Teletransportate entre zonas corruptas en un instante. \n MouseButton1 donde quieras teletransportarte"
+                };
+
+
+             case AbilityType.AbilityMode:
+                return new DatosHabilidad
+                {
+                    icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/PulseEffect"),
+                    titulo = "AbilityMode",
+                    descripcion = "Activa el rango antes de usar cualquier habilidad. \n Tecla SPACE"
                 };
 
             default:

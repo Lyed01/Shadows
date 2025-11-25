@@ -7,7 +7,7 @@ public class LightReceptor : MonoBehaviour
     public Door[] puertas;
     public GameObject[] objetosParaActivar;
 
-    [Header("Control individual de luces (mismo sistema que Switch)")]
+    [Header("Control de luces (SpotLight + TopLight unificados)")]
     public LightControlSettings[] lucesControladas;
 
     [Header("Sprites visuales")]
@@ -21,6 +21,10 @@ public class LightReceptor : MonoBehaviour
     private bool activado = false;
     private float tiempoSinLuz = 0f;
     private int lucesRecibiendo = 0;
+    [HideInInspector] public bool estaActivo = false;
+    [HideInInspector] public bool yaCambioTipoLuz = false;
+    [HideInInspector] public bool noReset = false;
+
 
     void Awake()
     {
@@ -56,94 +60,95 @@ public class LightReceptor : MonoBehaviour
         if (!activado)
             Activar();
     }
-
     private void Activar()
     {
-
-     
         activado = true;
+        estaActivo = true;
         spriteRenderer.sprite = spriteEncendido;
-        
-        AplicarAccionesEnLuces(true);
-        AbrirPuertas();
-        ActivarObjetos();
 
-        Debug.Log($"🔆 Receptor {name} activado.");
+        foreach (var cfg in lucesControladas)
+        {
+            if (cfg == null) continue;
+
+            // Si este control cambia el tipo de luz →
+            // prevenir múltiples alternancias
+            if (cfg.tipo == LightConfigType.SpotLight &&
+                cfg.spotSettings != null &&
+                cfg.spotSettings.cambiarTipoLuz)
+            {
+                if (!yaCambioTipoLuz)
+                {
+                    cfg.Aplicar(true);
+                    yaCambioTipoLuz = true;
+                }
+            }
+            else
+            {
+                // Config normal (no alterna tipo de luz)
+                cfg.Aplicar(true);
+            }
+        }
+
+        foreach (var p in puertas)
+            if (p != null)
+            {
+                if (p.IsOpen)
+                    p.Close();
+                else
+                    p.Open();
+            }
+
+        ActivarObjetos();
     }
+
+
 
     private void Desactivar()
     {
         activado = false;
+        estaActivo = false;
+
         spriteRenderer.sprite = spriteApagado;
 
-        AplicarAccionesEnLuces(false);
-        CerrarPuertas();
+
+        AplicarAccionesLuces(false);
+        foreach (var p in puertas)
+            if (p != null)
+                p.ResetToInitialState();
+
         DesactivarObjetos();
+
+        yaCambioTipoLuz = false;
 
         Debug.Log($"💤 Receptor {name} desactivado.");
     }
 
+
     // ============================================================
-    // 🔥 CONTROL DE SPOTLIGHT (igual que Switch)
+    // 🔥 SISTEMA DE CONTROL DE LUCES UNIFICADO
     // ============================================================
-    private void AplicarAccionesEnLuces(bool estadoON)
+    private void AplicarAccionesLuces(bool estadoON)
     {
         foreach (var cfg in lucesControladas)
         {
-            if (cfg == null || cfg.luz == null) continue;
-
-            var luz = cfg.luz;
-
-            // ---------- Encender / Apagar ----------
-            if (cfg.modificarEncendido)
-            {
-                bool encender = estadoON ? cfg.encendidoON : cfg.encendidoOFF;
-                luz.SetLuzActiva(encender);
-
-                if (!encender)
-                    continue;
-            }
-
-            // ---------- Cambiar tipo de luz ----------
-            if (cfg.cambiarTipoLuz && estadoON)
-                luz.AlternarTipoLuz();
-
-            // ---------- Titileo ----------
-            if (cfg.modificarTitileo)
-                luz.titilar = estadoON ? cfg.titilarON : cfg.titilarOFF;
-
-            // ---------- Rotación ----------
-            if (cfg.modificarRotacion)
-                luz.rotacionConstante = estadoON ? cfg.rotacionON : cfg.rotacionOFF;
-
-            // ---------- Oscilación ----------
-            if (cfg.modificarOscilacion)
-            {
-                luz.oscilacion = estadoON ? cfg.oscilacionON : cfg.oscilacionOFF;
-
-                if (estadoON && cfg.oscilacionON)
-                    luz.rangoOscilacion = cfg.rangoOscilacion;
-            }
-
-            // ---------- Alcance ----------
-            if (cfg.modificarAlcance)
-                luz.alcance = estadoON ? cfg.alcanceON : cfg.alcanceOFF;
+            if (cfg == null) continue;
+            cfg.Aplicar(estadoON);
         }
     }
 
     // ============================================================
-    // 🔓 FUNCIONES NUEVAS PARA CONTROLAR PUERTAS
+    // 🔓 CONTROL DE PUERTAS
     // ============================================================
     public void AbrirPuertas()
     {
         foreach (var p in puertas)
         {
-            // si la puerta ya està abierta cerrarla 
+            if (p == null) continue;
+
             if (p.IsOpen)
-            {
-                if (p != null) p.Close();
-            }
-            else if (p != null) p.Open();
+                p.Close();
+            else
+                p.Open();
         }
     }
 
@@ -154,7 +159,7 @@ public class LightReceptor : MonoBehaviour
     }
 
     // ============================================================
-    // 🔹 Control de objetos
+    // 🔹 CONTROL DE OBJETOS
     // ============================================================
     private void ActivarObjetos()
     {
@@ -167,4 +172,35 @@ public class LightReceptor : MonoBehaviour
         foreach (var obj in objetosParaActivar)
             if (obj != null) obj.SetActive(false);
     }
+
+    // ============================================================
+    // 🔄 RESET COMPLETOwwwwwwwww
+    // ============================================================
+    public void ResetReceptor()
+    {
+        if (noReset) return;
+
+        activado = false;
+        estaActivo = false;
+        lucesRecibiendo = 0;
+        tiempoSinLuz = 0f;
+
+        yaCambioTipoLuz = false; // <-- RESET CRÍTICO
+
+        if (spriteRenderer != null)
+            spriteRenderer.sprite = spriteApagado;
+
+        foreach (var obj in objetosParaActivar)
+            if (obj != null)
+                obj.SetActive(false);
+
+        foreach (var p in puertas)
+            if (p != null)
+                p.Close();
+
+        foreach (var cfg in lucesControladas)
+            if (cfg != null)
+                cfg.Reset();
+    }
+
 }

@@ -23,6 +23,7 @@ public class NPCDemostrador : MonoBehaviour
     public AudioClip fxAbyssFlame;
     public AudioClip fxMirror;
     public AudioClip fxTeleport;
+    public AudioClip morir;
 
     [Header("Pasos (igual que jugador)")]
     public float pasoIntervalo = 0.35f;
@@ -37,6 +38,11 @@ public class NPCDemostrador : MonoBehaviour
     private bool ejecutando = false;
     private Vector2 ultimaDireccion = Vector2.down;
     private string animActual = "";
+    private bool estaMuriendo = false;
+
+
+    // === AbyssFlame del NPC ===
+    private AbyssFlame flameNPC;
 
     void Awake()
     {
@@ -76,6 +82,10 @@ public class NPCDemostrador : MonoBehaviour
     {
         switch (paso.tipo)
         {
+            case PasoTipo.Morir:
+                yield return MorirNPC();
+                break;
+
             case PasoTipo.MoverA:
                 if (paso.objetivo)
                     yield return MoverAlPunto(paso.objetivo.position);
@@ -91,8 +101,6 @@ public class NPCDemostrador : MonoBehaviour
                 break;
 
             case PasoTipo.UsarHabilidad:
-
-                // ShadowTp usa un sistema distinto
                 if (paso.habilidad == AbilityType.ShadowTp)
                 {
                     Vector3 destinoTp = paso.objetivo ? paso.objetivo.position : transform.position;
@@ -105,6 +113,11 @@ public class NPCDemostrador : MonoBehaviour
                 }
                 break;
 
+            case PasoTipo.MoverAbyssFlame:
+                if (paso.rutaPuntos != null && paso.rutaPuntos.Length > 0)
+                    yield return MoverLlamaPorRuta(paso.rutaPuntos, paso.velocidadLlama);
+                break;
+
             case PasoTipo.Hablar:
                 if (paso.dialogo != null)
                 {
@@ -115,7 +128,9 @@ public class NPCDemostrador : MonoBehaviour
         }
     }
 
-    // === Movimiento ===
+    // ===========================================================
+    // MOVIMIENTO NPC
+    // ===========================================================
     private IEnumerator MoverAlPunto(Vector3 destino)
     {
         Vector2 destino2D = destino;
@@ -154,10 +169,20 @@ public class NPCDemostrador : MonoBehaviour
             transform.localScale = new Vector3(Mathf.Sign(dir.x), 1f, 1f);
     }
 
-    // === Animación ===
     private void ActualizarAnimacion(Vector2 dir)
     {
         if (anim == null) return;
+
+        // 🟥 PRIORIDAD: si está muriendo, solo reproducir Dying
+        if (estaMuriendo)
+        {
+            if (animActual != "Dying")
+            {
+                anim.Play("Dying");
+                animActual = "Dying";
+            }
+            return; // no permitir más cambios
+        }
 
         string nuevaAnim = "Idle";
 
@@ -170,13 +195,10 @@ public class NPCDemostrador : MonoBehaviour
             else
                 nuevaAnim = "WalkSide";
         }
-        else
-        {
-            nuevaAnim = "Idle";
-        }
 
+        // Flip horizontal
         if (dir.x > 0.1f)
-            transform.localScale = new Vector3(1, 1, 1);
+            transform.localScale = Vector3.one;
         else if (dir.x < -0.1f)
             transform.localScale = new Vector3(-1, 1, 1);
 
@@ -187,7 +209,10 @@ public class NPCDemostrador : MonoBehaviour
         }
     }
 
-    // === Habilidades (NPC simplificado) ===
+
+    // ===========================================================
+    // HABILIDADES NPC
+    // ===========================================================
     private void EjecutarHabilidad(AbilityType tipo, Vector3 pos)
     {
         var grid = FindFirstObjectByType<GridManager>();
@@ -219,14 +244,7 @@ public class NPCDemostrador : MonoBehaviour
                 break;
 
             case AbilityType.AbyssFlame:
-                if (prefabAbyssFlame != null)
-                {
-                    var flame = Instantiate(prefabAbyssFlame, pos, Quaternion.identity);
-                    flame.name = "AbyssFlame_NPC";
-
-                    if (fxAbyssFlame)
-                        AudioManager.Instance?.ReproducirFX(fxAbyssFlame);
-                }
+                CrearAbyssFlameNPC(pos);
                 break;
 
             case AbilityType.ReflectiveBlocks:
@@ -234,6 +252,26 @@ public class NPCDemostrador : MonoBehaviour
                 break;
         }
     }
+
+    private void CrearAbyssFlameNPC(Vector3 pos)
+    {
+        if (prefabAbyssFlame == null) return;
+
+        var flame = Instantiate(prefabAbyssFlame, pos, Quaternion.identity);
+        flame.name = "AbyssFlame_NPC";
+
+        flameNPC = flame.GetComponent<AbyssFlame>();
+
+        if (flameNPC != null)
+        {
+            flameNPC.controlNPC = true;
+            flameNPC.Inicializar(null); // ← 💥 clave
+        }
+
+        if (fxAbyssFlame)
+            AudioManager.Instance?.ReproducirFX(fxAbyssFlame);
+    }
+
 
     private void CrearMirrorBlock(Vector3 pos)
     {
@@ -255,7 +293,41 @@ public class NPCDemostrador : MonoBehaviour
             AudioManager.Instance?.ReproducirFX(fxMirror);
     }
 
-    // === TELETRANSPORTE PARA NPC ===
+    // ===========================================================
+    // RUTA PARA ABYSS FLAME
+    // ===========================================================
+    private IEnumerator MoverLlamaPorRuta(Transform[] ruta, float vel)
+    {
+        if (flameNPC == null)
+        {
+            Debug.LogWarning("NPC no tiene AbyssFlame instanciada.");
+            yield break;
+        }
+
+        for (int i = 0; i < ruta.Length; i++)
+        {
+            Transform objetivo = ruta[i];
+            Vector2 destino = objetivo.position;
+
+            while (Vector2.Distance(flameNPC.transform.position, destino) > 0.05f)
+            {
+                Vector2 dir = (destino - (Vector2)flameNPC.transform.position).normalized;
+                flameNPC.SetDireccionNPC(dir);
+
+                yield return new WaitForFixedUpdate();
+            }
+
+            // detener
+            flameNPC.SetDireccionNPC(Vector2.zero);
+
+            // pequeña pausa opcional
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    // ===========================================================
+    // TELETRANSPORTE NPC
+    // ===========================================================
     private IEnumerator TeleportNPC(Vector3 destino)
     {
         var grid = FindFirstObjectByType<GridManager>();
@@ -299,4 +371,39 @@ public class NPCDemostrador : MonoBehaviour
 
         AudioManager.Instance.ReproducirPaso(esCorrupto);
     }
+
+    private IEnumerator MorirNPC()
+    {
+        Debug.Log($"💀 NPC {name} muere.");
+
+        estaMuriendo = true; // Prioridad a la animación de muerte
+        rb.simulated = false;
+
+        // Animación de muerte
+        if (anim != null)
+            anim.Play("Dying");
+
+        // Esperar duración de la animación
+        yield return new WaitForSeconds(0.8f);
+
+        // Sonido de muerte
+        if (morir)
+            AudioManager.Instance?.ReproducirFX(morir);
+
+        // ⏳ DAR TIEMPO A QUE SUENE
+        yield return new WaitForSeconds(0.3f);
+
+        // ⭐ ENTREGAR HABILIDAD JUSTO ANTES DE DESAPARECER
+        if (otorgarHabilidadAlFinal && AbilityManager.Instance)
+        {
+            AbilityManager.Instance.Unlock(habilidadEntregada);
+            Debug.Log($"✨ NPC otorgó la habilidad (después de morir): {habilidadEntregada}");
+        }
+
+        // 💀 El NPC ahora puede desaparecer
+        Destroy(gameObject);
+    }
+
+
+
 }

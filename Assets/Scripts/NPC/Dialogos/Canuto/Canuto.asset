@@ -1,0 +1,114 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f28f1ba5ca3e0d74c918894bf572cad2, type: 3}
+  m_Name: Canuto
+  m_EditorClassIdentifier: 
+  idDialogo: 1
+  lineas:
+  - texto: " Cogh cogh... oh.. por fin despiertas... pens\xE9 que moriria solo aqu\xED"
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Voy a ponerte al dia antes de que llegue mi hora...\t\t"
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: Mi nombre es... bah, no importa mi nombre. el caso es que estamos encerrados
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: Encerrados en estas malditas instalaciones humanas. Cof.. cof..
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: Casi que puedo oler la humedad del Abismo, nuestro hogar
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Debes escapar ni\xF1o, escapa de este lugar y vuelve a casa"
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: Para hacerlo tendras que atravesar todas las instalaciones y recolectar
+      los ShadowShards
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "\xBFPor qu\xE9? No lo se... as\xED lo quiere la trama"
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Ahora ve ni\xF1o y cumple tu destino"
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  accionFinal:
+    tipo: 0
+    habilidad: 0
+    objetoActivar: {fileID: 0}
+    activar: 1
+    sonido: {fileID: 0}
+    idPuerta: 

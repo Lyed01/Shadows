@@ -77,7 +77,7 @@ public class HUDHabilidadNotificacion : MonoBehaviour
     {
         // Fade in
         float t = 0f;
-        while (t < duracionFade) ;
+        while (t < duracionFade) 
         {
             t += Time.unscaledDeltaTime;
             canvasGroup.alpha = Mathf.Lerp(0, 1, t / duracionFade);

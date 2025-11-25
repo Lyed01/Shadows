@@ -7,8 +7,7 @@ public class LevelExitTrigger : MonoBehaviour
     [Tooltip("Nombre de este nivel (debe coincidir con el del LevelScoreManager).")]
     public string nombreNivel = "Nivel1";
 
-    [Tooltip("Duración mínima antes de volver al hub (para evitar activaciones accidentales).")]
-    public float delayAntesDeSalir = 1f;
+    
 
     private bool activo = true;
 
@@ -39,7 +38,7 @@ public class LevelExitTrigger : MonoBehaviour
         GameManager.Instance.CambiarEstado(GameManager.GameState.Transicion);
 
 
-        yield return new WaitForSeconds(delayAntesDeSalir);
+        
 
         // 🔹 Recopilar estadísticas desde LevelScoreManager
         if (LevelScoreManager.Instance != null)

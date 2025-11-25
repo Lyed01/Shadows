@@ -31,7 +31,14 @@ public class BloquePreview : MonoBehaviour
         // Obtener posición del mouse en coordenadas de celda
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePos.z = 0;
+
+        // 🔥 Fix para Pixel Snapping — redondear al grid de píxeles
+        float ppu = 16f; // tu Pixels Per Unit real
+        mousePos.x = Mathf.Round(mousePos.x * ppu) / ppu;
+        mousePos.y = Mathf.Round(mousePos.y * ppu) / ppu;
+
         Vector3Int cellPos = sueloTilemap.WorldToCell(mousePos);
+
 
         // Solo recalcular si se movió a otra celda
         if (cellPos != ultimaCelda)

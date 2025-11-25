@@ -6,12 +6,10 @@ public class Switch : MonoBehaviour
     [Header("Puertas a activar")]
     public Door[] puertas;
 
-    [Header("Spotlights que controla este switch")]
+    [Header("Luces controladas")]
     public LightControlSettings[] lucesConfiguradas;
 
-    
-
-    [Header("Sprites del switch")]
+    [Header("Sprites")]
     public Sprite spriteApagado;
     public Sprite spriteEncendido;
 
@@ -19,8 +17,16 @@ public class Switch : MonoBehaviour
     public KeyCode activationKey = KeyCode.E;
 
     private SpriteRenderer spriteRenderer;
-    private bool activado = false;
+    private bool _activado = false; // 👈 ahora privado
+
+    public bool activado => _activado; // 👈 lectura pública
+
     private bool jugadorEnContacto = false;
+
+    private bool activadoPorNPC = false;
+
+    [HideInInspector] public bool noReset = false;
+
 
     void Awake()
     {
@@ -37,94 +43,55 @@ public class Switch : MonoBehaviour
 
     private void ActivarSwitch()
     {
-        activado = !activado;
-        spriteRenderer.sprite = activado ? spriteEncendido : spriteApagado;
+        _activado = !_activado;
+        spriteRenderer.sprite = _activado ? spriteEncendido : spriteApagado;
 
-        AplicarAccionesDeLuz(activado);
-        ControlPuertas();
+        AplicarAccionesDeLuz(_activado);
+        EvaluarPuertas();
 
-        Debug.Log($"🔘 Switch {(activado ? "ON" : "OFF")}");
+        Debug.Log($"🔘 Switch {(_activado ? "ON" : "OFF")}");
     }
 
-    // ============================================================
-    // 🔥 CONTROL PROFESIONAL DE CADA SPOTLIGHT
-    // ============================================================
-    private void AplicarAccionesDeLuz(bool estadoON)
-    {
-        foreach (var cfg in lucesConfiguradas)
-        {
-            if (cfg == null || cfg.luz == null) continue;
-            var luz = cfg.luz;
-
-            // ---------- Encender / Apagar ----------
-            if (cfg.modificarEncendido)
-            {
-                bool encender = estadoON ? cfg.encendidoON : cfg.encendidoOFF;
-                luz.SetLuzActiva(encender);
-
-                // Si está apagada, no aplicar el resto de cambios
-                if (!encender)
-                    continue;
-            }
-
-            // ---------- Cambiar tipo de luz ----------
-            if (cfg.cambiarTipoLuz && estadoON)
-            {
-                luz.AlternarTipoLuz();
-            }
-
-            // ---------- Titileo ----------
-            if (cfg.modificarTitileo)
-            {
-                luz.titilar = estadoON ? cfg.titilarON : cfg.titilarOFF;
-            }
-
-            // ---------- Rotación constante ----------
-            if (cfg.modificarRotacion)
-            {
-                luz.rotacionConstante = estadoON ? cfg.rotacionON : cfg.rotacionOFF;
-            }
-
-            // ---------- Oscilación ----------
-            if (cfg.modificarOscilacion)
-            {
-                luz.oscilacion = estadoON ? cfg.oscilacionON : cfg.oscilacionOFF;
-                if (estadoON && cfg.oscilacionON)
-                    luz.rangoOscilacion = cfg.rangoOscilacion;
-            }
-
-            // ---------- Alcance ----------
-            if (cfg.modificarAlcance)
-            {
-                luz.alcance = estadoON ? cfg.alcanceON : cfg.alcanceOFF;
-            }
-        }
-    }
-
-    // ============================================================
-
-
-    // ============================================================
-    private void ControlPuertas()
+    private void EvaluarPuertas()
     {
         foreach (Door puerta in puertas)
         {
             if (puerta == null) continue;
-            if (activado) puerta.Open();
-            else puerta.Close();
-
-           
+            puerta.Evaluar();
         }
     }
 
-    // ============================================================
+    private void AplicarAccionesDeLuz(bool estadoON)
+    {
+        foreach (var cfg in lucesConfiguradas)
+            if (cfg != null) cfg.Aplicar(estadoON);
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
             jugadorEnContacto = true;
 
-        if (other.CompareTag("CutsceneCharacter") && !activado)
+        if (other.CompareTag("CutsceneCharacter") && !_activado)
+        {
+            activadoPorNPC = true;
             ActivarSwitch();
+
+            // Hacer permanente
+            noReset = true;
+
+            foreach (var p in puertas)
+                if (p != null) p.noReset = true;
+
+            foreach (var cfg in lucesConfiguradas)
+                if (cfg.spotSettings != null && cfg.spotSettings.spot != null)
+                    cfg.spotSettings.spot.noReset = true;
+
+            foreach (var cfg in lucesConfiguradas)
+                if (cfg.topSettings != null && cfg.topSettings.top != null)
+                    cfg.topSettings.top.noReset = true;
+        }
+
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -133,21 +100,23 @@ public class Switch : MonoBehaviour
             jugadorEnContacto = false;
     }
 
-    // ============================================================
     public void ResetSwitch()
+
     {
-        activado = false;
+
+        if (noReset) return;
+        _activado = false;
         spriteRenderer.sprite = spriteApagado;
 
-        // Resetear luces a su estado inicial usando su propio método
         foreach (var cfg in lucesConfiguradas)
-            if (cfg != null && cfg.luz != null)
-                cfg.luz.ResetToInitialState();
+            if (cfg != null) cfg.Reset();
 
-    
-        ControlPuertas();
+        foreach (var p in puertas)
+            if (p != null) p.ResetToInitialState();
 
-        Debug.Log("🔄 Switch reseteado (spotlights restauradas)");
+        EvaluarPuertas();
+
+        Debug.Log("🔄 Switch reseteado");
     }
 
     public static void ResetearTodos()

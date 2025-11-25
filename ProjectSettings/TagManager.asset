@@ -10,6 +10,7 @@ TagManager:
   - Walls
   - Receptor
   - Door
+  - Objetos
   layers:
   - Default
   - TransparentFX

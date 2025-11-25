@@ -1,0 +1,94 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f28f1ba5ca3e0d74c918894bf572cad2, type: 3}
+  m_Name: Ignos1
+  m_EditorClassIdentifier: 
+  idDialogo: 
+  lineas:
+  - texto: "h-h-h HOLA!!.. dIgo hola, ttt-t\xFA tambi\xE9n quieres pasar, \xBFno?"
+    retrato: {fileID: 3920333243450252084, guid: 7c6e5846f26250c4e9096b0db7c9e806, type: 3}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Ssss- soy.. em, \xBFcomo me llamaba?... "
+    retrato: {fileID: 3920333243450252084, guid: 7c6e5846f26250c4e9096b0db7c9e806, type: 3}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: ...
+    retrato: {fileID: 3920333243450252084, guid: 7c6e5846f26250c4e9096b0db7c9e806, type: 3}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: OH SI! IGNOS, quiero decir, soy Ignos EL PORTADOR DE LA LLAMA
+    retrato: {fileID: 3920333243450252084, guid: 7c6e5846f26250c4e9096b0db7c9e806, type: 3}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Lo siento, a veces entro en mis fantas\xEDas"
+    retrato: {fileID: 3920333243450252084, guid: 7c6e5846f26250c4e9096b0db7c9e806, type: 3}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "En que estabamos? ah claro quieres avanzar y volver a tu hogar \xBFno
+      es as\xED?"
+    retrato: {fileID: 3920333243450252084, guid: 7c6e5846f26250c4e9096b0db7c9e806, type: 3}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: Creo que puedo ayudarte en eso... Tengo algo que puede servirte.
+    retrato: {fileID: 3920333243450252084, guid: 7c6e5846f26250c4e9096b0db7c9e806, type: 3}
+    nombreNPC: Ignos
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  accionFinal:
+    tipo: 0
+    habilidad: 0
+    objetoActivar: {fileID: 0}
+    activar: 1
+    sonido: {fileID: 0}
+    idPuerta: 

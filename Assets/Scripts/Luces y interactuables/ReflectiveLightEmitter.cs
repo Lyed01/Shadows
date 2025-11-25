@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class ReflectiveLightEmitter : MonoBehaviour
 {
-    [Header("Configuración general")]
     public SpotLightDetector.TipoLuz tipoLuz = SpotLightDetector.TipoLuz.Amarilla;
     public Vector2 direccion = Vector2.right;
     public float alcance = 6f;
@@ -12,172 +10,159 @@ public class ReflectiveLightEmitter : MonoBehaviour
     public float dañoBase = 1f;
     public AnimationCurve curvaIntensidad = AnimationCurve.EaseInOut(0, 1, 1, 0);
     public LayerMask mascaraBloqueos;
-
-    [Header("Material visual (usar el mismo que el spotlight)")]
     public Material materialLuz;
-
-    [Header("Ajuste UV")]
-    public bool uvRotar90 = false;
-    public bool flipU = false;
-    public bool flipV = false;
-    public float escalaULargo = 1f;
-    public float escalaVAncho = 1f;
 
     private MeshFilter mf;
     private MeshRenderer mr;
     private Mesh mesh;
-    private Color colorLuz;
+    private Collider2D padreCol;
 
     void Awake()
     {
         mf = GetComponent<MeshFilter>();
         mr = GetComponent<MeshRenderer>();
+        padreCol = transform.parent.GetComponent<Collider2D>();
 
-        mesh = new Mesh { name = "ReflectiveLightMesh" };
+        mesh = new Mesh();
         mf.mesh = mesh;
 
-        mr.material = materialLuz != null ? materialLuz : new Material(Shader.Find("Sprites/Default"));
-        mr.sortingLayerName = "Default";
-        mr.sortingOrder = 100;
+        if (materialLuz == null)
+            materialLuz = new Material(Shader.Find("Sprites/Default"));
 
-        ActualizarColor();
+        mr.material = materialLuz;
+        mr.sortingOrder = 300;
     }
 
-    void Update() => ActualizarHaz();
-
-    private void ActualizarColor()
+    void Update()
     {
-        colorLuz = (tipoLuz == SpotLightDetector.TipoLuz.Roja)
-            ? new Color(1f, 0.2f, 0.2f, 1f)
-            : new Color(1f, 1f, 0.6f, 1f);
-
-        if (mr.material != null)
-            mr.material.color = colorLuz;
+        GenerarRayo();
     }
 
-    private void ActualizarHaz()
+    private void GenerarRayo()
     {
-        Vector2 origen = transform.position;
+        if (transform.parent == null) return;
+
         Vector2 dir = direccion.normalized;
+        Collider2D col = padreCol;
 
-        // === RAYCAST ===
-        Collider2D parentCol = transform.parent ? transform.parent.GetComponent<Collider2D>() : null;
+        // --- ORIGEN EXACTO DESDE EL BORDE DEL MIRRORBLOCK ---
+        Vector2 ext = col.bounds.extents;
 
-        // Usamos RaycastAll para ignorar el bloque que emite y quedarnos con el siguiente válido
-        RaycastHit2D[] hits = Physics2D.RaycastAll(origen + dir * 0.02f, dir, alcance, mascaraBloqueos);
+        Vector2 borde = new Vector2(
+            Mathf.Abs(dir.x) > Mathf.Abs(dir.y) ? Mathf.Sign(dir.x) * ext.x : 0,
+            Mathf.Abs(dir.y) > Mathf.Abs(dir.x) ? Mathf.Sign(dir.y) * ext.y : 0
+        );
 
-        RaycastHit2D hitElegido = new RaycastHit2D();
-        bool hayHitValido = false;
+        // ❗ IMPORTANTE: NO mover el transform, solo usar borde para el raycast
+        // (esto arregla el mesh recortado y el rayo desalineado)
 
-        for (int i = 0; i < hits.Length; i++)
+        Vector2 origen = (Vector2)col.bounds.center + borde;
+
+
+        // --- RAYCAST IDENTICO AL SPOTLIGHT ---
+        RaycastHit2D hit = new RaycastHit2D();
+        float minDist = alcance;
+        bool hayHit = false;
+
+        RaycastHit2D[] hits = Physics2D.RaycastAll(origen, dir, alcance, mascaraBloqueos);
+
+        foreach (var h in hits)
         {
-            var h = hits[i];
             if (h.collider == null) continue;
-
-            // Ignorar el bloque padre (el emisor)
-            if (parentCol != null && h.collider == parentCol) continue;
-
-            // Ignorar otros reflectores (para evitar bucles infinitos)
+            if (h.collider == col) continue;  // ignorar al padre
             if (h.collider.GetComponent<ReflectiveLightEmitter>() != null) continue;
 
-            // Primer impacto válido encontrado
-            hitElegido = h;
-            hayHitValido = true;
-            break;
+            float d = h.distance; // distancia REAL del raycast
+
+            if (d < minDist)
+            {
+                minDist = d;
+                hit = h;
+                hayHit = true;
+            }
         }
 
-        float distanciaReal = hayHitValido
-            ? Vector2.Distance(origen, hitElegido.point)
-            : alcance;
+        float dist = minDist;
+        Vector2 punto = hayHit ? hit.point : origen + dir * alcance;
+
 
 #if UNITY_EDITOR
-    Color c = hayHitValido ? Color.red : Color.yellow;
-    Debug.DrawRay(origen, dir * distanciaReal, c, 0.05f);
+    Debug.DrawLine(origen, punto, hayHit ? Color.red : Color.yellow);
 #endif
 
-        if (hayHitValido)
+
+
+        // --- LÓGICA DE IMPACTO ---
+        if (hayHit)
         {
-            // 💀 Golpea al jugador → muerte
-            Jugador j = hitElegido.collider.GetComponent<Jugador>();
-            if (j != null)
+            if (hit.collider.TryGetComponent(out Jugador j))
                 j.Matar();
 
-            // 💡 Golpea un receptor de luz
-            LightReceptor receptor = hitElegido.collider.GetComponent<LightReceptor>();
-            if (receptor != null)
-            {
-                receptor.RecibirLuz(tipoLuz);
-            }
+            if (hit.collider.TryGetComponent(out LightReceptor rec))
+                rec.RecibirLuz(tipoLuz);
 
-            // 🧱 Golpea un bloque de sombra (normal o reflectivo)
-            ShadowBlock bloque = hitElegido.collider.GetComponent<ShadowBlock>();
-            if (bloque != null)
+            if (hit.collider.TryGetComponent(out ShadowBlock sb))
             {
-                float normalizado = Mathf.Clamp01(distanciaReal / alcance);
-                float intensidad = curvaIntensidad.Evaluate(1f - normalizado);
+                float intensidad = curvaIntensidad.Evaluate(1f - dist / alcance);
                 float daño = dañoBase * intensidad * Time.deltaTime;
 
-                bloque.RecibirLuz(daño, tipoLuz);
+                sb.RecibirLuz(daño, tipoLuz);
 
-                // Si es reflectivo → propaga el haz reflejado
-                MirrorBlock mirror = bloque as MirrorBlock;
-                if (mirror != null)
-                    mirror.RecibirLuz(dir, daño, tipoLuz, hitElegido.normal, alcance, hitElegido.point);
+                if (sb is MirrorBlock m)
+                    m.RecibirLuz(dir, daño, tipoLuz, hit.normal, alcance, punto);
             }
         }
 
-        // === GEOMETRÍA DEL HAZ ===
-        float mitadAncho = ancho * 0.5f;
-        Vector3[] vertices = new Vector3[4];
-        vertices[0] = new Vector3(0, mitadAncho, 0);
-        vertices[1] = new Vector3(0, -mitadAncho, 0);
-        vertices[2] = new Vector3(distanciaReal, mitadAncho, 0);
-        vertices[3] = new Vector3(distanciaReal, -mitadAncho, 0);
 
-        int[] triangles = { 0, 2, 1, 2, 3, 1 };
 
-        // UVs
-        float u0 = 0f;
-        float u1 = (distanciaReal / Mathf.Max(0.0001f, alcance)) * Mathf.Max(0.0001f, escalaULargo);
-        float vTop = 1f * Mathf.Max(0.0001f, escalaVAncho);
-        float vBottom = 0f;
+        // --- MESH EXACTO AL RAYO ---
+        float half = ancho * 0.5f;
 
-        if (flipU) (u0, u1) = (u1, u0);
-        if (flipV) (vTop, vBottom) = (vBottom, vTop);
-
-        Vector2 uv0 = new Vector2(u0, vTop);
-        Vector2 uv1 = new Vector2(u0, vBottom);
-        Vector2 uv2 = new Vector2(u1, vTop);
-        Vector2 uv3 = new Vector2(u1, vBottom);
-
-        if (uvRotar90)
+        Vector3[] verts = new Vector3[]
         {
-            uv0 = new Vector2(vTop, u0);
-            uv1 = new Vector2(vBottom, u0);
-            uv2 = new Vector2(vTop, u1);
-            uv3 = new Vector2(vBottom, u1);
+        new Vector3(0,     half, 0),
+        new Vector3(0,    -half, 0),
+        new Vector3(dist,  half, 0),
+        new Vector3(dist, -half, 0)
+        };
+
+        int[] tris = new int[] { 0, 2, 1, 2, 3, 1 };
+
+        Vector2[] uvs = new Vector2[]
+        {
+        new Vector2(0,1),
+        new Vector2(0,0),
+        new Vector2(1,1),
+        new Vector2(1,0)
+        };
+
+        float ang = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        Matrix4x4 rot = Matrix4x4.TRS(Vector3.zero, Quaternion.Euler(0, 0, ang), Vector3.one);
+
+        Vector3 offsetLocal = (Vector3)borde;   // ← el borde en coordenadas locales
+
+        Vector3[] rotados = new Vector3[4];
+        for (int i = 0; i < 4; i++)
+        {
+            rotados[i] = offsetLocal + rot.MultiplyPoint3x4(verts[i]);
         }
 
-        if (transform.parent)
-            transform.position = transform.parent.position;
-
-        float angulo = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        mr.material.color = colorLuz;
-
-        Matrix4x4 matriz = Matrix4x4.TRS(Vector3.zero, Quaternion.Euler(0, 0, angulo), Vector3.one);
-        Vector3[] verticesRotados = new Vector3[4];
-        for (int i = 0; i < vertices.Length; i++)
-            verticesRotados[i] = matriz.MultiplyPoint3x4(vertices[i]);
-
         mesh.Clear();
-        mesh.vertices = verticesRotados;
-        mesh.triangles = triangles;
-        mesh.uv = new Vector2[] { uv0, uv1, uv2, uv3 };
+        mesh.vertices = rotados;
+        mesh.triangles = tris;
+        mesh.uv = uvs;
+
         mesh.RecalculateBounds();
+        mesh.RecalculateNormals();
     }
 
-    // === API ===
-    public void SetDireccion(Vector2 nuevaDir) => direccion = nuevaDir.normalized;
+
+    // === API USADA POR MIRRORBLOCK ===
+    public void SetDireccion(Vector2 d)
+    {
+        direccion = d.normalized;
+    }
+
     public void SetParametros(float nuevoAlcance, float nuevoAncho)
     {
         alcance = nuevoAlcance;
@@ -187,6 +172,9 @@ public class ReflectiveLightEmitter : MonoBehaviour
     public void SetTipoLuz(SpotLightDetector.TipoLuz nuevoTipo)
     {
         tipoLuz = nuevoTipo;
-        ActualizarColor();
+
+        mr.material.color = tipoLuz == SpotLightDetector.TipoLuz.Roja
+            ? new Color(1f, 0.2f, 0.2f)
+            : new Color(1f, 1f, 0.6f);
     }
 }
