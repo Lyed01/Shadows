@@ -22,7 +22,6 @@ public class LightReceptor : MonoBehaviour
     private float tiempoSinLuz = 0f;
     private int lucesRecibiendo = 0;
     [HideInInspector] public bool estaActivo = false;
-    [HideInInspector] public bool yaCambioTipoLuz = false;
     [HideInInspector] public bool noReset = false;
 
 
@@ -60,48 +59,27 @@ public class LightReceptor : MonoBehaviour
         if (!activado)
             Activar();
     }
+
     private void Activar()
     {
         activado = true;
         estaActivo = true;
         spriteRenderer.sprite = spriteEncendido;
 
+        // Luces
         foreach (var cfg in lucesControladas)
         {
             if (cfg == null) continue;
-
-            // Si este control cambia el tipo de luz →
-            // prevenir múltiples alternancias
-            if (cfg.tipo == LightConfigType.SpotLight &&
-                cfg.spotSettings != null &&
-                cfg.spotSettings.cambiarTipoLuz)
-            {
-                if (!yaCambioTipoLuz)
-                {
-                    cfg.Aplicar(true);
-                    yaCambioTipoLuz = true;
-                }
-            }
-            else
-            {
-                // Config normal (no alterna tipo de luz)
-                cfg.Aplicar(true);
-            }
+            cfg.Aplicar(true);
         }
 
-        foreach (var p in puertas)
-            if (p != null)
-            {
-                if (p.IsOpen)
-                    p.Close();
-                else
-                    p.Open();
-            }
+        // 👉 En vez de abrir/cerrar directamente, RE-EVALUAMOS la lógica de la puerta
+        EvaluarPuertas();
 
         ActivarObjetos();
+
+        Debug.Log($"🔆 Receptor {name} ACTIVADO");
     }
-
-
 
     private void Desactivar()
     {
@@ -110,19 +88,15 @@ public class LightReceptor : MonoBehaviour
 
         spriteRenderer.sprite = spriteApagado;
 
-
         AplicarAccionesLuces(false);
-        foreach (var p in puertas)
-            if (p != null)
-                p.ResetToInitialState();
+
+        // 👉 Igual que con el Switch: solo pedimos que la puerta se re-evalúe
+        EvaluarPuertas();
 
         DesactivarObjetos();
 
-        yaCambioTipoLuz = false;
-
-        Debug.Log($"💤 Receptor {name} desactivado.");
+        Debug.Log($"💤 Receptor {name} DESACTIVADO");
     }
-
 
     // ============================================================
     // 🔥 SISTEMA DE CONTROL DE LUCES UNIFICADO
@@ -137,10 +111,21 @@ public class LightReceptor : MonoBehaviour
     }
 
     // ============================================================
-    // 🔓 CONTROL DE PUERTAS
+    // 🔓 CONTROL DE PUERTAS (CENTRALIZADO)
     // ============================================================
+    private void EvaluarPuertas()
+    {
+        foreach (var p in puertas)
+        {
+            if (p == null) continue;
+            p.Evaluar();
+        }
+    }
+
     public void AbrirPuertas()
     {
+        // ⚠ Si seguís usando esto desde otro lado, dejalo;
+        // pero para la lógica "2 receptores requieren abrir puerta", usá siempre EvaluarPuertas().
         foreach (var p in puertas)
         {
             if (p == null) continue;
@@ -174,7 +159,7 @@ public class LightReceptor : MonoBehaviour
     }
 
     // ============================================================
-    // 🔄 RESET COMPLETOwwwwwwwww
+    // 🔄 RESET COMPLETO
     // ============================================================
     public void ResetReceptor()
     {
@@ -185,8 +170,6 @@ public class LightReceptor : MonoBehaviour
         lucesRecibiendo = 0;
         tiempoSinLuz = 0f;
 
-        yaCambioTipoLuz = false; // <-- RESET CRÍTICO
-
         if (spriteRenderer != null)
             spriteRenderer.sprite = spriteApagado;
 
@@ -194,13 +177,13 @@ public class LightReceptor : MonoBehaviour
             if (obj != null)
                 obj.SetActive(false);
 
-        foreach (var p in puertas)
-            if (p != null)
-                p.Close();
-
         foreach (var cfg in lucesControladas)
             if (cfg != null)
                 cfg.Reset();
-    }
 
+        // 👉 Otra vez, nada de forzar puerta cerrada: que la puerta se evalúe
+        EvaluarPuertas();
+
+        Debug.Log($"🔄 Receptor {name} reseteado.");
+    }
 }

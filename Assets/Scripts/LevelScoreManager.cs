@@ -6,17 +6,14 @@ using System.Collections.Generic;
 [Serializable]
 public class ScoreThreshold
 {
-    [Header("Muertes (límites para 3-2-1-0 estrellas)")]
     public int muertes3 = 1;
     public int muertes2 = 2;
     public int muertes1 = 3;
 
-    [Header("Tiempo (segundos límites para 3-2-1-0 estrellas)")]
     public float tiempo3 = 60f;
     public float tiempo2 = 120f;
     public float tiempo1 = 300f;
 
-    [Header("Uso de habilidades (límites para 3-2-1-0 estrellas)")]
     public int habilidades3 = 2;
     public int habilidades2 = 4;
     public int habilidades1 = 6;
@@ -25,16 +22,15 @@ public class ScoreThreshold
 public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
 {
     [Header("ID actual del nivel")]
-    [Tooltip("ID visible en los PlayerPrefs (Nivel_<id>_...)")]
     public string idNivel = "Nivel1";
 
-    [Header("Configuración cargada (runtime)")]
+    [Header("Configuración cargada")]
     public ScoreThreshold configuracionNivel = new();
 
-    [Header("Configuraciones por nivel (ScriptableObjects)")]
+    [Header("Configuraciones por nivel (SO)")]
     public List<ScoreThresholdSO> configuracionesSO = new();
 
-    [Header("Estadísticas actuales (solo lectura)")]
+    [Header("Estadísticas")]
     [SerializeField] private int muertes;
     [SerializeField] private int habilidadesUsadas;
     [SerializeField] private float tiempoActual;
@@ -42,30 +38,24 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
     private bool nivelEnCurso;
     private bool nivelFinalizado;
 
-    // Eventos
-    public static Action<int> OnNivelCompletado; // estrellas (0–3)
+    public static Action<int> OnNivelCompletado;
     public static Action OnNivelComenzo;
 
-    // ============================================================
-    // BOOT
-    // ============================================================
     protected override void OnBoot()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
-        GameManager.OnPlayerDeath += ReiniciarContadores;
         AbilityManager.OnUsarHabilidad += RegistrarUsoHabilidad;
+        GameManager.OnPlayerDeath += RegistrarMuerte;
     }
 
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-        GameManager.OnPlayerDeath -= ReiniciarContadores;
         AbilityManager.OnUsarHabilidad -= RegistrarUsoHabilidad;
+        GameManager.OnPlayerDeath -= RegistrarMuerte;
     }
 
-    // ============================================================
-    // SCENE LOAD
-    // ============================================================
+
     private void OnSceneLoaded(Scene s, LoadSceneMode m)
     {
         bool esNivel = !(s.name.Contains("Hub") || s.name.Contains("Menu"));
@@ -73,8 +63,8 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         if (esNivel)
         {
             CargarConfiguracionDelNivel(s.name);
-
             ReiniciarContadores();
+
             nivelEnCurso = true;
             nivelFinalizado = false;
 
@@ -86,9 +76,6 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         }
     }
 
-    // ============================================================
-    // UPDATE (TIEMPO)
-    // ============================================================
     private void Update()
     {
         if (!nivelEnCurso || nivelFinalizado) return;
@@ -97,9 +84,6 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
             tiempoActual += Time.deltaTime;
     }
 
-    // ============================================================
-    // CARGA DE CONFIGURACIÓN POR SCRIPTABLEOBJECT
-    // ============================================================
     private void CargarConfiguracionDelNivel(string escena)
     {
         foreach (var so in configuracionesSO)
@@ -128,25 +112,6 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         Debug.LogWarning($"⚠️ No encontré ScriptableObject para {escena}. Usando valores default.");
     }
 
-    // ============================================================
-    // API PÚBLICA
-    // ============================================================
-
-    public void CompletarNivel()
-    {
-        if (!nivelEnCurso || nivelFinalizado) return;
-
-        nivelFinalizado = true;
-        int estrellasFinales = CalcularEstrellasFinales();
-
-        Debug.Log($"🏁 Nivel {idNivel} completado con {estrellasFinales}⭐ " +
-                  $"(Muertes: {muertes}, Tiempo: {tiempoActual:F1}s, Habs: {habilidadesUsadas})");
-
-        GuardarResultados(idNivel, estrellasFinales, tiempoActual, muertes, habilidadesUsadas);
-
-        OnNivelCompletado?.Invoke(estrellasFinales);
-    }
-
     public void ReiniciarContadores()
     {
         muertes = 0;
@@ -155,16 +120,20 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         nivelFinalizado = false;
     }
 
-    public void RegistrarMuerte() => muertes++;
-    public void RegistrarUsoHabilidad() => habilidadesUsadas++;
+    public void RegistrarMuerte()
+    {
+        muertes++;
+    }
+
+    public void RegistrarUsoHabilidad()
+    {
+        habilidadesUsadas++;
+    }
 
     public float GetTiempoNivel() => tiempoActual;
     public int GetMuertes() => muertes;
     public int GetHabilidadesUsadas() => habilidadesUsadas;
 
-    // ============================================================
-    // CÁLCULO DE ESTRELLAS
-    // ============================================================
     private int CalcularPorMuertes()
     {
         if (muertes <= configuracionNivel.muertes3) return 3;
@@ -199,9 +168,6 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         return Mathf.RoundToInt(promedio);
     }
 
-    // ============================================================
-    // GUARDADO
-    // ============================================================
     public void GuardarResultados(string nivelID, int estrellas, float tiempo, int muertes, int habilidades)
     {
         PlayerPrefs.SetInt($"Nivel_{nivelID}_Estrellas", estrellas);
@@ -212,7 +178,6 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
 
         Debug.Log($"💾 Guardado → {nivelID}: {estrellas}⭐ | {tiempo:F1}s | {muertes} muertes | {habilidades} habs");
     }
-
     [ContextMenu("🧹 Limpiar progreso de niveles (DEBUG)")]
     public void ResetProgresoNiveles()
     {
@@ -223,11 +188,11 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
             string nivel = $"Nivel{i}";
             string[] claves =
             {
-                $"Nivel_{nivel}_Estrellas",
-                $"Nivel_{nivel}_Tiempo",
-                $"Nivel_{nivel}_Muertes",
-                $"Nivel_{nivel}_Habilidades"
-            };
+            $"Nivel_{nivel}_Estrellas",
+            $"Nivel_{nivel}_Tiempo",
+            $"Nivel_{nivel}_Muertes",
+            $"Nivel_{nivel}_Habilidades"
+        };
 
             foreach (string clave in claves)
             {

@@ -21,37 +21,32 @@ public class BloquePreview : MonoBehaviour
 
     void Update()
     {
-        // Si no está en modo habilidad, ocultar
         if (!Jugador.ModoHabilidadActivo)
         {
             spriteRenderer.enabled = false;
             return;
         }
 
-        // Obtener posición del mouse en coordenadas de celda
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePos.z = 0;
+        // 1. Tomar mouse → World (sin pixel snapping)
+        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorld.z = 0;
 
-        // 🔥 Fix para Pixel Snapping — redondear al grid de píxeles
-        float ppu = 16f; // tu Pixels Per Unit real
-        mousePos.x = Mathf.Round(mousePos.x * ppu) / ppu;
-        mousePos.y = Mathf.Round(mousePos.y * ppu) / ppu;
+        // 2. Convertir a celda EXACTA del tilemap
+        Vector3Int cellPos = sueloTilemap.WorldToCell(mouseWorld);
 
-        Vector3Int cellPos = sueloTilemap.WorldToCell(mousePos);
-
-
-        // Solo recalcular si se movió a otra celda
+        // 3. Solo actualizar si cambió de celda
         if (cellPos != ultimaCelda)
         {
             ultimaCelda = cellPos;
 
-            // ¿Hay un tile de suelo en esa celda?
-            bool haySuelo = sueloTilemap.HasTile(cellPos);
-
-            if (haySuelo)
+            if (sueloTilemap.HasTile(cellPos))
             {
-                Vector3 cellCenter = sueloTilemap.GetCellCenterWorld(cellPos);
-                transform.position = cellCenter + new Vector3(0, 0, zOffset);
+                // 4. Usar SIEMPRE el CenterWorld del tilemap (no pixel snap)
+                Vector3 pos = sueloTilemap.GetCellCenterWorld(cellPos);
+
+                // 5. Asignar posición exacta del grid
+                transform.position = pos + new Vector3(0, 0, zOffset);
+
                 spriteRenderer.enabled = true;
             }
             else
@@ -60,4 +55,5 @@ public class BloquePreview : MonoBehaviour
             }
         }
     }
+
 }

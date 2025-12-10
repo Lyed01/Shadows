@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f28f1ba5ca3e0d74c918894bf572cad2, type: 3}
+  m_Name: SillhuetteFINAL
+  m_EditorClassIdentifier: 
+  idDialogo: 
+  lineas:
+  - texto: "Oh\u2026 as\xED que finalmente hablaste con los otros dos."
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Supongo que ya entendiste el problema: Noxel perdi\xF3 el rumbo."
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "No es culpa suya, \xBFsab\xE9s? En el Abismo todos lo pasaban por alto\u2026
+      aqu\xED descubri\xF3 que la luz lo obedece."
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Y ahora piensa que eso lo hace\u2026 superior."
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "All\xE1 abajo, a la derecha\u2026 hay una lampara. Si la activas, podremos
+      usarla para detenerlo."
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Hazlo, peque\xF1\xEDn. Antes de que convierta este lugar en su peque\xF1o
+      reino de sombras."
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  accionFinal:
+    tipo: 0
+    habilidad: 0
+    objetoActivar: {fileID: 0}
+    activar: 1
+    sonido: {fileID: 0}
+    idPuerta: 

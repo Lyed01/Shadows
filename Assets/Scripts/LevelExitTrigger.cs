@@ -7,7 +7,11 @@ public class LevelExitTrigger : MonoBehaviour
     [Tooltip("Nombre de este nivel (debe coincidir con el del LevelScoreManager).")]
     public string nombreNivel = "Nivel1";
 
-    
+    [Header("Final del juego (opcional)")]
+    public bool irAEscenaFinal = false;
+
+    [Tooltip("Nombre de la escena final a cargar")]
+    public string nombreEscenaFinal = "EscenaFinal";
 
     private bool activo = true;
 
@@ -37,9 +41,6 @@ public class LevelExitTrigger : MonoBehaviour
         jugador.SetControlActivo(false);
         GameManager.Instance.CambiarEstado(GameManager.GameState.Transicion);
 
-
-        
-
         // 🔹 Recopilar estadísticas desde LevelScoreManager
         if (LevelScoreManager.Instance != null)
         {
@@ -60,7 +61,15 @@ public class LevelExitTrigger : MonoBehaviour
 
         yield return new WaitForSeconds(GameManager.Instance.duracionFade);
 
-        // 🔹 Cargar Hub
-        GameManager.Instance.VolverAlHub();
+        // 🔹 Cargar escena final o Hub
+        if (irAEscenaFinal)
+        {
+            Debug.Log($"🎬 LevelExitTrigger: Cargando escena final '{nombreEscenaFinal}'");
+            UnityEngine.SceneManagement.SceneManager.LoadScene(nombreEscenaFinal);
+        }
+        else
+        {
+            GameManager.Instance.VolverAlHub();
+        }
     }
 }

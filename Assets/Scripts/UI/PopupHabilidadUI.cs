@@ -70,4 +70,11 @@ public class PopupHabilidadUI : MonoBehaviour
 
         gameObject.SetActive(false);
     }
+    void OnDisable()
+    {
+        canvasGroup.alpha = 0f;
+        transform.localScale = scaleOut;
+        animCoroutine = null;
+    }
+
 }

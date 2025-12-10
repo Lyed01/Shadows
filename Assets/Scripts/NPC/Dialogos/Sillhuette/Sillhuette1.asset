@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idDialogo: 
   lineas:
-  - texto: "\xA1Hey, peque\xF1o! Vi c\xF3mo esquivaste esas luces\u2026 nada mal. "
+  - texto: "Oh\u2026 \xBFqu\xE9 tal, peque\xF1\xEDn? He estado observando c\xF3mo
+      avanzas por las instalaciones. "
     retrato: {fileID: 0}
     nombreNPC: Sillhuette
     accionPorLinea:
@@ -24,7 +25,8 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: "Quiz\xE1s tengas m\xE1s talento del que aparentas."
+  - texto: "Me has sorprendido m\xE1s de lo que imagin\xE1s. Quiz\xE1s tengas m\xE1s
+      talento del que aparentas."
     retrato: {fileID: 0}
     nombreNPC: Sillhuette
     accionPorLinea:
@@ -34,7 +36,8 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: "Oh! casi lo olvido, Soy Silhuette\u2026 otra sombra atrapada aqu\xED.\n"
+  - texto: "Casi lo olvido\u2026 soy Silhuette. Otra sombra atrapada aqu\xED, igual
+      que t\xFA.\r"
     retrato: {fileID: 0}
     nombreNPC: Sillhuette
     accionPorLinea:
@@ -44,8 +47,8 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: "A veces, cuando est\xE1s encerrada por demasiado tiempo, descubres maneras
-      nuevas de moverte."
+  - texto: "A veces, cuando est\xE1s encerrada demasiado tiempo, descubr\xEDs formas
+      nuevas de moverte.\r"
     retrato: {fileID: 0}
     nombreNPC: Sillhuette
     accionPorLinea:

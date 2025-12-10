@@ -8,6 +8,9 @@ public class UIManager : PersistentSingleton<UIManager>
     public GameObject panelPausa;
     public GameObject panelOpciones;
 
+    [Header("Overlay de carga")]
+    public CanvasGroup loadingOverlay;
+
     [Header("Subpaneles de opciones (opcional)")]
     public GameObject panelGeneral;
     public GameObject panelControles;
@@ -19,36 +22,41 @@ public class UIManager : PersistentSingleton<UIManager>
     [Header("Canvas raíz del sistema de menús")]
     public Canvas canvasMenues;
 
+    [Header("Escenas donde NO debe mostrarse la UI")]
+    public string[] escenasSinUI;
     protected override void OnBoot()
     {
         string escenaActual = SceneManager.GetActiveScene().name;
-        if (escenaActual == "MainMenu")
+
+        // 🚫 Escenas especiales SIN UI
+        if (EscenaSinUI(escenaActual))
         {
-            Debug.Log("🎛 UIManager: Escena de menú detectada, ocultando HUD.");
             OcultarTodo();
+        }
+        else if (escenaActual == "MainMenu")
+        {
+            return;
         }
         else
         {
-            MostrarHUD();
+            // En el Hub se debe mostrar el HUD
+            if (escenaActual == "Hub")
+                MostrarHUD();
+            else
+                MostrarHUD();
         }
 
-
-
-        // Registrar evento de escena
+        // ✅ ESTO DEBE ESTAR DENTRO DEL MÉTODO
         SceneManager.sceneLoaded += OnSceneLoaded;
 
-        // Registrar Canvas como persistente
         if (canvasMenues != null)
         {
             DontDestroyOnLoad(canvasMenues.gameObject);
             canvasPrincipal = canvasMenues;
-            Debug.Log($"🟢 Canvas persistente asignado: {canvasMenues.name}");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ UIManager: ningún Canvas asignado en 'canvasMenues'.");
         }
     }
+
+
 
     private void OnDestroy()
     {
@@ -156,42 +164,61 @@ public class UIManager : PersistentSingleton<UIManager>
 
     private IEnumerator ReinicializarUICoroutine()
     {
-        // Esperá un frame para que la escena haya cargado completamente
         yield return null;
 
         string escenaActual = SceneManager.GetActiveScene().name;
-        Debug.Log($"🧩 Reinicializando UI para escena '{escenaActual}'...");
 
-        // 1️⃣ Asegurar que haya un solo EventSystem activo
+        // 🚫 Nunca mostrar UI en MainMenu
+        if (escenaActual == "MainMenu")
+        {
+            Debug.Log("🔕 UIManager: MainMenu detectado → UI completamente desactivada.");
+            OcultarTodo();
+            HUDHabilidad.Instance?.gameObject.SetActive(false);
+            yield break;
+        }
+
+
+        // 🚫 Si es escena sin UI → no activar HUD
+        if (EscenaSinUI(escenaActual))
+        {
+            OcultarTodo();
+            yield break;
+        }
+        // 🏠 HUB → sí debe mostrar HUD
+        if (escenaActual == "Hub")
+        {
+            MostrarHUD();
+            yield break;
+        }
+
+
+        // ✔ Cualquier otro nivel → mostrar HUD
+        MostrarHUD();
+
+        // EventSystem fix
+        // Si NO HAY EventSystem → crear uno
         var systems = FindObjectsByType<UnityEngine.EventSystems.EventSystem>(
-            FindObjectsInactive.Include, FindObjectsSortMode.None);
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None
+        );
 
         if (systems.Length == 0)
         {
-            var nuevo = new GameObject("EventSystem").AddComponent<UnityEngine.EventSystems.EventSystem>();
+            Debug.Log("⚠ No EventSystem en escena, creando uno temporal.");
+            var nuevo = new GameObject("EventSystem")
+                .AddComponent<UnityEngine.EventSystems.EventSystem>();
             nuevo.gameObject.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
-            Debug.Log("🎯 EventSystem recreado automáticamente.");
-        }
-        else
-        {
-            bool firstActive = false;
-            foreach (var es in systems)
-            {
-                if (!firstActive)
-                {
-                    es.gameObject.SetActive(true);
-                    es.enabled = true;
-                    firstActive = true;
-                }
-                else
-                {
-                    Destroy(es.gameObject); // eliminar duplicados
-                    Debug.LogWarning("🗑️ EventSystem duplicado eliminado.");
-                }
-            }
+
+            yield break;   // ✔ forma correcta
+
         }
 
-        // 2️⃣ Reactivar CanvasGroups visibles
+        // SI EXISTE → dejarlo como está, NO TOCARLO
+        systems[0].enabled = true;
+        systems[0].gameObject.SetActive(true);
+
+
+        // Reactivar raycasts UI
         foreach (var cg in FindObjectsByType<CanvasGroup>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             if (cg.alpha > 0.9f)
@@ -201,26 +228,66 @@ public class UIManager : PersistentSingleton<UIManager>
             }
         }
 
-        // 3️⃣ Reconectar cámara del Canvas principal
+        // Reconectar cámara
         var canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (var c in canvases)
         {
             if (c.isRootCanvas && c.renderMode == RenderMode.ScreenSpaceCamera)
                 c.worldCamera = Camera.main;
         }
+    }
 
-        // 4️⃣ Reactivar popup del Hub (si existe)
-        var popup = FindFirstObjectByType<PopupNivelUI>(FindObjectsInactive.Include);
-        if (popup != null)
+
+    public bool EscenaSinUI(string nombre)
+{
+    // ❌ Estas escenas SIEMPRE deben mostrar su UI propia
+    if (nombre == "Hub") return false;
+    if (nombre == "MainMenu") return false;
+
+    // ✔ Escenas realmente sin UI (cinemáticas, pantallas negras, etc.)
+    foreach (var s in escenasSinUI)
+        if (s == nombre)
+            return true;
+
+    return false;
+    }
+
+    public void MostrarOverlay()
+    {
+        if (loadingOverlay == null) return;
+
+        loadingOverlay.alpha = 1f;
+        loadingOverlay.blocksRaycasts = true;
+        loadingOverlay.interactable = false;
+
+        loadingOverlay.gameObject.SetActive(true);
+    }
+
+    public void OcultarOverlay()
+    {
+        if (loadingOverlay == null) return;
+
+        StartCoroutine(FadeOutOverlay());
+    }
+
+    private IEnumerator FadeOutOverlay()
+    {
+        float dur = 0.35f;
+        float t = 0f;
+
+        while (t < dur)
         {
-            popup.canvasGroup.blocksRaycasts = false;
-            popup.canvasGroup.interactable = false;
-            popup.gameObject.SetActive(true);
-            Debug.Log("📦 PopupNivelUI preparado.");
+            t += Time.deltaTime;
+            loadingOverlay.alpha = Mathf.Lerp(1f, 0f, t / dur);
+            yield return null;
         }
 
-        Debug.Log("✅ UI reactivada correctamente.");
+        loadingOverlay.alpha = 0f;
+        loadingOverlay.blocksRaycasts = false;
+        loadingOverlay.gameObject.SetActive(false);
     }
+
+
 
 
 

@@ -35,4 +35,9 @@ public class DemostracionPaso
     public Transform[] rutaPuntos;   // puntos para la ruta
     public float velocidadLlama = 3f;
 
+    public string flagDeActivacion;
+
+    [Header("Flag opcional que se activa al completar este paso")]
+    public string flagAlCompletar;
+
 }

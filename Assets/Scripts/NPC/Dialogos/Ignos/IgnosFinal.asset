@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f28f1ba5ca3e0d74c918894bf572cad2, type: 3}
+  m_Name: IgnosFinal
+  m_EditorClassIdentifier: 
+  idDialogo: 
+  lineas:
+  - texto: "h\u2013h\u2013hola otra vez\u2026 Shawy\u2026"
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "s\u2013s\xED\u2026 ya lo notaste, \xBFno?\u2026 Noxel no est\xE1 bien."
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "E\u2013e\u2013\xE9l siempre quiso ser\u2026 alguien grande\u2026 importante\u2026"
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Pero en el Abismo todos lo ignoraban\u2026 solo ve\xEDan su ruido\u2026
+      no su fuerza."
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Aqu\xED, en cambio\u2026 estas m\xE1quinas lo obedecen\u2026 las luces
+      reaccionan\u2026 y \xE9l cree que eso es \u201Cpoder\u201D."
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Creo que\u2026 que est\xE1 usando la energ\xEDa de la luz para mantenernos
+      encerrados."
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "A\u2013a\u2013a\u2026 si Silhuette tiene raz\xF3n\u2026 solo hay una
+      forma de detenerlo\u2026"
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  accionFinal:
+    tipo: 0
+    habilidad: 0
+    objetoActivar: {fileID: 0}
+    activar: 1
+    sonido: {fileID: 0}
+    idPuerta: 

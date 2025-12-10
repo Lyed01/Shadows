@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idDialogo: 
   lineas:
-  - texto: "I- i - I nn - ntentalo t\xFA!"
+  - texto: "I\u2013i\u2013int\xE9ntalo t\xFA."
     retrato: {fileID: 0}
     nombreNPC: Ignos
     accionPorLinea:

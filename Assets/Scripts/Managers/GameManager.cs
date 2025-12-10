@@ -77,7 +77,16 @@ public class GameManager : PersistentSingleton<GameManager>
             OnPlayerSpawned?.Invoke(jugadorActual);
 
         if (EsHub)
+        {
+            // Solo lógica especial del Hub
             ReactivarSistemaPopupsHub();
+        }
+        else
+        {
+            // Para niveles / otras escenas → sí reparamos UI
+            UIManager.Instance?.ReinicializarUI();
+        }
+
 
         UIManager.Instance?.ReinicializarUI();
     }
@@ -181,23 +190,30 @@ public class GameManager : PersistentSingleton<GameManager>
                 ReanudarJuego();
         }
     }
-
     private void ManejarMuerteJugador()
     {
+        DialogueSystemWorld.Instance?.ForzarCerrarDialogo();
         if (EstadoActual == GameState.Muerte) return;
         EstadoActual = GameState.Muerte;
 
-        OnPlayerDeath?.Invoke();
+        OnPlayerDeath?.Invoke(); // LevelScoreManager escucha esto
+
+        // ❌ Nada de popups acá
         Invoke(nameof(ReiniciarFlujoDeJuego), tiempoReinicio);
     }
+
+
+
 
     private void ReiniciarFlujoDeJuego() => StartCoroutine(ReiniciarConFade());
 
     private IEnumerator ReiniciarConFade()
     {
         yield return new WaitForSeconds(0.2f);
-        if (fader != null) fader.FadeIn(duracionFade);
-        yield return new WaitForSeconds(duracionFade);
+
+        // Pantalla negra instantánea
+        fader?.InstantBlack();
+        yield return null;
 
         if (jugadorActual != null)
             Destroy(jugadorActual.gameObject);
@@ -205,20 +221,31 @@ public class GameManager : PersistentSingleton<GameManager>
         grid?.EliminarShadowBlocks();
         grid?.ResetearCeldas();
         ResetearEntornoInteractivo();
-        InstanciarJugador();
-        OnLevelRestart?.Invoke();
 
+        // 👤 Nuevo jugador
+        InstanciarJugador();
+
+        // 🔑 AVISAR A TODOS LOS NPCs QUE HAY UN JUGADOR NUEVO
         if (jugadorActual != null)
             OnPlayerSpawned?.Invoke(jugadorActual);
 
-        if (EsHub)
-            ReactivarSistemaPopupsHub();
+        OnLevelRestart?.Invoke();
 
-        yield return new WaitForSeconds(0.1f);
-        if (fader != null) fader.FadeOut(duracionFade);
+        // 🌌 Si estamos en el Hub, reactivamos sistema de popups con el jugador NUEVO
+        if (EsHub && jugadorActual != null)
+        {
+            ReactivarSistemaPopupsHub();
+        }
+
+        // Fade suave de vuelta
+        fader?.FadeOut(duracionFade);
+        yield return new WaitForSeconds(duracionFade);
 
         EstadoActual = GameState.Jugando;
     }
+
+
+
 
     public void PausarJuego()
     {
@@ -251,43 +278,35 @@ public class GameManager : PersistentSingleton<GameManager>
         EstadoActual = GameState.Transicion;
         Time.timeScale = 1f;
 
-        if (fader != null) fader.FadeIn(duracionFade);
-        yield return new WaitForSeconds(duracionFade);
+        // 🔥 Cubrimos pantalla instantáneamente
+        fader?.InstantBlack();
+        yield return null;
 
         SceneManager.LoadScene("Hub");
         yield return null;
 
-        if (fader != null) fader.FadeOut(duracionFade);
+        // 🔥 Tararea efecto de aparición del hub
+        fader?.FadeOut(duracionFade);
+        yield return new WaitForSeconds(duracionFade);
 
-        // ========= Lógica correcta de retorno =========
-
-        // Solo teletransportar si realmente venimos desde un nivel
+        // Logica tuya original de teletransporte
         if (regresoDesdeNivel)
         {
             regresoDesdeNivel = false;
 
-            // No teletransportar en la primera visita al Hub
             if (!primeraVezEnHub)
             {
-                // Solo mover si la puerta tiene un valor válido
                 if (ultimaPuertaPosicion != Vector3.zero && jugadorActual != null)
                 {
                     jugadorActual.transform.position = ultimaPuertaPosicion;
                     jugadorActual.StartCoroutine(EfectoAparicion(jugadorActual.transform));
-
-                    Debug.Log($"🚪 Jugador reapareció frente a puerta en {ultimaPuertaPosicion}");
-                }
-                else
-                {
-                    Debug.Log("⚠ No hay posición válida de puerta para teletransporte.");
                 }
             }
         }
 
-        // ==============================================
-
         EstadoActual = GameState.Jugando;
     }
+
 
 
     public void CargarNivelDesdePuerta(DoorHub puerta)
@@ -312,18 +331,24 @@ public class GameManager : PersistentSingleton<GameManager>
         EstadoActual = GameState.Transicion;
         Time.timeScale = 1f;
 
-        if (fader != null) fader.FadeIn(duracionFade);
-        yield return new WaitForSeconds(duracionFade);
+        // 🔥 Ocultamos pantalla INMEDIATO para evitar ver HUD o flashes
+        fader?.InstantBlack();
+
+        yield return null; // esperar un frame por seguridad
 
         var op = SceneManager.LoadSceneAsync(nombreEscena);
         while (!op.isDone)
             yield return null;
 
-        if (fader != null) fader.FadeOut(duracionFade);
+        // 🔥 Ahora que la escena ya cargó, limpiamos visualmente
+        fader?.FadeOut(duracionFade);
+
         yield return new WaitForSeconds(duracionFade);
 
         EstadoActual = GameState.Jugando;
     }
+
+
 
     // =============================== UTILIDADES ===============================
 
@@ -341,22 +366,44 @@ public class GameManager : PersistentSingleton<GameManager>
 
     private void ActivarHUD(Scene escena)
     {
-        if (escena.name == "MainMenu" || escena.name == "Menu" || escena.name == "MainMenuScene")
+        string n = escena.name;
+
+        // 🔴 ESCENAS QUE NUNCA DEBEN TENER HUD
+        if (n == "MainMenu" || n == "Menu" || n == "MainMenuScene")
         {
+            Debug.Log("🎛 GameManager: MainMenu → HUD apagado.");
+            UIManager.Instance?.OcultarTodo();
             HUDHabilidad.Instance?.gameObject.SetActive(false);
             return;
         }
 
-        if (escena.name != "Hub")
+        // 🔴 ESCENAS MARCADAS COMO CINEMÁTICA
+        if (UIManager.Instance != null && UIManager.Instance.EscenaSinUI(n))
         {
+            Debug.Log($"🚫 GameManager: '{n}' está marcada como sin UI.");
+            UIManager.Instance.OcultarTodo();
+            HUDHabilidad.Instance?.gameObject.SetActive(false);
+            return;
+        }
+
+        // 🟣 HUB — mostrar HUD normal
+        if (escena.name == "Hub")
+        {
+            Debug.Log("🏠 GameManager: En Hub → mostrar HUD.");
             HUDHabilidad.Instance?.gameObject.SetActive(true);
             UIManager.Instance?.MostrarHUD();
+            return;
         }
-        else
-        {
-            Debug.Log("🏠 GameManager: En Hub, no se activa HUD del UIManager.");
-        }
+
+
+        // 🟢 NIVELES NORMALES — mostrar HUD
+        Debug.Log("🎮 Nivel normal → mostrar HUD.");
+        HUDHabilidad.Instance?.gameObject.SetActive(true);
+        UIManager.Instance?.MostrarHUD();
     }
+
+
+
 
     private IEnumerator SincronizarDespuesDeFrame()
     {
@@ -369,23 +416,35 @@ public class GameManager : PersistentSingleton<GameManager>
 
     private void ReactivarSistemaPopupsHub()
     {
+        Debug.Log("🔁 ReactivarSistemaPopupsHub() llamado. Escena actual: "
+                  + SceneManager.GetActiveScene().name
+                  + " | jugadorActual = " + (jugadorActual ? jugadorActual.name : "NULL"));
+
         var popup = FindFirstObjectByType<PopupNivelUI>(FindObjectsInactive.Include);
         if (popup != null)
         {
             popup.gameObject.SetActive(true);
             Debug.Log("🟢 PopupNivelUI activo en Hub.");
         }
+        else
+        {
+            Debug.LogWarning("⚠️ No encontré PopupNivelUI en el Hub.");
+        }
 
         var puertas = FindObjectsByType<DoorHub>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        Debug.Log("🚪 Puertas encontradas en Hub: " + puertas.Length);
+
         if (puertas != null && jugadorActual != null)
         {
             foreach (var p in puertas)
             {
+                Debug.Log("➡️ Mandando ForzarChequeoJugador a puerta: " + p.name);
                 p.SendMessage("ForzarChequeoJugador", jugadorActual, SendMessageOptions.DontRequireReceiver);
             }
-            Debug.Log("🔁 Detección de puertas reactivada.");
+            Debug.Log("✅ Detección de puertas reactivada.");
         }
     }
+
 
     private IEnumerator EfectoAparicion(Transform objetivo)
     {

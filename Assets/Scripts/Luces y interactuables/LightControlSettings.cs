@@ -55,7 +55,7 @@ public class LightControlSettings
             case LightConfigType.SpotLight:
                 if (spotSettings != null)
                 {
-                    spotSettings.ResetInterno();   // ⭐ FIX CRÍTICO ⭐
+                    spotSettings.ResetInterno();
 
                     if (spotSettings.spot != null)
                         spotSettings.spot.ResetToInitialState();
@@ -63,8 +63,13 @@ public class LightControlSettings
                 break;
 
             case LightConfigType.TopLight:
-                if (topSettings != null && topSettings.top != null)
-                    topSettings.top.ResetToInitialState();
+                if (topSettings != null)
+                {
+                    topSettings.ResetInterno();
+
+                    if (topSettings.top != null)
+                        topSettings.top.ResetToInitialState();
+                }
                 break;
         }
     }
@@ -79,7 +84,6 @@ public abstract class LightControlSettingsBase
 {
     [Header("Encender / Apagar")]
     public bool modificarEncendido = false;
-
     public bool encendidoON = true;
     public bool encendidoOFF = true;
 
@@ -105,14 +109,12 @@ public class SpotLightControlSettings : LightControlSettingsBase
     [Header("Tipo de luz")]
     public bool cambiarTipoLuz = false;
 
-    // ✔ Evita repetir cambios infinitamente
     [System.NonSerialized]
     private bool cambioAplicado = false;
 
-    // ========== Reset propio ==========
     public void ResetInterno()
     {
-        cambioAplicado = false;   // ⭐ Se limpia al reiniciar
+        cambioAplicado = false;
     }
 
     [Header("Rotación constante")]
@@ -143,9 +145,7 @@ public class SpotLightControlSettings : LightControlSettingsBase
             if (!encender) return;
         }
 
-        // =======================================================
-        // 🔥 CAMBIO DE COLOR — SOLO UNA VEZ POR ACTIVACIÓN
-        // =======================================================
+        // CAMBIO DE TIPO DE LUZ (ONCE POR ACTIVACIÓN)
         if (cambiarTipoLuz)
         {
             if (estadoON)
@@ -163,7 +163,6 @@ public class SpotLightControlSettings : LightControlSettingsBase
             }
             else
             {
-                // Volver al color original cuando se apaga
                 spot.SetTipoLuz(spot.initTipoLuz);
                 cambioAplicado = false;
             }
@@ -202,6 +201,30 @@ public class TopLightControlSettings : LightControlSettingsBase
     [Header("Referencia a TopLight")]
     public TopLightDetector top;
 
+    // ============================================================
+    // CAMBIO DE TIPO DE LUZ (NUEVO)
+    // ============================================================
+    [Header("Cambio de tipo de luz")]
+    public bool cambiarTipoLuz = false;
+
+    public SpotLightDetector.TipoLuz tipoLuzON;
+    public SpotLightDetector.TipoLuz tipoLuzOFF;
+
+    [System.NonSerialized]
+    private bool cambioAplicado = false;
+
+    public void ResetInterno()
+    {
+        cambioAplicado = false;
+
+        if (top != null)
+            top.SetTipoLuz(top.tipoLuz);  // FIX — antes usaba un campo que NO existe
+    }
+
+
+    // ============================================================
+    // MOVIMIENTO
+    // ============================================================
     [Header("Movimiento entre puntos")]
     public bool modificarMovimiento = false;
 
@@ -209,6 +232,9 @@ public class TopLightControlSettings : LightControlSettingsBase
     public MovimientoModo movimientoON = MovimientoModo.ON;
     public MovimientoModo movimientoOFF = MovimientoModo.OFF;
 
+    // ============================================================
+    // ATRIBUTOS VISUALES
+    // ============================================================
     [Header("Radio del haz")]
     public bool modificarRadio = false;
     public float radioON = 4f;
@@ -219,16 +245,37 @@ public class TopLightControlSettings : LightControlSettingsBase
     public float intensidadON = 1f;
     public float intensidadOFF = 0f;
 
+    // ============================================================
+    // APLICACIÓN DE ESTADO
+    // ============================================================
     public override void AplicarEstado(bool estadoON)
     {
         if (top == null) return;
 
-        // ENCENDIDO
+        // ENCENDIDO / APAGADO
         if (modificarEncendido)
         {
             bool encender = estadoON ? encendidoON : encendidoOFF;
             top.SetLuzActiva(encender);
             if (!encender) return;
+        }
+
+        // CAMBIO DE TIPO DE LUZ
+        if (cambiarTipoLuz)
+        {
+            if (estadoON)
+            {
+                if (!cambioAplicado)
+                {
+                    top.SetTipoLuz(tipoLuzON);
+                    cambioAplicado = true;
+                }
+            }
+            else
+            {
+                top.SetTipoLuz(tipoLuzOFF);
+                cambioAplicado = false;
+            }
         }
 
         // TITILEO
@@ -260,7 +307,7 @@ public class TopLightControlSettings : LightControlSettingsBase
         if (modificarRadio)
             top.radio = estadoON ? radioON : radioOFF;
 
-        // INTENSIDAD LUZ 2D
+        // INTENSIDAD
         if (modificarIntensidadLuz2D)
             top.intensidadLuz2D = estadoON ? intensidadON : intensidadOFF;
     }

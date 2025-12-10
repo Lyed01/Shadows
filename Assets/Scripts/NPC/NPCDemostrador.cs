@@ -33,6 +33,14 @@ public class NPCDemostrador : MonoBehaviour
     public bool otorgarHabilidadAlFinal = false;
     public AbilityType habilidadEntregada;
 
+
+    [Header("Condición para iniciar la demostración (opcional)")]
+    public bool requiereFlagParaIniciar = false;
+    public string flagRequerida;
+
+
+
+
     // === Internos ===
     private Rigidbody2D rb;
     private bool ejecutando = false;
@@ -44,6 +52,22 @@ public class NPCDemostrador : MonoBehaviour
     // === AbyssFlame del NPC ===
     private AbyssFlame flameNPC;
 
+    private Transform jugador;
+
+    private void OnEnable()
+    {
+        GameManager.OnPlayerSpawned += RegistrarJugador;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnPlayerSpawned -= RegistrarJugador;
+    }
+
+    private void RegistrarJugador(Jugador j)
+    {
+        jugador = j.transform;
+    }
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -53,8 +77,36 @@ public class NPCDemostrador : MonoBehaviour
 
     public void IniciarDemostracion()
     {
-        if (!ejecutando)
+        // Si ya está ejecutando, no hacer nada
+        if (ejecutando)
+            return;
+
+        // Si hay flag requerida, la chequeamos con un "retry"
+        if (requiereFlagParaIniciar)
+        {
+            StartCoroutine(IntentarIniciarDemostracion());
+        }
+        else
+        {
+            // No requiere flag → iniciar inmediatamente
             StartCoroutine(FlujoDemostracion());
+        }
+    }
+
+
+    private IEnumerator IntentarIniciarDemostracion()
+    {
+        for (int i = 0; i < 5; i++) // hasta 5 frames
+        {
+            yield return null;
+            if (SceneStateManager.Instance.HasFlag(flagRequerida))
+            {
+                StartCoroutine(FlujoDemostracion());
+                yield break;
+            }
+        }
+
+        Debug.Log($"⛔ {name}: Nunca encontró la flag '{flagRequerida}' después de varios intentos.");
     }
 
     private IEnumerator FlujoDemostracion()
@@ -126,7 +178,15 @@ public class NPCDemostrador : MonoBehaviour
                 }
                 break;
         }
+
+        // ⭐ FLAG DESPUÉS DE COMPLETAR EL PASO
+        if (!string.IsNullOrEmpty(paso.flagAlCompletar))
+        {
+            SceneStateManager.Instance.SetFlag(paso.flagAlCompletar);
+            Debug.Log("🏁 Paso completado → Flag activada: " + paso.flagAlCompletar);
+        }
     }
+
 
     // ===========================================================
     // MOVIMIENTO NPC
@@ -403,6 +463,7 @@ public class NPCDemostrador : MonoBehaviour
         // 💀 El NPC ahora puede desaparecer
         Destroy(gameObject);
     }
+ 
 
 
 

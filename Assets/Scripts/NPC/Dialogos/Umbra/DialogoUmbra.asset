@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idDialogo: 
   lineas:
-  - texto: "Mmmm, que tenemos aqui... t\xFA debes ser... Shawy, Noxel te menciono"
+  - texto: "Mmm\u2026 \xBFqu\xE9 tenemos aqu\xED? T\xFA debes ser Shawy. Noxel te
+      mencion\xF3.\r\n"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -24,7 +25,8 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: "Mi nombre es Umbra, guardian del reflejo, y como t\xFA, estoy aqui atrapado"
+  - texto: "Mi nombre es Umbra. Guardi\xE1n del reflejo. Y como t\xFA, estoy atrapado
+      aqu\xED.\r\n"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -34,7 +36,7 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: "Voy a ense\xF1arte un peque\xF1o poder que te ayudar\xE1 en tu camino"
+  - texto: "Voy a ense\xF1arte un poder peque\xF1o, pero esencial para tu camino.\r\n"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -44,8 +46,8 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: "Como seguro sabr\xE1s, la luz es nuestra enemiga desde hace siglos, y
-      por eso..."
+  - texto: "Como ya sabr\xE1s, la luz es nuestra enemiga desde hace siglos. Y por
+      eso\u2026\r\n"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -55,7 +57,8 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: Hemos ideado la forma de bloquearla y reflectarla, mediante los MirrorBlocks....
+  - texto: "Hemos creado los MirrorBlocks: fragmentos de sombra endurecida capaces
+      de desviar la luz.\r"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:

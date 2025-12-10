@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3575328356680669420}
   - component: {fileID: 1212492570301042952}
   - component: {fileID: 9139576980174542019}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: puertaizquierda
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -144,7 +144,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1935080535297601589}
   - component: {fileID: 8791280801059288472}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -232,7 +232,7 @@ GameObject:
   - component: {fileID: 8809577841554400846}
   - component: {fileID: 5531928269512342356}
   - component: {fileID: 769979695837501954}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: PuertaDerecha
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -367,9 +367,9 @@ GameObject:
   - component: {fileID: 5667769196033692571}
   - component: {fileID: 7392245086561124377}
   - component: {fileID: 5440340478061188905}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Puerta
-  m_TagString: Untagged
+  m_TagString: Door
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -461,6 +461,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   anim: {fileID: 5440340478061188905}
   IsOpen: 0
+  initialIsOpen: 0
+  switchesRequeridos: []
+  receptoresRequeridos: []
+  requiereFragmentos: 0
+  fragmentosNecesarios: 0
+  claveFragmentos: FragmentosTotales
+  noReset: 0
 --- !u!95 &5440340478061188905
 Animator:
   serializedVersion: 7

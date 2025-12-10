@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idDialogo: 1
   lineas:
-  - texto: " Cogh cogh... oh.. por fin despiertas... pens\xE9 que moriria solo aqu\xED"
+  - texto: "Cogh\u2026 cof\u2026 oh\u2026 por fin despiertas. Cre\xED que iba a morir
+      solo aqu\xED.\r\n"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -24,7 +25,7 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: "Voy a ponerte al dia antes de que llegue mi hora...\t\t"
+  - texto: "Voy a ponerte al d\xEDa antes de que llegue mi hora\u2026\r\n"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -34,7 +35,8 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: Mi nombre es... bah, no importa mi nombre. el caso es que estamos encerrados
+  - texto: "Mi nombre es\u2026 bah, ya no importa. Lo \xFAnico que debes saber es
+      que estamos encerrados.\r"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -44,7 +46,7 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: Encerrados en estas malditas instalaciones humanas. Cof.. cof..
+  - texto: "Encerrados en estas malditas instalaciones humanas\u2026\r\n"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -54,7 +56,7 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: Casi que puedo oler la humedad del Abismo, nuestro hogar
+  - texto: "Cof\u2026 cof\u2026 siempre fr\xEDas, siempre vigil\xE1ndonos.\r\n"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -64,7 +66,8 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: "Debes escapar ni\xF1o, escapa de este lugar y vuelve a casa"
+  - texto: "Casi puedo oler la humedad del Abismo\u2026 nuestro hogar. Tan lejos\u2026
+      tan cerca\u2026\r\n"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -74,8 +77,7 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: Para hacerlo tendras que atravesar todas las instalaciones y recolectar
-      los ShadowShards
+  - texto: "Debes escapar, ni\xF1o. Escapa de este lugar y vuelve a casa.\r"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -85,7 +87,8 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: "\xBFPor qu\xE9? No lo se... as\xED lo quiere la trama"
+  - texto: "Para lograrlo tendr\xE1s que atravesar todas las instalaciones\u2026
+      y recolectar los ShadowShards.\r"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -95,7 +98,19 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: "Ahora ve ni\xF1o y cumple tu destino"
+  - texto: "\xBFPor qu\xE9? No lo s\xE9. Escuch\xE9 a unos cient\xEDficos hablar
+      de ellos\u2026 como si fueran la llave de algo.\r\n"
+    retrato: {fileID: 0}
+    nombreNPC: 
+    accionPorLinea:
+      tipo: 0
+      habilidad: 0
+      objetoActivar: {fileID: 0}
+      activar: 0
+      sonido: {fileID: 0}
+      idPuerta: 
+  - texto: "Ahora ve, ni\xF1o\u2026\r\nVe y cumple tu destino antes de que las luces
+      nos apaguen a todos."
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:

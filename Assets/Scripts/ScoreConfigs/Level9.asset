@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: Level9
   m_EditorClassIdentifier: 
   idNivel: Nivel1
-  muertes3: 1
-  muertes2: 2
-  muertes1: 3
-  tiempo3: 60
+  muertes3: 4
+  muertes2: 7
+  muertes1: 8
+  tiempo3: 90
   tiempo2: 120
-  tiempo1: 300
-  habilidades3: 2
-  habilidades2: 4
-  habilidades1: 6
+  tiempo1: 150
+  habilidades3: 7
+  habilidades2: 10
+  habilidades1: 11

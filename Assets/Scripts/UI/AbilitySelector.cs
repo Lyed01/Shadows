@@ -32,8 +32,7 @@ public class AbilitySelector : MonoBehaviour
 
     void OnEnable()
     {
-        GameManager.OnPlayerDeath += ReiniciarSelector;
-        GameManager.OnLevelRestart += ReiniciarSelector;
+        
 
         if (AbilityManager.Instance != null)
         {
@@ -47,8 +46,7 @@ public class AbilitySelector : MonoBehaviour
 
     void OnDisable()
     {
-        GameManager.OnPlayerDeath -= ReiniciarSelector;
-        GameManager.OnLevelRestart -= ReiniciarSelector;
+      
 
         if (AbilityManager.Instance != null)
         {
@@ -160,13 +158,6 @@ public class AbilitySelector : MonoBehaviour
         ActualizarUI();
     }
 
-    private void ReiniciarSelector()
-    {
-        if (habilidadesDesbloqueadas.Count == 0) return;
-
-        indiceActual = 0;
-        ActualizarUI();
-
-        Debug.Log("♻️ AbilitySelector reiniciado tras evento global del GameManager.");
-    }
+    
+  
 }

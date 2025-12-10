@@ -91,6 +91,34 @@ public class DoorHub : MonoBehaviour
         }
     }
 
+
+    // 🔧 Llamado por GameManager después de respawn para corregir estados inconsistentes
+    public void ForzarChequeoJugador(Jugador j)
+    {
+        if (j == null) return;
+
+        jugador = j.transform;
+
+        float dist = Vector2.Distance(jugador.position, transform.position);
+        var posReferencia = (puntoPopup != null) ? puntoPopup.position : transform.position;
+
+        if (dist <= distanciaActivacion)
+        {
+            popupVisible = true;
+            PopupNivelUI.Instance?.Mostrar(this, posReferencia, tituloNivel, descripcionNivel, estrellas);
+        }
+        else
+        {
+            popupVisible = false;
+            PopupNivelUI.Instance?.Ocultar();
+        }
+    }
+
+
+
+
+
+
     public int ObtenerEstrellas() => estrellas;
 
     public void Entrar()

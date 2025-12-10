@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idDialogo: 
   lineas:
-  - texto: El mirror block redirige parte de la energia de la luz hacia una direccion
-      que queramos
+  - texto: "Un MirrorBlock redirige parte de la energ\xEDa en la direcci\xF3n que
+      elijas.\r"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -25,8 +25,8 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: "Luego de colocarlo puedes usar la acci\xF3n secundaria para cambiar la
-      direcci\xF3n del reflejo"
+  - texto: "Una vez colocado, usa la acci\xF3n secundaria para cambiar la orientaci\xF3n
+      del reflejo.\r"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:

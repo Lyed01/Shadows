@@ -28,6 +28,9 @@ public class StarProgressUI : MonoBehaviour
 
     void Start()
     {
+
+        Debug.Log("Fragmentos actuales: " + PlayerPrefs.GetInt("FragmentosTotales"));
+       
         if (SceneManager.GetActiveScene().name == "Hub")
         {
             enHub = true;
@@ -208,12 +211,21 @@ public class StarProgressUI : MonoBehaviour
     private int CalcularEstrellasTotales()
     {
         int total = 0;
+
         for (int i = 1; i <= 50; i++)
         {
             string clave = $"Nivel_Nivel{i}_Estrellas";
             if (PlayerPrefs.HasKey(clave))
                 total += PlayerPrefs.GetInt(clave, 0);
         }
+
+        // 🔥 GUARDAMOS EL TOTAL REAL DE FRAGMENTOS EN PREFS
+        PlayerPrefs.SetInt("FragmentosTotales", total);
+        PlayerPrefs.Save();
+
+        Debug.Log($"[StarProgressUI] FragmentosTotales guardados = {total}");
+
         return total;
     }
+
 }

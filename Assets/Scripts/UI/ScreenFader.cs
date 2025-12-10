@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
@@ -8,7 +8,7 @@ public class ScreenFader : MonoBehaviour
     private CanvasGroup canvasGroup;
     private Coroutine currentFade;
 
-    [Header("Configuraci�n")]
+    [Header("Configuración")]
     public float duracion = 1f;
     public Color color = Color.black;
 
@@ -16,9 +16,10 @@ public class ScreenFader : MonoBehaviour
 
     void Awake()
     {
+        DontDestroyOnLoad(gameObject);
+
         canvasGroup = GetComponent<CanvasGroup>();
 
-        // Crear imagen de fondo
         fondo = gameObject.AddComponent<Image>();
         fondo.color = color;
         fondo.rectTransform.anchorMin = Vector2.zero;
@@ -26,6 +27,22 @@ public class ScreenFader : MonoBehaviour
         fondo.rectTransform.offsetMin = Vector2.zero;
         fondo.rectTransform.offsetMax = Vector2.zero;
 
+        canvasGroup.alpha = 0f;
+        canvasGroup.blocksRaycasts = false;
+    }
+
+    // 🔥 Aparece negro inmediatamente (sin animación)
+    public void InstantBlack()
+    {
+        if (currentFade != null) StopCoroutine(currentFade);
+        canvasGroup.alpha = 1f;
+        canvasGroup.blocksRaycasts = true;
+    }
+
+    // 🔥 Limpia inmediatamente (sin animación)
+    public void InstantClear()
+    {
+        if (currentFade != null) StopCoroutine(currentFade);
         canvasGroup.alpha = 0f;
         canvasGroup.blocksRaycasts = false;
     }
@@ -48,6 +65,10 @@ public class ScreenFader : MonoBehaviour
         float inicio = canvasGroup.alpha;
         float tiempo = 0f;
 
+        // Solo bloquear interacciones si estamos cubriendo pantalla
+        if (objetivo == 1f)
+            canvasGroup.blocksRaycasts = true;
+
         while (tiempo < duracionUsada)
         {
             tiempo += Time.deltaTime;
@@ -56,6 +77,10 @@ public class ScreenFader : MonoBehaviour
         }
 
         canvasGroup.alpha = objetivo;
+
+        if (objetivo == 0f)
+            canvasGroup.blocksRaycasts = false;
+
         currentFade = null;
     }
 }

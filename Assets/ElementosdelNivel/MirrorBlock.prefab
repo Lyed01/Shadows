@@ -77,7 +77,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 20
+  m_SortingOrder: 1
   m_Sprite: {fileID: -985395824052470088, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -167,7 +167,8 @@ MonoBehaviour:
   alcance: 36.1
   mascaraBloqueos:
     serializedVersion: 2
-    m_Bits: 456
+    m_Bits: 968
   spriteActivo: {fileID: -427553547, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
   spriteNormal: {fileID: -985395824052470088, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
+  spriteFlecha: {fileID: 1695352213868668530, guid: dee6d57c7f54a6f4a8a601d0a5bdbab4, type: 3}
   tiempoApagado: 3

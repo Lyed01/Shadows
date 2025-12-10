@@ -97,6 +97,9 @@ public class ReflectiveLightEmitter : MonoBehaviour
         {
             if (hit.collider.TryGetComponent(out Jugador j))
                 j.Matar();
+            if (hit.collider.TryGetComponent(out NPCMuerePorLuz_Advanced npc))
+                npc.MorirPorLuz();
+
 
             if (hit.collider.TryGetComponent(out LightReceptor rec))
                 rec.RecibirLuz(tipoLuz);

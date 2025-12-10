@@ -11,6 +11,13 @@ public enum AbilityType
     AbyssFlame,
     ShadowTp,
 }
+[System.Serializable]
+public class DatosHabilidad
+{
+    public Sprite icono;
+    public string titulo;
+    public string descripcion;
+}
 
 
 [System.Serializable]
@@ -181,20 +188,30 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
 #endif
     public void ResetearProgresoDebug()
     {
+        Debug.Log("🧹 Reseteando TODAS las habilidades a estado bloqueado...");
+
+        // 1. Borrar PlayerPrefs
         foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))
             PlayerPrefs.DeleteKey($"Habilidad_{tipo}");
 
         PlayerPrefs.Save();
-        Debug.Log("🧹 PlayerPrefs limpiado: todas las habilidades bloqueadas.");
+
+        // 2. Vaciar el diccionario interno correctamente
+        foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))
+            habilidades[tipo] = false;
+
+        // 3. Emitir eventos de bloqueo para que la UI se actualice
+        foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))
+            OnAbilityLocked?.Invoke(tipo);
+
+        // 4. Reiniciar HUD si existe
+        HUDHabilidad.Instance?.Reiniciar();
+
+        Debug.Log("✨ TODAS las habilidades fueron bloqueadas y el estado fue limpiado.");
+        LoadProgress();
+        LoadProgress();
     }
 
-    [System.Serializable]
-    public class DatosHabilidad
-    {
-        public Sprite icono;
-        public string titulo;
-        public string descripcion;
-    }
 
     public DatosHabilidad ObtenerDatosHabilidad(AbilityType tipo)
     {

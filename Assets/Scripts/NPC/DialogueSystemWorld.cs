@@ -18,6 +18,9 @@ public class DialogueSystemWorld : MonoBehaviour
 
     public bool EstaActivo => activo;
     public static event System.Action OnDialogueEnd;
+    public Transform ultimoNPCQueHablo { get; private set; }
+
+
 
     void Awake()
     {
@@ -37,6 +40,9 @@ public class DialogueSystemWorld : MonoBehaviour
 
         dialogoActual = data;
         npcTransform = npc;
+
+        ultimoNPCQueHablo = npc;   // <---- ESTA LINEA ES LA CLAVE
+
         npcDemostrador = npc.GetComponent<NPCDemostrador>() ??
                          npc.GetComponentInChildren<NPCDemostrador>() ??
                          npc.GetComponentInParent<NPCDemostrador>();
@@ -107,6 +113,7 @@ public class DialogueSystemWorld : MonoBehaviour
     private void TerminarDialogo()
     {
         activo = false;
+
         if (burbujaActual) Destroy(burbujaActual);
 
         if (dialogoActual?.accionFinal != null)
@@ -118,9 +125,20 @@ public class DialogueSystemWorld : MonoBehaviour
             npcDemostrador = null;
         }
 
-        npcTransform = null;
+        // AQUÍ TODAVÍA necesitamos saber quién habló
+        Transform emisorBackup = ultimoNPCQueHablo;
+
+        // 🔥 Disparamos el evento mientras ultimoNPCQueHablo tiene valor
         OnDialogueEnd?.Invoke();
+
+        // recién ahora lo limpiamos
+        ultimoNPCQueHablo = null;
+        npcTransform = null;
+        dialogoActual = null;
+        indiceLinea = 0;
     }
+
+
 
     private void EjecutarAccion(DialogueAction accion)
     {
@@ -143,4 +161,27 @@ public class DialogueSystemWorld : MonoBehaviour
                 break;
         }
     }
+    public void ForzarCerrarDialogo()
+    {
+        StopAllCoroutines();
+        activo = false;
+
+        if (burbujaActual != null)
+            Destroy(burbujaActual);
+
+        Transform emisorBackup = ultimoNPCQueHablo;
+
+        // 🔥 Disparamos el evento ANTES de limpiar
+        OnDialogueEnd?.Invoke();
+
+        ultimoNPCQueHablo = null;
+        npcTransform = null;
+        npcDemostrador = null;
+        dialogoActual = null;
+        indiceLinea = 0;
+
+        Debug.Log("🛑 Diálogo forzado a cerrar.");
+    }
+
+
 }

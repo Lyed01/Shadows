@@ -100,9 +100,6 @@ public class TopLightDetector : MonoBehaviour
     private bool initTitilar;
     private bool initLuzEncendida;
 
-    private SpotLightDetector.TipoLuz initTipo;
-
-
     private int initIndiceObjetivo;
     private bool initRetrocediendo;
     
@@ -113,6 +110,8 @@ public class TopLightDetector : MonoBehaviour
     private float initIntensidadLuz2D;
     private float initMultiplicadorRadioLuz;
     private bool luzActiva = true;      // ON/OFF manual (switch)
+    [HideInInspector] public SpotLightDetector.TipoLuz initTipoLuz;
+
 
 
     // ============================================================
@@ -143,8 +142,10 @@ public class TopLightDetector : MonoBehaviour
         initResolucion = resolucion;
         initTitilar = titilar;
         initLuzEncendida = luzEncendida;
-        initTipo = tipoLuz;
-        
+ 
+        initTipoLuz = tipoLuz;
+
+
 
         initIndiceObjetivo = indiceObjetivo;
         initRetrocediendo = retrocediendo;
@@ -592,7 +593,7 @@ public class TopLightDetector : MonoBehaviour
         resolucion = initResolucion;
         titilar = initTitilar;
         luzEncendida = initLuzEncendida;
-        tipoLuz = initTipo;
+        tipoLuz = initTipoLuz;
 
         // === Movimiento ===
         indiceObjetivo = initIndiceObjetivo;

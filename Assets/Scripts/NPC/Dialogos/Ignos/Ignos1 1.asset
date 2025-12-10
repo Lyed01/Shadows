@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idDialogo: 
   lineas:
-  - texto: "VV-ver\xE1s... A veces hay lugares a los necesitamos ir, pero no podemos."
+  - texto: "Ver\xE1s\u2026 hay lugares a los que necesitamos ir, pero no podemos
+      llegar por nosotros mismos.\r"
     retrato: {fileID: 0}
     nombreNPC: Ignos
     accionPorLinea:
@@ -24,7 +25,7 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: Por eso mismo es que nuestros antepasados inventaron la AbyssFlame
+  - texto: "Por eso nuestros antepasados crearon la AbyssFlame.\r"
     retrato: {fileID: 0}
     nombreNPC: 
     accionPorLinea:
@@ -34,8 +35,8 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: "E-ee-\xC9sta peque\xF1a llamita te ayudar\xE1 a resolver cualquier desaf\xEDo
-      que cruce tu camino"
+  - texto: "Esta peque\xF1a llamita puede ayudarte a resolver cualquier obst\xE1culo
+      que encuentres.\r"
     retrato: {fileID: 0}
     nombreNPC: Ignos
     accionPorLinea:
@@ -45,7 +46,7 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: Usarla es muy sencillo, es casi como controlarse a uno mismo.
+  - texto: "Usarla es sencillo, casi como controlarte a ti mismo.\r"
     retrato: {fileID: 0}
     nombreNPC: Ignos
     accionPorLinea:
@@ -55,8 +56,8 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: "Siempre que la usaba en el Abismo, todos se quejaban de que corromp\xEDa
-      todo el suelo."
+  - texto: "En el Abismo siempre se quejaban de que corromp\xEDa todo el suelo cuando
+      la usaba\u2026\r"
     retrato: {fileID: 0}
     nombreNPC: Ignos
     accionPorLinea:
@@ -66,7 +67,7 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: AH, CASI LO OLVIDO
+  - texto: "\xA1AH, CASI LO OLVIDO!\r"
     retrato: {fileID: 0}
     nombreNPC: Ignos
     accionPorLinea:
@@ -76,7 +77,7 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: Por alguna razon a la llama no le afectan esas luces humanas.
+  - texto: "Por alguna raz\xF3n, la llama no se ve afectada por esas luces humanas\u2026"
     retrato: {fileID: 0}
     nombreNPC: Ignos
     accionPorLinea:
@@ -96,8 +97,8 @@ MonoBehaviour:
       activar: 0
       sonido: {fileID: 0}
       idPuerta: 
-  - texto: Creo que quieres ver como funciona. Lo siento, hace mucho no hablaba con
-      nadie.
+  - texto: "C-creo que quieres probarla. Perd\xF3n\u2026 hace mucho que no hablo
+      con nadie."
     retrato: {fileID: 0}
     nombreNPC: Ignos
     accionPorLinea:

@@ -12,11 +12,19 @@ public class Door : MonoBehaviour
     [Header("Receptores de luz requeridos")]
     public LightReceptor[] receptoresRequeridos;
 
+    [Header("Requisitos de progreso opcionales")]
+    public bool requiereFragmentos = false;
+    public int fragmentosNecesarios = 0;
+    public string claveFragmentos = "FragmentosTotales";
+
     [HideInInspector] public bool noReset = false;
 
     void Start()
     {
+        
         initialIsOpen = IsOpen;
+        Evaluar();
+
     }
 
     void Awake()
@@ -39,7 +47,6 @@ public class Door : MonoBehaviour
         }
     }
 
-    // Se llama cada vez que cambia un switch o un receptor
     public void Evaluar()
     {
         // === 1) Revisar switches ===
@@ -68,9 +75,22 @@ public class Door : MonoBehaviour
             }
         }
 
-        // Si TODO lo requerido está activo → abrir
+        // === 3) Revisar fragmentos requeridos ===
+        if (requiereFragmentos)
+        {
+            int fragmentosActuales = PlayerPrefs.GetInt(claveFragmentos, 0);
+
+            if (fragmentosActuales < fragmentosNecesarios)
+            {
+                Close();
+                return;
+            }
+        }
+
+        // === SI TODO ESTÁ CUMPLIDO → ABRIR ===
         Open();
     }
+
 
     public void Open()
     {
@@ -95,7 +115,6 @@ public class Door : MonoBehaviour
     }
 
     public void ResetToInitialState()
-
     {
         if (noReset) return;
         if (initialIsOpen) Open();

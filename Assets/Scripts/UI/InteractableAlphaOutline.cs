@@ -26,7 +26,6 @@ public class InteractableAlphaOutline : MonoBehaviour
 
     [Header("Detección")]
     public string playerTag = "Player";
-    public bool useTriggerDetection = true;
 
     private SpriteRenderer baseSR;
     private SpriteRenderer outlineSR;
@@ -45,61 +44,73 @@ public class InteractableAlphaOutline : MonoBehaviour
         cam = Camera.main;
         baseSR = GetComponent<SpriteRenderer>();
 
-        // === Crear outline ===
-        var go = new GameObject("Outline");
-        go.transform.SetParent(transform);
-        go.transform.localPosition = Vector3.zero;
+        // ============================================
+        // OUTLINE (NO DUPLICAR)
+        // ============================================
+        Transform existingOutline = transform.Find("Outline");
 
-        outlineSR = go.AddComponent<SpriteRenderer>();
-        outlineSR.sprite = baseSR.sprite;
-        outlineSR.sortingLayerID = baseSR.sortingLayerID;
-        outlineSR.sortingOrder = baseSR.sortingOrder + (renderEncima ? Mathf.Abs(orderOffset) : -Mathf.Abs(orderOffset));
+        if (existingOutline != null)
+        {
+            outlineSR = existingOutline.GetComponent<SpriteRenderer>();
+            runtimeMat = outlineSR.material;
+        }
+        else
+        {
+            GameObject go = new GameObject("Outline");
+            go.transform.SetParent(transform);
+            go.transform.localPosition = Vector3.zero;
 
-        runtimeMat = new Material(outlineMaterial);
-        outlineSR.material = runtimeMat;
+            outlineSR = go.AddComponent<SpriteRenderer>();
+            outlineSR.sprite = baseSR.sprite;
+            outlineSR.sortingLayerID = baseSR.sortingLayerID;
 
-        runtimeMat.SetColor("_OutlineColor", outlineColor);
-        runtimeMat.SetFloat("_ThicknessPx", thicknessPx);
-        runtimeMat.SetFloat("_AlphaCutoff", 0.1f);
-        runtimeMat.SetFloat("_Intensity", 0f);
+            outlineSR.sortingOrder = baseSR.sortingOrder +
+                (renderEncima ? Mathf.Abs(orderOffset) : -Mathf.Abs(orderOffset));
 
-        // === Crear prompt de forma SEGURA ===
+            runtimeMat = new Material(outlineMaterial);
+            outlineSR.material = runtimeMat;
+
+            runtimeMat.SetColor("_OutlineColor", outlineColor);
+            runtimeMat.SetFloat("_ThicknessPx", thicknessPx);
+            runtimeMat.SetFloat("_AlphaCutoff", 0.1f);
+            runtimeMat.SetFloat("_Intensity", 0f);
+        }
+
+        // ============================================
+        // PROMPT (CREAR UNA SOLA VEZ)
+        // ============================================
         if (promptPrefab != null)
         {
             Canvas canvas = FindAnyObjectByType<Canvas>(FindObjectsInactive.Include);
 
             if (canvas == null)
             {
-                Debug.LogError("❌ InteractableAlphaOutline: No se encontró Canvas en la escena.");
+                Debug.LogError("❌ InteractableAlphaOutline: No se encontró Canvas.");
                 return;
             }
 
             GameObject p = Instantiate(promptPrefab, canvas.transform);
 
             promptTransform = p.transform;
-            promptCanvas = p.GetComponent<CanvasGroup>();
+            promptCanvas = p.GetComponent<CanvasGroup>() ?? p.AddComponent<CanvasGroup>();
 
-            if (promptCanvas == null)
-            {
-                Debug.LogError("❌ El prefab del prompt NO tiene CanvasGroup. Agrégalo.");
-                promptCanvas = p.AddComponent<CanvasGroup>(); // fallback
-            }
-
-            // Ocultar SIEMPRE al inicio
             promptCanvas.alpha = 0f;
             promptCanvas.gameObject.SetActive(false);
+
+            // Evita que persista entre escenas o duplicaciones raras
+            p.hideFlags = HideFlags.DontSave;
         }
     }
 
     void Update()
     {
-        // Mantener sprite en outline si cambia
+        // Mantener sprite en sync
         if (outlineSR.sprite != baseSR.sprite)
             outlineSR.sprite = baseSR.sprite;
 
-        // =========================
+        // ============================================
         // OUTLINE FADE + PULSE
-        // =========================
+        // ============================================
         float target = playerNear ? 1f : 0f;
 
         float pulse = (playerNear && pulseStrength > 0f)
@@ -109,60 +120,56 @@ public class InteractableAlphaOutline : MonoBehaviour
         currentIntensity = Mathf.Lerp(currentIntensity, target, Time.deltaTime * fadeSpeed);
         runtimeMat.SetFloat("_Intensity", Mathf.Clamp01(currentIntensity + pulse));
 
-        // =========================
-        // PROMPT – SEGUIR OBJETO + FADE CONTROLADO
-        // =========================
-        // =========================
-        // PROMPT – SEGUIR OBJETO + FADE CONTROLADO
-        // =========================
+        // ============================================
+        // PROMPT UI
+        // ============================================
         if (promptCanvas != null && promptTransform != null)
         {
-            // posición del UI
             Vector3 screenPos = cam.WorldToScreenPoint(transform.position + promptOffset);
             promptTransform.position = screenPos;
 
-            // fade lógico
             if (playerNear)
             {
                 if (!promptCanvas.gameObject.activeSelf)
                     promptCanvas.gameObject.SetActive(true);
 
-                promptCanvas.alpha = Mathf.MoveTowards(promptCanvas.alpha, 1f, Time.deltaTime * promptFadeSpeed);
+                promptCanvas.alpha = Mathf.MoveTowards(promptCanvas.alpha, 1f,
+                    Time.deltaTime * promptFadeSpeed);
             }
             else
             {
-                promptCanvas.alpha = Mathf.MoveTowards(promptCanvas.alpha, 0f, Time.deltaTime * promptFadeSpeed);
+                promptCanvas.alpha = Mathf.MoveTowards(promptCanvas.alpha, 0f,
+                    Time.deltaTime * promptFadeSpeed);
 
                 if (promptCanvas.alpha <= 0.01f)
                     promptCanvas.gameObject.SetActive(false);
             }
         }
-
     }
 
-    // =========================
+    // ============================================
     // DETECCIÓN
-    // =========================
+    // ============================================
     void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Enter → " + other.name);
         if (other.CompareTag(playerTag))
-        {
-            Debug.Log("PLAYER DETECTADO");
             playerNear = true;
-        }
     }
 
     void OnTriggerExit2D(Collider2D other)
     {
-        Debug.Log("Exit → " + other.name);
         if (other.CompareTag(playerTag))
-        {
-            Debug.Log("PLAYER SALIÓ");
             playerNear = false;
-        }
     }
 
+    // ============================================
+    // LIMPIEZA AL DESTRUIR
+    // ============================================
+    void OnDestroy()
+    {
+        if (promptTransform != null)
+            Destroy(promptTransform.gameObject);
+    }
 
     // API pública opcional
     public void SetActiveBySystem(bool canInteract) => playerNear = canInteract;

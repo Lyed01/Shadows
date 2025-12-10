@@ -15,6 +15,11 @@ public class MirrorBlock : ShadowBlock
     public Sprite spriteNormal;
 
     private SpriteRenderer sr;
+    [Header("Indicador de dirección")]
+    public Sprite spriteFlecha;
+    private GameObject flechaGO;
+    private SpriteRenderer flechaSR;
+
 
     // --- Lógica de encendido/apagado ---
     private bool recibiendoLuz = false;
@@ -40,7 +45,10 @@ public class MirrorBlock : ShadowBlock
 
         if (spriteNormal != null)
             sr.sprite = spriteNormal;
+
+        CrearFlechaDireccion(); // 👈 AÑADIR ESTO
     }
+
 
     // ============================
     // UPDATE (control de apagado + sprites)
@@ -63,6 +71,60 @@ public class MirrorBlock : ShadowBlock
 
         recibiendoLuz = false;
     }
+    // ============================
+    // FLECHA DE DIRECCIÓN
+    // ============================
+    private void CrearFlechaDireccion()
+    {
+        // Crear objeto hijo
+        flechaGO = new GameObject("IndicadorFlecha");
+        flechaGO.transform.SetParent(transform);
+
+        flechaSR = flechaGO.AddComponent<SpriteRenderer>();
+        flechaSR.sprite = spriteFlecha;
+        flechaSR.sortingOrder = sr.sortingOrder + 1; // se dibuja arriba del bloque
+
+        ActualizarFlecha();
+    }
+
+
+
+    private void ActualizarFlecha()
+    {
+        if (flechaGO == null || flechaSR == null || sr == null) return;
+
+        Vector2 dir = direccionActual.normalized;
+
+        // 1. Tamaño del bloque
+        Vector2 ext = sr.bounds.extents;
+
+        // 2. Distancia extra para separarlo unos píxeles
+        float separacion = 0.20f; // ≈ 1 a 2 píxeles, ajustable
+
+        // 3. Calcular posición final = borde + separación
+        Vector3 offset = new Vector3(
+            dir.x * (ext.x + separacion),
+            dir.y * (ext.y + separacion),
+            0f
+        );
+
+        flechaGO.transform.localPosition = offset;
+
+        // 4. Rotar flecha sabiendo que el sprite original apunta HACIA ARRIBA (0,1)
+        // Convertimos dir a un ángulo y lo usamos directamente
+        float angulo = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+
+        // El sprite apunta hacia arriba → Vector2.up = 90°
+        // Así que corregimos restando 90°
+        flechaGO.transform.localRotation = Quaternion.Euler(0, 0, angulo - 90f);
+
+        // 5. Escala opcional
+        flechaGO.transform.localScale = Vector3.one * 0.55f;
+    }
+
+
+
+
 
     // ============================
     // LUZ DIRECTA DEL SPOTLIGHT
@@ -155,9 +217,12 @@ public class MirrorBlock : ShadowBlock
         direccionActual = new Vector2(direccionActual.y, -direccionActual.x);
         direccionInicial = direccionActual;
 
+        ActualizarFlecha(); // 👈 AÑADIR ESTO
+
         if (emisor != null)
             emisor.SetDireccion(direccionActual);
     }
+    
 
     // --- NPC Demostrador: setear dirección manual ---
     public void SetDireccionInicial(Vector2 dir)
@@ -166,6 +231,8 @@ public class MirrorBlock : ShadowBlock
 
         direccionInicial = dir.normalized;
         direccionActual = direccionInicial;
+        ActualizarFlecha();
+
 
         if (emisor != null)
             emisor.SetDireccion(direccionActual);

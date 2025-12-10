@@ -130,10 +130,5 @@ MonoBehaviour:
     m_RotationOrder: 4
   mascaraBloqueos:
     serializedVersion: 2
-    m_Bits: 456
+    m_Bits: 968
   materialLuz: {fileID: 2100000, guid: b6dd62502bb314140843627070279e55, type: 2}
-  uvRotar90: 1
-  flipU: 0
-  flipV: 0
-  escalaULargo: 1
-  escalaVAncho: 1
