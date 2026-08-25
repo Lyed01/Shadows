@@ -1,4 +1,0 @@
-repository "Shadows/Shadows@4673748872844@cloud"
-  path "/"
-    br "/main"
-    co "/main"

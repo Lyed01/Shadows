@@ -97,3 +97,11 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+# --- Control de versiones: el proyecto usa git. Plastic SCM quedo fuera de uso ---
+.plastic/
+ignore.conf
+
+# Reportes y archivos de trabajo que no son del proyecto
+estructura.txt
+UpgradeLog.htm
+*.pdf
