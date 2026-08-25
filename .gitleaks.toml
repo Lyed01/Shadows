@@ -1,0 +1,18 @@
+# Configuración de gitleaks para Shadows.
+# Mantiene todas las reglas por defecto y solo excluye carpetas generadas por Unity,
+# que contienen código de paquetes de terceros y no se versionan (ver .gitignore).
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Carpetas generadas por Unity: no son código del proyecto ni se versionan"
+paths = [
+  '''^Library/''',
+  '''^Temp/''',
+  '''^Logs/''',
+  '''^obj/''',
+  '''^Build/''',
+  '''^Builds/''',
+  '''^UserSettings/''',
+]
