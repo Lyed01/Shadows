@@ -2,7 +2,7 @@
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-public class PauseI : MonoBehaviour
+public class PauseUI : MonoBehaviour
 {
     [Header("Configuración del menú")]
     [Tooltip("Nombre de la escena del menú principal")]
