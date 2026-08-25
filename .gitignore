@@ -105,3 +105,7 @@ ignore.conf
 estructura.txt
 UpgradeLog.htm
 *.pdf
+
+# Escenas de recuperacion que Unity deja tras un cierre inesperado
+/[Aa]ssets/_Recovery/
+/[Aa]ssets/_Recovery.meta
