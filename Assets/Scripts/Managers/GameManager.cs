@@ -68,8 +68,7 @@ public class GameManager : PersistentSingleton<GameManager>
         if (grid != null)
             grid.onPlayerDeath.AddListener(ManejarMuerteJugador);
 
-        SpawnJugadorEnEscena(escena);
-        StartCoroutine(EsperarYConectarCamara());
+        SpawnJugador(escena, respawn: false);
         StartCoroutine(SincronizarDespuesDeFrame());
         ActivarHUD(escena);
 
@@ -85,86 +84,66 @@ public class GameManager : PersistentSingleton<GameManager>
 
     // =============================== SPAWN SYSTEM ===============================
 
-    private Vector3 ResolverSpawn(Scene escena)
+    /// <summary>
+    /// Decide donde aparece el jugador. Al volver al Hub desde un nivel lo deja
+    /// frente a la puerta que uso; en cualquier otro caso usa el SpawnPoint de la
+    /// escena, y si no hay, el del GridManager.
+    /// </summary>
+    private Vector3 ResolverSpawn(Scene escena, bool respawn)
     {
-        // Caso especial: HUB
-        if (escena.name == "Hub")
+        // Volver frente a la puerta solo aplica al entrar al Hub, no al renacer
+        // dentro de el.
+        if (!respawn && escena.name == "Hub"
+            && ultimaPuertaPosicion != Vector3.zero && !primeraVezEnHub)
         {
-            // NO es la primera vez → volver frente a la puerta
-            if (ultimaPuertaPosicion != Vector3.zero && !primeraVezEnHub)
-            {
-                Debug.Log("🚪 Regresando al Hub desde nivel → usando puerta");
-                return ultimaPuertaPosicion;
-            }
+            Debug.Log("[GameManager] Regreso al Hub: aparece frente a la puerta");
+            return ultimaPuertaPosicion;
         }
 
-        // 2 — Buscar solo en ESTA escena
         var sp = FindSpawnPointSoloDeLaEscena(escena);
         if (sp != null)
-        {
-            Debug.Log("📍 SpawnPoint ENCONTRADO EN ESTA ESCENA: " + sp.transform.position);
             return sp.transform.position;
-        }
 
-        // 3 — fallback GridManager
         if (grid != null && grid.spawnTransform != null)
             return grid.spawnTransform.position;
 
-        // 4 — fallback final
-        Debug.LogWarning("⚠ No hay SpawnPoint en esta escena. Usando Vector3.zero");
+        Debug.LogWarning($"[GameManager] {escena.name} no tiene SpawnPoint. Usando Vector3.zero");
         return Vector3.zero;
     }
 
 
 
-    private void SpawnJugadorEnEscena(Scene escena)
+    /// <summary>
+    /// Deja un jugador vivo en la escena y la camara enganchada a el. Con
+    /// respawn en true siempre instancia uno nuevo; si no, reutiliza el que ya
+    /// estuviera en la escena.
+    /// </summary>
+    private void SpawnJugador(Scene escena, bool respawn)
     {
-        jugadorActual = FindFirstObjectByType<Jugador>();
-        if (jugadorActual != null) return;
+        if (!respawn)
+            jugadorActual = FindFirstObjectByType<Jugador>();
 
-        Vector3 spawnPos = ResolverSpawn(escena);
-
-        jugadorActual = Instantiate(jugadorPrefab, spawnPos, Quaternion.identity);
-        jugadorActual.Inicializar(grid, HUDHabilidad.Instance);
-
-        Debug.Log($"👤 Jugador instanciado en {escena.name} en {spawnPos}");
-    }
-
-
-
-    private void InstanciarJugador()
-    {
-        if (jugadorPrefab == null)
+        if (jugadorActual == null)
         {
-            Debug.LogError("❌ GameManager: faltan referencias para instanciar jugador.");
-            return;
+            if (jugadorPrefab == null)
+            {
+                Debug.LogError("[GameManager] Falta asignar el prefab del jugador");
+                return;
+            }
+
+            Vector3 spawnPos = ResolverSpawn(escena, respawn);
+
+            jugadorActual = Instantiate(jugadorPrefab, spawnPos, Quaternion.identity);
+            jugadorActual.Inicializar(grid, HUDHabilidad.Instance);
+
+            Debug.Log($"[GameManager] Jugador instanciado en {escena.name} en {spawnPos}");
         }
 
-        Scene escenaActual = SceneManager.GetActiveScene();
-        SpawnPoint sp = FindSpawnPointSoloDeLaEscena(escenaActual);
-
-        Vector3 spawnPos;
-
-        if (sp != null)
-        {
-            Debug.Log("📍 Respawn usando SpawnPoint de esta escena: " + sp.transform.position);
-            spawnPos = sp.transform.position;
-        }
-        else if (grid != null && grid.spawnTransform != null)
-        {
-            Debug.Log("📍 Respawn usando spawnTransform del GridManager");
-            spawnPos = grid.spawnTransform.position;
-        }
-        else
-        {
-            Debug.LogWarning("⚠ Respawn sin SpawnPoint. Usando Vector3.zero.");
-            spawnPos = Vector3.zero;
-        }
-
-        jugadorActual = Instantiate(jugadorPrefab, spawnPos, Quaternion.identity);
-        jugadorActual.Inicializar(grid, HUDHabilidad.Instance);
         StartCoroutine(EsperarYConectarCamara());
     }
+
+
+
 
 
     // =============================== UPDATE & GAME STATE ===============================
@@ -214,7 +193,7 @@ public class GameManager : PersistentSingleton<GameManager>
         ResetearEntornoInteractivo();
 
         // 👤 Nuevo jugador
-        InstanciarJugador();
+        SpawnJugador(SceneManager.GetActiveScene(), respawn: true);
 
         // 🔑 AVISAR A TODOS LOS NPCs QUE HAY UN JUGADOR NUEVO
         if (jugadorActual != null)
