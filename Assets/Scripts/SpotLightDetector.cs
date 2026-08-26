@@ -490,16 +490,8 @@ public class SpotLightDetector : MonoBehaviour
         if (meshRenderer == null)
             meshRenderer = GetComponentInChildren<MeshRenderer>();
 
-        if (tipoLuz == TipoLuz.Roja)
-        {
-            meshRenderer.sharedMaterial = materialRoja;
-            dañoBase = 10f;
-        }
-        else
-        {
-            meshRenderer.sharedMaterial = materialAmarilla;
-            dañoBase = 5f;
-        }
+        meshRenderer.sharedMaterial =
+            (tipoLuz == TipoLuz.Roja) ? materialRoja : materialAmarilla;
 
         ActualizarColorLuzHaz();
 
