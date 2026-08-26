@@ -550,30 +550,10 @@ public class TopLightDetector : MonoBehaviour
     }
 
 
-    // --- Estado inicial guardado ---
-    private Vector3 initialPos;
-    private Quaternion initialRot;
-    private float initialRadio;
-    private bool initialTitilar;
-    private SpotLightDetector.TipoLuz initialTipo;
-    private bool initialLuzEncendida;
-    private int initialIndiceObjetivo;
-    private bool initialRetrocediendo;
-
-    void Start()
-    {
-        // Guardamos estado inicial una sola vez cuando comienza la escena
-        initialPos = transform.position;
-        initialRot = transform.rotation;
-        initialRadio = radio;
-        initialTitilar = titilar;
-        initialTipo = tipoLuz;
-        initialLuzEncendida = luzEncendida;
-        initialIndiceObjetivo = indiceObjetivo;
-        initialRetrocediendo = retrocediendo;
-    }
-
-    // 🔥 MÉTODO QUE PIDE GameManager PARA REINICIAR LA LUZ
+    /// <summary>
+    /// Devuelve la luz a su estado inicial. Lo llama GameManager al reiniciar
+    /// el nivel.
+    /// </summary>
     public void ResetToInitialState()
     {
         if (noReset) return;
