@@ -274,8 +274,7 @@ public class Jugador : MonoBehaviour
         // 🔹 Notifica al GridManager
         gridManager?.CorromperCeldas(transform.position);
         gridManager?.NotificarMuerteJugador();
-        Switch.ResetearTodos();
-        Debug.Log("☠️ Jugador murió, notificando a GameManager...");
+        Debug.Log("[Jugador] Murio, notificando a GameManager");
     }
 
     // === HABILIDAD ===

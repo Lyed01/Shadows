@@ -118,11 +118,4 @@ public class Switch : MonoBehaviour
 
         Debug.Log("🔄 Switch reseteado");
     }
-
-    public static void ResetearTodos()
-    {
-        var switches = FindObjectsByType<Switch>(FindObjectsSortMode.None);
-        foreach (var s in switches)
-            s.ResetSwitch();
-    }
 }
