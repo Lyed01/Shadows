@@ -1,8 +1,9 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class PopupFragmentosUI : MonoBehaviour
 {
@@ -13,21 +14,22 @@ public class PopupFragmentosUI : MonoBehaviour
     public RectTransform panel;
     public TextMeshProUGUI texto;
 
-    [Header("AnimaciÛn")]
+    [Header("Animaci√≥n")]
     public float duracionFade = 0.2f;
     public Vector3 escalaOculto = new Vector3(0.85f, 0.85f, 1f);
     public Vector3 escalaVisible = Vector3.one;
 
-    [Header("DetecciÛn")]
+    [Header("Detecci√≥n")]
     public float distanciaMostrar = 2.2f;
-    public LayerMask layerPuertas; // o ignoralo si no us·s layers
+    public LayerMask layerPuertas; // o ignoralo si no us√°s layers
 
     private Camera cam;
+    private Door[] puertasConFragmentos = new Door[0];
     private Transform jugador;
     private Door puertaActual;
     private Coroutine anim;
     private bool visible = false;
-    private Vector3 worldPosObjetivo; // <-- NUEVO (posiciÛn que debe seguir)
+    private Vector3 worldPosObjetivo; // <-- NUEVO (posici√≥n que debe seguir)
 
     void Awake()
     {
@@ -40,9 +42,44 @@ public class PopupFragmentosUI : MonoBehaviour
 
     void Start()
     {
-        // Encontrar jugador
+        RefrescarPuertas();
+
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null) jugador = p.transform;
+    }
+
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        GameManager.OnPlayerSpawned += RegistrarJugador;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        GameManager.OnPlayerSpawned -= RegistrarJugador;
+    }
+
+    private void OnSceneLoaded(Scene escena, LoadSceneMode modo) => RefrescarPuertas();
+
+    private void RegistrarJugador(Jugador j)
+    {
+        if (j != null) jugador = j.transform;
+    }
+
+    /// <summary>
+    /// Cachea las puertas que exigen fragmentos. Se rearma al cargar una escena,
+    /// porque en runtime no se crean puertas nuevas.
+    /// </summary>
+    private void RefrescarPuertas()
+    {
+        List<Door> conFragmentos = new();
+
+        foreach (var d in Object.FindObjectsByType<Door>(FindObjectsSortMode.None))
+            if (d != null && d.requiereFragmentos)
+                conFragmentos.Add(d);
+
+        puertasConFragmentos = conFragmentos.ToArray();
     }
 
     void Update()
@@ -84,14 +121,12 @@ public class PopupFragmentosUI : MonoBehaviour
     // ============================================================
     Door BuscarPuertaCercana()
     {
-        Door[] todas = Object.FindObjectsByType<Door>(FindObjectsSortMode.None);
-
         float mejorDist = Mathf.Infinity;
         Door seleccionada = null;
 
-        foreach (var d in todas)
+        foreach (var d in puertasConFragmentos)
         {
-            if (!d.requiereFragmentos) continue;
+            if (d == null) continue;
 
             float dist = Vector2.Distance(jugador.position, d.transform.position);
 
@@ -106,7 +141,7 @@ public class PopupFragmentosUI : MonoBehaviour
     }
 
     // ============================================================
-    // POSICI”N
+    // POSICI√ìN
     // ============================================================
     private Vector3 ObtenerPosicionSobrePuerta(Door d)
     {
@@ -134,7 +169,7 @@ public class PopupFragmentosUI : MonoBehaviour
 
         Vector3 screenPos = cam.WorldToScreenPoint(worldPos);
 
-        // Forzamos la Z para evitar invisibilidad si est· detr·s
+        // Forzamos la Z para evitar invisibilidad si est√° detr√°s
         if (screenPos.z < 0)
             screenPos.z = 0.1f;
 
@@ -149,7 +184,7 @@ public class PopupFragmentosUI : MonoBehaviour
 
     {
         puertaActual = puerta;           // GUARDAMOS LA PUERTA
-        worldPosObjetivo = pos;          // GUARDAMOS LA POSICI”N A SEGUIR
+        worldPosObjetivo = pos;          // GUARDAMOS LA POSICI√ìN A SEGUIR
 
         texto.text = $"{actuales} / {necesarios} fragmentos";
 
