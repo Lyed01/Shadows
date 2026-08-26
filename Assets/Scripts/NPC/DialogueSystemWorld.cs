@@ -60,13 +60,7 @@ public class DialogueSystemWorld : MonoBehaviour
             var linea = dialogoActual.lineas[indiceLinea];
             MostrarBurbuja(linea.texto);
 
-            yield return new WaitUntil(() =>
-            {
-                var b = burbujaActual?.GetComponent<DialogueBubble>();
-                return b != null && b.TerminoDeEscribir;
-            });
-
-            // Esperar a que termine de escribirse
+            // Esperar a que la burbuja termine de escribirse
             yield return new WaitUntil(() =>
             {
                 var b = burbujaActual?.GetComponent<DialogueBubble>();

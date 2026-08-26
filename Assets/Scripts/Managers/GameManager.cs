@@ -77,16 +77,7 @@ public class GameManager : PersistentSingleton<GameManager>
             OnPlayerSpawned?.Invoke(jugadorActual);
 
         if (EsHub)
-        {
-            // Solo lógica especial del Hub
             ReactivarSistemaPopupsHub();
-        }
-        else
-        {
-            // Para niveles / otras escenas → sí reparamos UI
-            UIManager.Instance?.ReinicializarUI();
-        }
-
 
         UIManager.Instance?.ReinicializarUI();
     }

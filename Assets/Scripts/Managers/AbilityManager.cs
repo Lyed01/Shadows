@@ -209,7 +209,6 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
 
         Debug.Log("✨ TODAS las habilidades fueron bloqueadas y el estado fue limpiado.");
         LoadProgress();
-        LoadProgress();
     }
 
 
