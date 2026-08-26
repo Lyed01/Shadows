@@ -219,11 +219,15 @@ public class StarProgressUI : MonoBehaviour
                 total += PlayerPrefs.GetInt(clave, 0);
         }
 
-        // 🔥 GUARDAMOS EL TOTAL REAL DE FRAGMENTOS EN PREFS
-        PlayerPrefs.SetInt("FragmentosTotales", total);
-        PlayerPrefs.Save();
-
-        Debug.Log($"[StarProgressUI] FragmentosTotales guardados = {total}");
+        // El total alimenta a las puertas que exigen fragmentos. Se escribe solo
+        // cuando cambia: este metodo corre cada dos segundos mientras el jugador
+        // esta en el Hub, y PlayerPrefs.Save() va a disco.
+        if (PlayerPrefs.GetInt("FragmentosTotales", -1) != total)
+        {
+            PlayerPrefs.SetInt("FragmentosTotales", total);
+            PlayerPrefs.Save();
+            Debug.Log($"[StarProgressUI] Fragmentos totales: {total}");
+        }
 
         return total;
     }
