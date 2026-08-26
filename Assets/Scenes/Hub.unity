@@ -17358,7 +17358,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idNivel: Nivel22
   nombreEscenaNivel: Nivel22
-  tituloNivel: NIVEL 3 - ZONA 5
+  tituloNivel: NIVEL 2 - ZONA 5
   descripcionNivel: Completa los puzzles de luz para continuar.
   distanciaActivacion: 1.7
   luzPuerta: {fileID: 311621717}
