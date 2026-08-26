@@ -48,7 +48,7 @@ public class ShadowBlock : MonoBehaviour
         }
     }
 
-    void Update()
+    protected virtual void Update()
     {
         if (bajoLuz && barraInstanciada != null)
             barraInstanciada.SetVida(vidaActual, vidaBajoLuz);

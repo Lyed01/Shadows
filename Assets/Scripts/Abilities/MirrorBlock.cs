@@ -53,8 +53,10 @@ public class MirrorBlock : ShadowBlock
     // ============================
     // UPDATE (control de apagado + sprites)
     // ============================
-    void Update()
+    protected override void Update()
     {
+        base.Update();
+
         if (!recibiendoLuz)
         {
             tiempoSinLuz += Time.deltaTime;
@@ -63,10 +65,16 @@ public class MirrorBlock : ShadowBlock
             {
                 ApagarLuzReflejada();
 
-                // ⛔ NO forzar sprite si está dañado
                 if (!EstaDaniado() && spriteNormal != null)
                     sr.sprite = spriteNormal;
             }
+        }
+        else if (!EstaDaniado() && spriteActivo != null)
+        {
+            // base.Update() reescribe el sprite en cada frame. Mientras el bloque
+            // este intacto, el estado iluminado tiene prioridad sobre el sprite
+            // de daño cero; si esta dañado, manda el de daño.
+            sr.sprite = spriteActivo;
         }
 
         recibiendoLuz = false;
