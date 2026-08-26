@@ -29,8 +29,10 @@ public class LevelTimer : MonoBehaviour
         // Si el texto no está asignado (HUD persistente, por ejemplo), lo busca
         if (textoTimer == null)
             textoTimer = FindTextoTimer();
+    }
 
-        // === Suscripción a eventos globales ===
+    private void OnEnable()
+    {
         GameManager.OnPause += Pausar;
         GameManager.OnResume += Reanudar;
         GameManager.OnPlayerDeath += Pausar;
