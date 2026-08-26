@@ -61,8 +61,6 @@ public class SpotLightDetector : MonoBehaviour
     [Range(0f, 1f)]
     public float fase = 0f;
 
-    private float reloj = 0f;
-
     [Header("Luz 2D del haz")]
     public bool luzSigueHaz = true;
     [Range(0f, 2f)] public float intensidadHaz = 0.8f;
@@ -145,6 +143,8 @@ public class SpotLightDetector : MonoBehaviour
         initLuzActiva = luzActiva;
         initLuzEncendida = luzEncendida;
 
+        InicializarTitileo();
+
         if (luzSigueHaz)
             CrearLuzHaz();
     }
@@ -192,10 +192,6 @@ public class SpotLightDetector : MonoBehaviour
         ActualizarRotacionConstante();
         ActualizarOscilacion();
         AplicarRotacionFinal();
-
-        // Titileo
-        if (titilar)
-            reloj += Time.deltaTime;
 
         ActualizarTitileo();
 
@@ -260,6 +256,22 @@ public class SpotLightDetector : MonoBehaviour
     // ------------------------------------------------------
     // TITILEO
     // ------------------------------------------------------
+    /// <summary>
+    /// Coloca el titileo en un punto del ciclo segun la fase configurada, para
+    /// que dos focos con la misma cadencia puedan alternarse entre si.
+    /// </summary>
+    private void InicializarTitileo()
+    {
+        float duracionOn = Random.Range(tiempoEncendida.x, tiempoEncendida.y);
+        float duracionOff = Random.Range(tiempoApagada.x, tiempoApagada.y);
+        float posicion = Mathf.Repeat(fase, 1f) * (duracionOn + duracionOff);
+
+        luzEncendida = posicion < duracionOn;
+        timerTitileo = luzEncendida
+            ? duracionOn - posicion
+            : duracionOn + duracionOff - posicion;
+    }
+
     private void ActualizarTitileo()
     {
         if (!titilar)
@@ -270,13 +282,15 @@ public class SpotLightDetector : MonoBehaviour
             return;
         }
 
-        float duracionOn = Random.Range(tiempoEncendida.x, tiempoEncendida.y);
-        float duracionOff = Random.Range(tiempoApagada.x, tiempoApagada.y);
-        float duracionTotal = duracionOn + duracionOff;
+        timerTitileo -= Time.deltaTime;
 
-        float t = (reloj / duracionTotal + fase) % 1f;
-
-        luzEncendida = t < (duracionOn / duracionTotal);
+        if (timerTitileo <= 0f)
+        {
+            luzEncendida = !luzEncendida;
+            timerTitileo = luzEncendida
+                ? Random.Range(tiempoEncendida.x, tiempoEncendida.y)
+                : Random.Range(tiempoApagada.x, tiempoApagada.y);
+        }
 
         if (meshRenderer != null)
             meshRenderer.enabled = luzEncendida;
@@ -526,6 +540,7 @@ public class SpotLightDetector : MonoBehaviour
         if (luzHaz != null)
             luzHaz.intensity = intensidadHaz;
 
+        InicializarTitileo();
         GenerarLuzMesh();
     }
 
@@ -556,6 +571,7 @@ public class SpotLightDetector : MonoBehaviour
         oscilacion = initOscilacion;
         rangoOscilacion = initRangoOscilacion;
         titilar = initTitilar;
+        InicializarTitileo();
 
         anguloBase = initAnguloBase;
         giroAcumulado = 0f;
