@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65dc46dd85b084d499268a999cb2dc6d, type: 3}
   m_Name: Level4
   m_EditorClassIdentifier: 
-  idNivel: Nivel1
+  idNivel: Nivel4
   muertes3: 8
   muertes2: 12
   muertes1: 13

@@ -58,11 +58,13 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
 
     private void OnSceneLoaded(Scene s, LoadSceneMode m)
     {
-        bool esNivel = !(s.name.Contains("Hub") || s.name.Contains("Menu"));
+        // Una escena cuenta como nivel si tiene configuracion de puntuacion.
+        // El criterio anterior era por descarte, y hacia entrar como niveles al
+        // splash, al tutorial y a la cinematica final.
+        bool esNivel = CargarConfiguracionDelNivel(s.name);
 
         if (esNivel)
         {
-            CargarConfiguracionDelNivel(s.name);
             ReiniciarContadores();
 
             nivelEnCurso = true;
@@ -84,7 +86,7 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
             tiempoActual += Time.deltaTime;
     }
 
-    private void CargarConfiguracionDelNivel(string escena)
+    private bool CargarConfiguracionDelNivel(string escena)
     {
         foreach (var so in configuracionesSO)
         {
@@ -104,12 +106,12 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
 
                 idNivel = so.idNivel;
 
-                Debug.Log($"📌 Score config cargada desde ScriptableObject para {escena}");
-                return;
+                Debug.Log($"[LevelScoreManager] Configuracion cargada para {escena}");
+                return true;
             }
         }
 
-        Debug.LogWarning($"⚠️ No encontré ScriptableObject para {escena}. Usando valores default.");
+        return false;
     }
 
     public void ReiniciarContadores()

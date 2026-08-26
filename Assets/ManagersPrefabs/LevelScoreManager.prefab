@@ -55,6 +55,32 @@ MonoBehaviour:
     habilidades3: 3
     habilidades2: 4
     habilidades1: 6
+  configuracionesSO:
+  - {fileID: 11400000, guid: baecaf21d50d1644093dc84158642e1f, type: 2}
+  - {fileID: 11400000, guid: 68e885cc935d6c64a99abbec0da3f23f, type: 2}
+  - {fileID: 11400000, guid: 0be488fd9ef2c5b46aca2b9e1782c017, type: 2}
+  - {fileID: 11400000, guid: f0d59f29a56fc744ea6bc9b3a7f5ec18, type: 2}
+  - {fileID: 11400000, guid: d3bb62b51b7584347b3b151d6922027b, type: 2}
+  - {fileID: 11400000, guid: f33048a9096783746a23d5f8e626a6e5, type: 2}
+  - {fileID: 11400000, guid: cb328dbd648e4534e9309c22ef1325ee, type: 2}
+  - {fileID: 11400000, guid: bc74dba8ad63e984ba717a646fc82e60, type: 2}
+  - {fileID: 11400000, guid: 7b46eb0b67bec1c47a6295745818e16d, type: 2}
+  - {fileID: 11400000, guid: 7ab38c1b0fa2f934ca76bdd6affeaa68, type: 2}
+  - {fileID: 11400000, guid: 4937fffb7dff1de4c899c708506a29d9, type: 2}
+  - {fileID: 11400000, guid: f477272e29d16504191ac4e8c0bf3dfb, type: 2}
+  - {fileID: 11400000, guid: 09f4aecc4ccf9e34d825c91d1bc535f8, type: 2}
+  - {fileID: 11400000, guid: 2ee5c765a4d94bb4383d06cfb1f68549, type: 2}
+  - {fileID: 11400000, guid: cfaf2494c0fca5f4b905e0bf8f3af4af, type: 2}
+  - {fileID: 11400000, guid: 59b099403f8cbec43a81642d52d09718, type: 2}
+  - {fileID: 11400000, guid: 16afa5cc0bb94044f81f13bdacb47f7a, type: 2}
+  - {fileID: 11400000, guid: 6a1698ddd18ecf34d948740dd1366550, type: 2}
+  - {fileID: 11400000, guid: 3b7321b22d963ac48be785fc88147146, type: 2}
+  - {fileID: 11400000, guid: bd9b4a7e1f569f24c968416c50462c4c, type: 2}
+  - {fileID: 11400000, guid: b8f423e9d9d10b049ad8bc0b3fd9502e, type: 2}
+  - {fileID: 11400000, guid: 8be1e0fce948c614d8dfed990030ce16, type: 2}
+  - {fileID: 11400000, guid: 8d122aff1f2500f44aa3d8cb5c9fb071, type: 2}
+  - {fileID: 11400000, guid: e773dc2b76724714fa42ab4bf722f5b6, type: 2}
+  - {fileID: 11400000, guid: 5c09cd3f22b299c4b9eebb9b719a0ebb, type: 2}
   muertes: 0
   habilidadesUsadas: 0
   tiempoActual: 0
