@@ -48,8 +48,9 @@ public class AbyssFlame : MonoBehaviour
     {
         if (!viva) return;
 
-        // 💀 Muerte manual con click derecho
-        if (Input.GetMouseButtonDown(1))
+        // El jugador apaga su llama con click derecho. Las llamas de los NPC
+        // se apagan solas al terminar su recorrido, no por input.
+        if (!controlNPC && Input.GetMouseButtonDown(1))
         {
             Extinguir();
             return;
