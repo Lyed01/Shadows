@@ -3,7 +3,7 @@
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class ReflectiveLightEmitter : MonoBehaviour
 {
-    public SpotLightDetector.TipoLuz tipoLuz = SpotLightDetector.TipoLuz.Amarilla;
+    public TipoLuz tipoLuz = TipoLuz.Amarilla;
     public Vector2 direccion = Vector2.right;
     public float alcance = 6f;
     public float ancho = 0.25f;
@@ -172,11 +172,11 @@ public class ReflectiveLightEmitter : MonoBehaviour
         ancho = nuevoAncho;
     }
 
-    public void SetTipoLuz(SpotLightDetector.TipoLuz nuevoTipo)
+    public void SetTipoLuz(TipoLuz nuevoTipo)
     {
         tipoLuz = nuevoTipo;
 
-        mr.material.color = tipoLuz == SpotLightDetector.TipoLuz.Roja
+        mr.material.color = tipoLuz == TipoLuz.Roja
             ? new Color(1f, 0.2f, 0.2f)
             : new Color(1f, 1f, 0.6f);
     }

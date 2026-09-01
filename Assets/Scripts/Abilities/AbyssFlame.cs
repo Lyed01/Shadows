@@ -104,7 +104,7 @@ public class AbyssFlame : MonoBehaviour
     {
         // Luz roja destruye la llama
         var spot = other.GetComponent<SpotLightDetector>();
-        if (spot && spot.tipoLuz == SpotLightDetector.TipoLuz.Roja)
+        if (spot && spot.tipoLuz == TipoLuz.Roja)
         {
             Extinguir();
             return;

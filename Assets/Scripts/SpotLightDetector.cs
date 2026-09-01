@@ -6,8 +6,6 @@ using UnityEngine.Rendering.Universal;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class SpotLightDetector : MonoBehaviour
 {
-    public enum TipoLuz { Amarilla, Roja }
-
     // ============================================================
     // CONFIGURACIÓN GENERAL
     // ============================================================

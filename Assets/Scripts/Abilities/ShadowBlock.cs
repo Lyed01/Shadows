@@ -77,10 +77,10 @@ public class ShadowBlock : MonoBehaviour
     }
 
     // === Recibir luz (con tipo de luz) ===
-    public virtual void RecibirLuz(float daño, SpotLightDetector.TipoLuz tipo)
+    public virtual void RecibirLuz(float daño, TipoLuz tipo)
     {
         // Luz roja → daño multiplicado
-        if (tipo == SpotLightDetector.TipoLuz.Roja)
+        if (tipo == TipoLuz.Roja)
         {
             float dañoAmplificado = daño * 10f;
             RecibirLuz(dañoAmplificado);

@@ -7,7 +7,7 @@ using UnityEngine.Rendering.Universal;
 public class TopLightDetector : MonoBehaviour
 {
     // Usamos el MISMO enum que el Spotlight
-    public SpotLightDetector.TipoLuz tipoLuz = SpotLightDetector.TipoLuz.Amarilla;
+    public TipoLuz tipoLuz = TipoLuz.Amarilla;
 
     // ============================================================
     // CONFIGURACIÓN GENERAL
@@ -110,7 +110,7 @@ public class TopLightDetector : MonoBehaviour
     private float initIntensidadLuz2D;
     private float initMultiplicadorRadioLuz;
     private bool luzActiva = true;      // ON/OFF manual (switch)
-    [HideInInspector] public SpotLightDetector.TipoLuz initTipoLuz;
+    [HideInInspector] public TipoLuz initTipoLuz;
 
 
 
@@ -174,7 +174,7 @@ public class TopLightDetector : MonoBehaviour
 
         // MATERIAL
         meshRenderer.sharedMaterial =
-            tipoLuz == SpotLightDetector.TipoLuz.Roja ? materialRoja : materialAmarilla;
+            tipoLuz == TipoLuz.Roja ? materialRoja : materialAmarilla;
 
         // ⚠ APAGADO MANUAL → luzActiva controla TODO el apagado real
         if (!luzActiva)
@@ -331,7 +331,7 @@ public class TopLightDetector : MonoBehaviour
             if (hit.collider && hit.collider.TryGetComponent(out Jugador j))
                 j.Matar();
             // 🔥 LUZ ROJA cenital elimina AbyssFlame
-            if (tipoLuz == SpotLightDetector.TipoLuz.Roja &&
+            if (tipoLuz == TipoLuz.Roja &&
                 hit.collider &&
                 hit.collider.TryGetComponent(out AbyssFlame flame))
             {
@@ -348,7 +348,7 @@ public class TopLightDetector : MonoBehaviour
                 float daño = dañoBase * intensidad * Time.deltaTime;
 
                 // LUZ ROJA DESTRUYE
-                if (tipoLuz == SpotLightDetector.TipoLuz.Roja)
+                if (tipoLuz == TipoLuz.Roja)
                 {
                     sb.RecibirLuz(9999f, tipoLuz);
                 }
@@ -444,7 +444,7 @@ public class TopLightDetector : MonoBehaviour
     {
         if (luz2D == null) return;
 
-        luz2D.color = tipoLuz == SpotLightDetector.TipoLuz.Roja
+        luz2D.color = tipoLuz == TipoLuz.Roja
             ? new Color(1f, 0.2f, 0.2f)
             : new Color(1f, 0.95f, 0.7f);
     }
@@ -474,7 +474,7 @@ public class TopLightDetector : MonoBehaviour
         lampRenderer.sortingLayerID = meshRenderer.sortingLayerID;
         lampRenderer.sortingOrder = meshRenderer.sortingOrder + 5;
 
-        if (tipoLuz == SpotLightDetector.TipoLuz.Roja)
+        if (tipoLuz == TipoLuz.Roja)
             lampRenderer.color = new Color(1f, 0.4f, 0.4f);
         else
             lampRenderer.color = new Color(1f, 1f, 0.85f);
@@ -483,19 +483,19 @@ public class TopLightDetector : MonoBehaviour
     // ============================================================
     // CAMBIO DE TIPO DE LUZ
     // ============================================================
-    public void SetTipoLuz(SpotLightDetector.TipoLuz nuevoTipo)
+    public void SetTipoLuz(TipoLuz nuevoTipo)
     {
         tipoLuz = nuevoTipo;
 
         meshRenderer.sharedMaterial =
-            tipoLuz == SpotLightDetector.TipoLuz.Roja ? materialRoja : materialAmarilla;
+            tipoLuz == TipoLuz.Roja ? materialRoja : materialAmarilla;
 
         ActualizarColorLuz2D();
 
         if (lampRenderer != null)
         {
             lampRenderer.color =
-                tipoLuz == SpotLightDetector.TipoLuz.Roja
+                tipoLuz == TipoLuz.Roja
                 ? new Color(1f, 0.4f, 0.4f)
                 : new Color(1f, 1f, 0.85f);
         }
@@ -544,7 +544,7 @@ public class TopLightDetector : MonoBehaviour
     void OnDrawGizmos()
     {
         Gizmos.color =
-            tipoLuz == SpotLightDetector.TipoLuz.Roja ? Color.red : Color.yellow;
+            tipoLuz == TipoLuz.Roja ? Color.red : Color.yellow;
 
         Gizmos.DrawWireSphere(transform.position, radio);
     }
@@ -581,7 +581,7 @@ public class TopLightDetector : MonoBehaviour
         moverEntrePuntos = initMoverEntrePuntos;
         // === Material ===
         meshRenderer.sharedMaterial =
-            tipoLuz == SpotLightDetector.TipoLuz.Roja ? materialRoja : materialAmarilla;
+            tipoLuz == TipoLuz.Roja ? materialRoja : materialAmarilla;
 
         // === LUZ 2D ===
         usarLuz2D = initUsarLuz2D;

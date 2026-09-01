@@ -52,7 +52,7 @@ public class LightReceptor : MonoBehaviour
     // ============================================================
     // 🔸 Activación por luz
     // ============================================================
-    public void RecibirLuz(SpotLightDetector.TipoLuz tipo)
+    public void RecibirLuz(TipoLuz tipo)
     {
         lucesRecibiendo++;
 

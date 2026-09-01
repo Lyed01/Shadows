@@ -153,9 +153,9 @@ public class SpotLightControlSettings : LightControlSettingsBase
                 if (!cambioAplicado)
                 {
                     var nuevoTipo =
-                        (spot.initTipoLuz == SpotLightDetector.TipoLuz.Amarilla)
-                        ? SpotLightDetector.TipoLuz.Roja
-                        : SpotLightDetector.TipoLuz.Amarilla;
+                        (spot.initTipoLuz == TipoLuz.Amarilla)
+                        ? TipoLuz.Roja
+                        : TipoLuz.Amarilla;
 
                     spot.SetTipoLuz(nuevoTipo);
                     cambioAplicado = true;
@@ -207,8 +207,8 @@ public class TopLightControlSettings : LightControlSettingsBase
     [Header("Cambio de tipo de luz")]
     public bool cambiarTipoLuz = false;
 
-    public SpotLightDetector.TipoLuz tipoLuzON;
-    public SpotLightDetector.TipoLuz tipoLuzOFF;
+    public TipoLuz tipoLuzON;
+    public TipoLuz tipoLuzOFF;
 
     [System.NonSerialized]
     private bool cambioAplicado = false;

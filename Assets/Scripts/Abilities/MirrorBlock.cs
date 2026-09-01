@@ -135,7 +135,7 @@ public class MirrorBlock : ShadowBlock
     // ============================
     // LUZ DIRECTA DEL SPOTLIGHT
     // ============================
-    public override void RecibirLuz(float daño, SpotLightDetector.TipoLuz tipo)
+    public override void RecibirLuz(float daño, TipoLuz tipo)
     {
         recibiendoLuz = true;
         tiempoSinLuz = 0f;
@@ -147,7 +147,7 @@ public class MirrorBlock : ShadowBlock
         if (!EstaDaniado() && spriteActivo != null)
             sr.sprite = spriteActivo;
 
-        if (vidaActual > 0f && tipo != SpotLightDetector.TipoLuz.Roja)
+        if (vidaActual > 0f && tipo != TipoLuz.Roja)
             ActivarLuzReflejada(tipo);
     }
 
@@ -156,7 +156,7 @@ public class MirrorBlock : ShadowBlock
     // ============================
     // LUZ REFLEJADA DEL EMITTER
     // ============================
-    public void RecibirLuz(Vector2 dirLuz, float daño, SpotLightDetector.TipoLuz tipo,
+    public void RecibirLuz(Vector2 dirLuz, float daño, TipoLuz tipo,
                        Vector2 normal, float alcanceOriginal, Vector2 puntoImpacto)
     {
         recibiendoLuz = true;
@@ -165,7 +165,7 @@ public class MirrorBlock : ShadowBlock
         // ⭐ Usa la misma lógica de ShadowBlock (incluye protección anti-instant-kill)
         base.RecibirLuz(daño, tipo);
 
-        if (vidaActual > 0f && tipo != SpotLightDetector.TipoLuz.Roja)
+        if (vidaActual > 0f && tipo != TipoLuz.Roja)
             ActivarLuzReflejada(tipo);
     }
 
@@ -174,7 +174,7 @@ public class MirrorBlock : ShadowBlock
     // ============================
     // ENCENDER EMITTER
     // ============================
-    private void ActivarLuzReflejada(SpotLightDetector.TipoLuz tipo)
+    private void ActivarLuzReflejada(TipoLuz tipo)
     {
         if (luzInstancia == null)
         {
