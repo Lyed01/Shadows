@@ -31,7 +31,7 @@ public class StarProgressUI : MonoBehaviour
 
         Debug.Log("Fragmentos actuales: " + PlayerPrefs.GetInt("FragmentosTotales"));
        
-        if (SceneManager.GetActiveScene().name == "Hub")
+        if (SceneManager.GetActiveScene().name == Escenas.Hub)
         {
             enHub = true;
             Inicializar();
@@ -47,7 +47,7 @@ public class StarProgressUI : MonoBehaviour
 
     private void OnSceneLoaded(Scene s, LoadSceneMode m)
     {
-        enHub = s.name == "Hub";
+        enHub = s.name == Escenas.Hub;
         if (enHub)
             Inicializar();
         else

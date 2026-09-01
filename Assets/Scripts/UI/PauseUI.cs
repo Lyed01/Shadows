@@ -6,9 +6,9 @@ public class PauseUI : MonoBehaviour
 {
     [Header("Configuración del menú")]
     [Tooltip("Nombre de la escena del menú principal")]
-    public string nombreEscenaMenuPrincipal = "MainMenu";
+    public string nombreEscenaMenuPrincipal = Escenas.MainMenu;
     [Tooltip("Nombre de la escena del hub")]
-    public string nombreEscenaHub = "Hub";
+    public string nombreEscenaHub = Escenas.Hub;
     private bool bloqueado;
     private bool uiActiva;
 

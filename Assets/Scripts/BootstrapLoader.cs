@@ -1,11 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class BootstrapLoader : MonoBehaviour
 {
     void Start()
     {
-        // Carga autom�tica del Main Menu
-       SceneManager.LoadScene("MainMenu");
+        // Carga automática del Main Menu
+       SceneManager.LoadScene(Escenas.MainMenu);
     }
 }

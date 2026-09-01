@@ -31,7 +31,7 @@ public class GameManager : PersistentSingleton<GameManager>
     public float tiempoReinicio = 1.0f;
     private bool primeraVezEnHub = true;
 
-    private bool EsHub => SceneManager.GetActiveScene().name == "Hub";
+    private bool EsHub => SceneManager.GetActiveScene().name == Escenas.Hub;
 
     // 🧠 Inicialización persistente
     protected override void OnBoot()
@@ -48,7 +48,7 @@ public class GameManager : PersistentSingleton<GameManager>
         Debug.Log($"🌍 Escena cargada: {escena.name}");
 
 
-        if (escena.name == "Hub")
+        if (escena.name == Escenas.Hub)
         {
             if (primeraVezEnHub)
             {
@@ -57,7 +57,7 @@ public class GameManager : PersistentSingleton<GameManager>
             }
         }
         // CoreManagers NO debe instanciar jugador
-        if (escena.name == "CoreManagers")
+        if (escena.name == Escenas.CoreManagers)
         {
             return;
         }
@@ -93,7 +93,7 @@ public class GameManager : PersistentSingleton<GameManager>
     {
         // Volver frente a la puerta solo aplica al entrar al Hub, no al renacer
         // dentro de el.
-        if (!respawn && escena.name == "Hub"
+        if (!respawn && escena.name == Escenas.Hub
             && ultimaPuertaPosicion != Vector3.zero && !primeraVezEnHub)
         {
             Debug.Log("[GameManager] Regreso al Hub: aparece frente a la puerta");
@@ -150,7 +150,7 @@ public class GameManager : PersistentSingleton<GameManager>
 
     void Update()
     {
-        if (SceneManager.GetActiveScene().name == "MainMenu")
+        if (SceneManager.GetActiveScene().name == Escenas.MainMenu)
             return;
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -252,7 +252,7 @@ public class GameManager : PersistentSingleton<GameManager>
         fader?.InstantBlack();
         yield return null;
 
-        SceneManager.LoadScene("Hub");
+        SceneManager.LoadScene(Escenas.Hub);
         yield return null;
 
         // 🔥 Tararea efecto de aparición del hub
@@ -339,7 +339,7 @@ public class GameManager : PersistentSingleton<GameManager>
         string n = escena.name;
 
         // 🔴 ESCENAS QUE NUNCA DEBEN TENER HUD
-        if (n == "MainMenu" || n == "Menu" || n == "MainMenuScene")
+        if (n == Escenas.MainMenu)
         {
             Debug.Log("🎛 GameManager: MainMenu → HUD apagado.");
             UIManager.Instance?.OcultarTodo();
@@ -357,7 +357,7 @@ public class GameManager : PersistentSingleton<GameManager>
         }
 
         // 🟣 HUB — mostrar HUD normal
-        if (escena.name == "Hub")
+        if (escena.name == Escenas.Hub)
         {
             Debug.Log("🏠 GameManager: En Hub → mostrar HUD.");
             HUDHabilidad.Instance?.gameObject.SetActive(true);
@@ -465,7 +465,7 @@ public class GameManager : PersistentSingleton<GameManager>
             if (sp == null) continue;
 
             // Ignorar CoreManagers SIEMPRE
-            if (sp.gameObject.scene.name == "CoreManagers")
+            if (sp.gameObject.scene.name == Escenas.CoreManagers)
                 continue;
 
             // Ignorar cualquier escena que no sea la que Unity tiene activa

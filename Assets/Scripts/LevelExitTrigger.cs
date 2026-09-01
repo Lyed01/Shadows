@@ -11,7 +11,7 @@ public class LevelExitTrigger : MonoBehaviour
     public bool irAEscenaFinal = false;
 
     [Tooltip("Nombre de la escena final a cargar")]
-    public string nombreEscenaFinal = "EscenaFinal";
+    public string nombreEscenaFinal = Escenas.CinematicaFinal;
 
     private bool activo = true;
 

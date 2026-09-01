@@ -61,7 +61,7 @@ public class Jugador : MonoBehaviour
         hudHabilidad = hud;
 
         // ❗ Solo deshabilitar habilidades si NO estamos en el Hub
-        if (SceneManager.GetActiveScene().name != "Hub")
+        if (SceneManager.GetActiveScene().name != Escenas.Hub)
             DeshabilitarHabilidad();
 
         if (AbilityManager.Instance != null)

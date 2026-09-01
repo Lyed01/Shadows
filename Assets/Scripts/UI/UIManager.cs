@@ -33,14 +33,14 @@ public class UIManager : PersistentSingleton<UIManager>
         {
             OcultarTodo();
         }
-        else if (escenaActual == "MainMenu")
+        else if (escenaActual == Escenas.MainMenu)
         {
             return;
         }
         else
         {
             // En el Hub se debe mostrar el HUD
-            if (escenaActual == "Hub")
+            if (escenaActual == Escenas.Hub)
                 MostrarHUD();
             else
                 MostrarHUD();
@@ -169,7 +169,7 @@ public class UIManager : PersistentSingleton<UIManager>
         string escenaActual = SceneManager.GetActiveScene().name;
 
         // 🚫 Nunca mostrar UI en MainMenu
-        if (escenaActual == "MainMenu")
+        if (escenaActual == Escenas.MainMenu)
         {
             Debug.Log("🔕 UIManager: MainMenu detectado → UI completamente desactivada.");
             OcultarTodo();
@@ -185,7 +185,7 @@ public class UIManager : PersistentSingleton<UIManager>
             yield break;
         }
         // 🏠 HUB → sí debe mostrar HUD
-        if (escenaActual == "Hub")
+        if (escenaActual == Escenas.Hub)
         {
             MostrarHUD();
             yield break;
@@ -241,8 +241,8 @@ public class UIManager : PersistentSingleton<UIManager>
     public bool EscenaSinUI(string nombre)
 {
     // ❌ Estas escenas SIEMPRE deben mostrar su UI propia
-    if (nombre == "Hub") return false;
-    if (nombre == "MainMenu") return false;
+    if (nombre == Escenas.Hub) return false;
+    if (nombre == Escenas.MainMenu) return false;
 
     // ✔ Escenas realmente sin UI (cinemáticas, pantallas negras, etc.)
     foreach (var s in escenasSinUI)

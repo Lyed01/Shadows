@@ -43,6 +43,6 @@ public class SplashScreen : MonoBehaviour
         }
 
         // 🔹 Cambiar a MainMenu
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene(Escenas.MainMenu);
     }
 }

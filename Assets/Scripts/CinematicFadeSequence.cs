@@ -1,11 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.SceneManagement;
 
 public class CinematicFadeSequence : MonoBehaviour
 {
-    [Header("Im�genes a mostrar en orden")]
+    [Header("Imágenes a mostrar en orden")]
     public Image imagen1;
     public Image imagen2;
     public Image imagen3;
@@ -31,7 +31,7 @@ public class CinematicFadeSequence : MonoBehaviour
         yield return new WaitForSeconds(delayBetween);
 
         
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene(Escenas.MainMenu);
     }
 
     IEnumerator FadeIn(Image img)
