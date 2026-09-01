@@ -5,10 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
-public class PopupFragmentosUI : MonoBehaviour
+public class PopupFragmentosUI : SceneSingleton<PopupFragmentosUI>
 {
-    public static PopupFragmentosUI Instance;
-
     [Header("UI")]
     public CanvasGroup canvasGroup;
     public RectTransform panel;
@@ -31,9 +29,8 @@ public class PopupFragmentosUI : MonoBehaviour
     private bool visible = false;
     private Vector3 worldPosObjetivo; // <-- NUEVO (posición que debe seguir)
 
-    void Awake()
+    protected override void OnAwake()
     {
-        Instance = this;
         cam = Camera.main;
 
         canvasGroup.alpha = 0f;

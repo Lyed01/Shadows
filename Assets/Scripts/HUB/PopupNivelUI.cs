@@ -3,10 +3,8 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections;
 
-public class PopupNivelUI : MonoBehaviour
+public class PopupNivelUI : SceneSingleton<PopupNivelUI>
 {
-    public static PopupNivelUI Instance { get; private set; }
-
     [Header("Referencias UI")]
     public Canvas canvas;                 // Canvas del Hub (Screen Space Camera)
     public CanvasGroup canvasGroup;       // CanvasGroup del popup
@@ -34,15 +32,8 @@ public class PopupNivelUI : MonoBehaviour
     private Camera cam;
     private bool visible;
 
-    void Awake()
+    protected override void OnAwake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-
         cam = Camera.main;
         if (canvasGroup != null)
         {

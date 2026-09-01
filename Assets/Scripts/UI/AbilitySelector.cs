@@ -11,7 +11,7 @@ public class AbilityData
     public AbilityType tipo;
 }
 
-public class AbilitySelector : MonoBehaviour
+public class AbilitySelector : SceneSingleton<AbilitySelector>
 {
     [Header("Base de datos de habilidades posibles (todas)")]
     public List<AbilityData> habilidadesDisponibles = new List<AbilityData>();
@@ -22,13 +22,6 @@ public class AbilitySelector : MonoBehaviour
 
     private List<AbilityData> habilidadesDesbloqueadas = new List<AbilityData>();
     private int indiceActual = 0;
-
-    public static AbilitySelector Instance { get; private set; }
-
-    void Awake()
-    {
-        Instance = this;
-    }
 
     void OnEnable()
     {

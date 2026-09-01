@@ -1,19 +1,12 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class SceneStateManager : MonoBehaviour
+public class SceneStateManager : SceneSingleton<SceneStateManager>
 {
-    public static SceneStateManager Instance;
-
     private HashSet<string> flags = new HashSet<string>();
 
     public delegate void SceneFlagEvent(string flag);
     public static event SceneFlagEvent OnFlagAdded;
-
-    void Awake()
-    {
-        Instance = this;
-    }
 
     public void SetFlag(string flag)
     {
