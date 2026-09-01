@@ -4,16 +4,11 @@ using UnityEngine.Rendering.Universal;
 
 [ExecuteAlways]
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-public class SpotLightDetector : MonoBehaviour
+public class SpotLightDetector : LightDetectorBase
 {
     // ============================================================
     // CONFIGURACIÓN GENERAL
     // ============================================================
-
-    [HideInInspector] public bool noReset = false;
-
-    [Header("Configuración General")]
-    public TipoLuz tipoLuz = TipoLuz.Amarilla;
 
     [Header("Estado inicial")]
     public bool empezarApagada = false;
@@ -29,16 +24,6 @@ public class SpotLightDetector : MonoBehaviour
     public float alcance = 8f;
     [Range(6, 100)] public int cantidadRayos = 30;
 
-    [Header("Daño / Intensidad")]
-    public float dañoBase = 1f;
-
-    [Header("Capas")]
-    public LayerMask mascaraBloqueos;
-
-    [Header("Materiales Mesh")]
-    public Material materialAmarilla;
-    public Material materialRoja;
-
     [Header("Ajuste visual de textura")]
     public float multiplicadorAnchoUV = 1f;
     public bool invertirDegradado = false;
@@ -50,15 +35,6 @@ public class SpotLightDetector : MonoBehaviour
     public bool oscilacion = false;
     public float rangoOscilacion = 45f;
 
-    [Header("Titileo / Apagones")]
-    public bool titilar = false;
-    public Vector2 tiempoEncendida = new(2f, 4f);
-    public Vector2 tiempoApagada = new(0.3f, 1.2f);
-
-    [Tooltip("Fase del ciclo de titileo (0 = normal, 0.5 = invertido).")]
-    [Range(0f, 1f)]
-    public float fase = 0f;
-
     [Header("Luz 2D del haz")]
     public bool luzSigueHaz = true;
     [Range(0f, 2f)] public float intensidadHaz = 0.8f;
@@ -68,17 +44,13 @@ public class SpotLightDetector : MonoBehaviour
     // INTERNOS
     // ============================================================
     private MeshFilter meshFilter;
-    private MeshRenderer meshRenderer;
     private Mesh mesh;
     private Light2D luzHaz;
 
     private float anguloActual;
-    private float timerTitileo;
     private float tiempoOscilacion;
     private float giroAcumulado;
-    private bool luzEncendida = true;
     private float anguloBase;
-    private bool luzActiva = true;
     private float offsetOscilacion = 0f;
 
     private bool resetInProgress = false;
@@ -100,10 +72,6 @@ public class SpotLightDetector : MonoBehaviour
     private float initAnguloBase;
     private bool initLuzActiva;
     private bool initLuzEncendida;
-
-    // Tipo de luz inicial (para restaurar)
-    [HideInInspector]
-    public TipoLuz initTipoLuz;
 
     // ------------------------------------------------------
     // AWAKE
@@ -254,48 +222,6 @@ public class SpotLightDetector : MonoBehaviour
     // ------------------------------------------------------
     // TITILEO
     // ------------------------------------------------------
-    /// <summary>
-    /// Coloca el titileo en un punto del ciclo segun la fase configurada, para
-    /// que dos focos con la misma cadencia puedan alternarse entre si.
-    /// </summary>
-    private void InicializarTitileo()
-    {
-        float duracionOn = Random.Range(tiempoEncendida.x, tiempoEncendida.y);
-        float duracionOff = Random.Range(tiempoApagada.x, tiempoApagada.y);
-        float posicion = Mathf.Repeat(fase, 1f) * (duracionOn + duracionOff);
-
-        luzEncendida = posicion < duracionOn;
-        timerTitileo = luzEncendida
-            ? duracionOn - posicion
-            : duracionOn + duracionOff - posicion;
-    }
-
-    private void ActualizarTitileo()
-    {
-        if (!titilar)
-        {
-            luzEncendida = true;
-            if (meshRenderer != null)
-                meshRenderer.enabled = true;
-            return;
-        }
-
-        timerTitileo -= Time.deltaTime;
-
-        if (timerTitileo <= 0f)
-        {
-            luzEncendida = !luzEncendida;
-            timerTitileo = luzEncendida
-                ? Random.Range(tiempoEncendida.x, tiempoEncendida.y)
-                : Random.Range(tiempoApagada.x, tiempoApagada.y);
-        }
-
-        if (meshRenderer != null)
-            meshRenderer.enabled = luzEncendida;
-
-        if (luzHaz != null)
-            luzHaz.intensity = luzEncendida ? intensidadHaz : 0f;
-    }
 
     // ------------------------------------------------------
     // MESH + LUZ
@@ -455,6 +381,12 @@ public class SpotLightDetector : MonoBehaviour
         ActualizarColorLuzHaz();
     }
 
+    protected override void AplicarIntensidadLuz2D(bool encendida)
+    {
+        if (luzHaz != null)
+            luzHaz.intensity = encendida ? intensidadHaz : 0f;
+    }
+
     private void ActualizarColorLuzHaz()
     {
         if (luzHaz == null) return;
@@ -468,29 +400,12 @@ public class SpotLightDetector : MonoBehaviour
     // ------------------------------------------------------
     // TIPO DE LUZ (API PÚBLICA)
     // ------------------------------------------------------
-    public void AlternarTipoLuz()
-    {
-        tipoLuz = (tipoLuz == TipoLuz.Amarilla)
-            ? TipoLuz.Roja
-            : TipoLuz.Amarilla;
-
-        ActualizarEstadoLuz();
-    }
-
-    public void SetTipoLuz(TipoLuz nuevoTipo)
-    {
-        tipoLuz = nuevoTipo;
-        ActualizarEstadoLuz();
-    }
-
-    private void ActualizarEstadoLuz()
+    protected override void ActualizarPorTipoDeLuz()
     {
         if (meshRenderer == null)
             meshRenderer = GetComponentInChildren<MeshRenderer>();
 
-        meshRenderer.sharedMaterial =
-            (tipoLuz == TipoLuz.Roja) ? materialRoja : materialAmarilla;
-
+        base.ActualizarPorTipoDeLuz();
         ActualizarColorLuzHaz();
 
 #if UNITY_EDITOR
@@ -501,7 +416,7 @@ public class SpotLightDetector : MonoBehaviour
     // ------------------------------------------------------
     // ENCENDER / APAGAR COMPLETAMENTE
     // ------------------------------------------------------
-    public void SetLuzActiva(bool encendida)
+    public override void SetLuzActiva(bool encendida)
     {
         luzActiva = encendida;
 
@@ -517,7 +432,6 @@ public class SpotLightDetector : MonoBehaviour
                 mesh.Clear();
 
             luzEncendida = false;
-            timerTitileo = 0f;
             giroAcumulado = 0f;
             offsetOscilacion = 0f;
 
@@ -537,7 +451,7 @@ public class SpotLightDetector : MonoBehaviour
     // ------------------------------------------------------
     // RESET TOTAL
     // ------------------------------------------------------
-    public void ResetToInitialState()
+    public override void ResetToInitialState()
     {
         if (noReset) return;
         StartCoroutine(ProcesarReset());
@@ -573,7 +487,7 @@ public class SpotLightDetector : MonoBehaviour
 
         // Tipo de luz vuelve al inicial
         tipoLuz = initTipoLuz;
-        ActualizarEstadoLuz();
+        ActualizarPorTipoDeLuz();
 
         // Luz 2D
         if (luzHaz != null)

@@ -4,22 +4,13 @@ using UnityEngine.Rendering.Universal;
 
 [ExecuteAlways]
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-public class TopLightDetector : MonoBehaviour
+public class TopLightDetector : LightDetectorBase
 {
-    // Usamos el MISMO enum que el Spotlight
-    public TipoLuz tipoLuz = TipoLuz.Amarilla;
-
     // ============================================================
     // CONFIGURACIÓN GENERAL
     // ============================================================\\
-    [HideInInspector] public bool noReset = false;
-
     [Header("Configuración General")]
-    public float dañoBase = 1f;
     public AnimationCurve curvaIntensidad = AnimationCurve.EaseInOut(0, 1, 1, 0);
-
-    [Header("Capas de impacto")]
-    public LayerMask mascaraBloqueos;
 
     // ============================================================
     // MOVIMIENTO ENTRE PUNTOS
@@ -43,21 +34,10 @@ public class TopLightDetector : MonoBehaviour
     // ============================================================
     // MATERIAL VISUAL
     // ============================================================
-    [Header("Materiales Mesh")]
-    public Material materialAmarilla;
-    public Material materialRoja;
-
     // ============================================================
     // TITILEO / APAGONES
     // ============================================================
     [Header("Titileo")]
-    public bool titilar = false;
-    public Vector2 tiempoEncendida = new(2f, 4f);
-    public Vector2 tiempoApagada = new(0.3f, 1.2f);
-
-    private bool luzEncendida = true;
-    private float timerTitileo;
-
     // ============================================================
     // LÁMPARA VISUAL
     // ============================================================
@@ -82,7 +62,6 @@ public class TopLightDetector : MonoBehaviour
     // INTERNOS MESH
     // ============================================================
     private MeshFilter meshFilter;
-    private MeshRenderer meshRenderer;
     private Mesh mesh;
 
     private HashSet<ShadowBlock> iluminadosPrev = new();
@@ -109,8 +88,6 @@ public class TopLightDetector : MonoBehaviour
     private bool initUsarLuz2D;
     private float initIntensidadLuz2D;
     private float initMultiplicadorRadioLuz;
-    private bool luzActiva = true;      // ON/OFF manual (switch)
-    [HideInInspector] public TipoLuz initTipoLuz;
 
 
 
@@ -144,6 +121,8 @@ public class TopLightDetector : MonoBehaviour
         initLuzEncendida = luzEncendida;
  
         initTipoLuz = tipoLuz;
+
+        InicializarTitileo();
 
 
 
@@ -283,28 +262,6 @@ public class TopLightDetector : MonoBehaviour
     // ============================================================
     // TITILEO
     // ============================================================
-    private void ActualizarTitileo()
-    {
-        if (!titilar)
-        {
-            luzEncendida = true;
-            meshRenderer.enabled = true;
-            return;
-        }
-
-        timerTitileo -= Time.deltaTime;
-
-        if (timerTitileo <= 0f)
-        {
-            luzEncendida = !luzEncendida;
-
-            timerTitileo = luzEncendida
-                ? Random.Range(tiempoEncendida.x, tiempoEncendida.y)
-                : Random.Range(tiempoApagada.x, tiempoApagada.y);
-        }
-
-        meshRenderer.enabled = luzEncendida;
-    }
 
     // ============================================================
     // LÓGICA PRINCIPAL DEL HAZ CIRCULAR
@@ -483,19 +440,15 @@ public class TopLightDetector : MonoBehaviour
     // ============================================================
     // CAMBIO DE TIPO DE LUZ
     // ============================================================
-    public void SetTipoLuz(TipoLuz nuevoTipo)
+    protected override void ActualizarPorTipoDeLuz()
     {
-        tipoLuz = nuevoTipo;
-
-        meshRenderer.sharedMaterial =
-            tipoLuz == TipoLuz.Roja ? materialRoja : materialAmarilla;
+        base.ActualizarPorTipoDeLuz();
 
         ActualizarColorLuz2D();
 
         if (lampRenderer != null)
         {
-            lampRenderer.color =
-                tipoLuz == TipoLuz.Roja
+            lampRenderer.color = tipoLuz == TipoLuz.Roja
                 ? new Color(1f, 0.4f, 0.4f)
                 : new Color(1f, 1f, 0.85f);
         }
@@ -505,10 +458,17 @@ public class TopLightDetector : MonoBehaviour
 #endif
     }
 
+    /// <summary>La luz 2D acompaña al parpadeo.</summary>
+    protected override void AplicarIntensidadLuz2D(bool encendida)
+    {
+        if (usarLuz2D && luz2D != null)
+            luz2D.intensity = encendida ? intensidadLuz2D : 0f;
+    }
+
     // ============================================================
     // ENCENDER / APAGAR LUZ (igual que SpotLightDetector)
     // ============================================================
-    public void SetLuzActiva(bool encendida)
+    public override void SetLuzActiva(bool encendida)
     {
         luzActiva = encendida;
 
@@ -554,7 +514,7 @@ public class TopLightDetector : MonoBehaviour
     /// Devuelve la luz a su estado inicial. Lo llama GameManager al reiniciar
     /// el nivel.
     /// </summary>
-    public void ResetToInitialState()
+    public override void ResetToInitialState()
     {
         if (noReset) return;
         StartCoroutine(ProcesarReset());
@@ -573,6 +533,7 @@ public class TopLightDetector : MonoBehaviour
         resolucion = initResolucion;
         titilar = initTitilar;
         luzEncendida = initLuzEncendida;
+        InicializarTitileo();
         tipoLuz = initTipoLuz;
 
         // === Movimiento ===
