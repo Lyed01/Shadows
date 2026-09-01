@@ -49,9 +49,7 @@ public class LightReceptor : MonoBehaviour
         lucesRecibiendo = 0;
     }
 
-    // ============================================================
     //  Activación por luz
-    // ============================================================
     public void RecibirLuz(TipoLuz tipo)
     {
         lucesRecibiendo++;
@@ -98,9 +96,7 @@ public class LightReceptor : MonoBehaviour
         Log.Info(this, $"Receptor {name} DESACTIVADO");
     }
 
-    // ============================================================
     //  SISTEMA DE CONTROL DE LUCES UNIFICADO
-    // ============================================================
     private void AplicarAccionesLuces(bool estadoON)
     {
         foreach (var cfg in lucesControladas)
@@ -110,9 +106,7 @@ public class LightReceptor : MonoBehaviour
         }
     }
 
-    // ============================================================
     //  CONTROL DE PUERTAS (CENTRALIZADO)
-    // ============================================================
     private void EvaluarPuertas()
     {
         foreach (var p in puertas)
@@ -143,9 +137,7 @@ public class LightReceptor : MonoBehaviour
             if (p != null) p.Close();
     }
 
-    // ============================================================
     //  CONTROL DE OBJETOS
-    // ============================================================
     private void ActivarObjetos()
     {
         foreach (var obj in objetosParaActivar)
@@ -158,9 +150,7 @@ public class LightReceptor : MonoBehaviour
             if (obj != null) obj.SetActive(false);
     }
 
-    // ============================================================
     //  RESET COMPLETO
-    // ============================================================
     public void ResetReceptor()
     {
         if (noReset) return;

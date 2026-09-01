@@ -19,7 +19,6 @@ public class DialogueSystemWorld : PersistentSingleton<DialogueSystemWorld>
     public Transform ultimoNPCQueHablo { get; private set; }
 
 
-
     public void IniciarDialogo(DialogueData data, Transform npc)
     {
         if (activo || data == null || prefabBurbuja == null) return;
@@ -117,7 +116,6 @@ public class DialogueSystemWorld : PersistentSingleton<DialogueSystemWorld>
         dialogoActual = null;
         indiceLinea = 0;
     }
-
 
 
     private void EjecutarAccion(DialogueAction accion)

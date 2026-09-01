@@ -14,8 +14,7 @@ public class MainMenu : MonoBehaviour
     public GameObject panelControles;
 
 
-    // ==================== BOTONES ====================
-
+    // BOTONES
     // Jugar
     public void Jugar()
     {
@@ -52,7 +51,7 @@ public class MainMenu : MonoBehaviour
 #endif
     }
 
-    // ==================== VOLVER DEL PANEL DE OPCIONES ====================
+    // VOLVER DEL PANEL DE OPCIONES
     public void VolverDesdeOpciones()
     {
         if (panelOpciones != null)

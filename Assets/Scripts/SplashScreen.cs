@@ -19,7 +19,7 @@ public class SplashScreen : MonoBehaviour
 
     private IEnumerator ShowSplash()
     {
-        // 🔹 Fade in
+        // Fade in
         float t = 0f;
         while (t < fadeDuration)
         {
@@ -29,10 +29,10 @@ public class SplashScreen : MonoBehaviour
             yield return null;
         }
 
-        // 🔹 Esperar el displayTime
+        // Esperar el displayTime
         yield return new WaitForSeconds(displayTime);
 
-        // 🔹 Fade out
+        // Fade out
         t = 0f;
         while (t < fadeDuration)
         {
@@ -42,7 +42,7 @@ public class SplashScreen : MonoBehaviour
             yield return null;
         }
 
-        // 🔹 Cambiar a MainMenu
+        // Cambiar a MainMenu
         SceneManager.LoadScene(Escenas.MainMenu);
     }
 }

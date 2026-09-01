@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// Lo que comparten los dos emisores de luz del juego: el foco conico
@@ -55,9 +55,7 @@ public abstract class LightDetectorBase : MonoBehaviour
     protected Material MaterialSegunTipo =>
         tipoLuz == TipoLuz.Roja ? materialRoja : materialAmarilla;
 
-    // ------------------------------------------------------
     // TITILEO
-    // ------------------------------------------------------
 
     /// <summary>
     /// Coloca el titileo en un punto del ciclo segun la fase configurada, para
@@ -112,9 +110,7 @@ public abstract class LightDetectorBase : MonoBehaviour
     /// </summary>
     protected virtual void AplicarIntensidadLuz2D(bool encendida) { }
 
-    // ------------------------------------------------------
     // TIPO DE LUZ
-    // ------------------------------------------------------
 
     public void SetTipoLuz(TipoLuz nuevoTipo)
     {
@@ -135,9 +131,7 @@ public abstract class LightDetectorBase : MonoBehaviour
             meshRenderer.sharedMaterial = MaterialSegunTipo;
     }
 
-    // ------------------------------------------------------
     // ENCENDIDO MANUAL Y RESET
-    // ------------------------------------------------------
 
     /// <summary>Enciende o apaga la luz por completo. La usan switches y receptores.</summary>
     public abstract void SetLuzActiva(bool encendida);

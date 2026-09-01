@@ -3,9 +3,7 @@ using System.Text.RegularExpressions;
 
 public static class DialogueHighlighter
 {
-    // ==========================
-    // 🎨 DICCIONARIO DE COLORES
-    // ==========================
+    // DICCIONARIO DE COLORES
     public static Dictionary<string, string> coloresPorPalabra =
         new Dictionary<string, string>()
     {
@@ -26,10 +24,8 @@ public static class DialogueHighlighter
         { "ShadowShards",      "#A02CF0" },
     };
 
-    // =============================================================
-    // 🔥 FUNCIÓN PRINCIPAL
+    // FUNCIÓN PRINCIPAL
     // Procesa un string y envuelve cada palabra en <color=…><b>…</b></color>
-    // =============================================================
     public static string Procesar(string textoOriginal)
     {
         string resultado = textoOriginal;

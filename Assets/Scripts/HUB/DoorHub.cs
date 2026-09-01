@@ -115,10 +115,6 @@ public class DoorHub : MonoBehaviour
     }
 
 
-
-
-
-
     public int ObtenerEstrellas() => estrellas;
 
     public void Entrar()

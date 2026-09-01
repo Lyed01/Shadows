@@ -31,7 +31,7 @@ public class ScreenFader : MonoBehaviour
         canvasGroup.blocksRaycasts = false;
     }
 
-    // 🔥 Aparece negro inmediatamente (sin animación)
+    // Aparece negro inmediatamente (sin animación)
     public void InstantBlack()
     {
         if (currentFade != null) StopCoroutine(currentFade);
@@ -39,7 +39,7 @@ public class ScreenFader : MonoBehaviour
         canvasGroup.blocksRaycasts = true;
     }
 
-    // 🔥 Limpia inmediatamente (sin animación)
+    // Limpia inmediatamente (sin animación)
     public void InstantClear()
     {
         if (currentFade != null) StopCoroutine(currentFade);

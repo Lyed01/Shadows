@@ -22,7 +22,7 @@ public class ShadowBlock : MonoBehaviour
 
     public static event System.Action<ShadowBlock> OnBloqueDestruido;
 
-    // 🔸 Marca de tiempo para evitar liberar celdas si se destruye instantáneamente
+    // Marca de tiempo para evitar liberar celdas si se destruye instantáneamente
     private float tiempoCreacion;
 
     protected virtual void Awake()
@@ -59,7 +59,7 @@ public class ShadowBlock : MonoBehaviour
     // === Recibir luz (daño normal) ===
     public virtual void RecibirLuz(float daño)
     {
-        // 🛡 Protección: NO recibir daño en los primeros ms de vida
+        // Protección: NO recibir daño en los primeros ms de vida
         if (Time.time - tiempoCreacion < 0.1f)
             return;
 
@@ -121,7 +121,7 @@ public class ShadowBlock : MonoBehaviour
         }
         else
         {
-            // 🟡 VIDA NORMAL (100% → 10%): todos los sprites progresivos
+            // VIDA NORMAL (100% → 10%): todos los sprites progresivos
             float t = Mathf.InverseLerp(1f, 0.10f, porcentajeVida); // 0 → 1
             index = Mathf.FloorToInt(t * (total * 0.90f));          // hasta el 90%
             index = Mathf.Clamp(index, 0, total - 1);
@@ -129,7 +129,6 @@ public class ShadowBlock : MonoBehaviour
 
         spriteRenderer.sprite = spritesDaño[index];
     }
-
 
 
     // === Cuando sale de la luz ===
@@ -141,7 +140,7 @@ public class ShadowBlock : MonoBehaviour
     // === Destrucción controlada ===
     public virtual void DestruirBloque()
     {
-        // ⚙️ Evita liberar la celda si el bloque se destruye en el mismo frame que se creó
+        // Evita liberar la celda si el bloque se destruye en el mismo frame que se creó
         if (Time.time - tiempoCreacion > 0.05f)
         {
             if (gridManager != null)

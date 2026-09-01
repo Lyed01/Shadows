@@ -42,9 +42,7 @@ public class OpcionesGeneralController : MonoBehaviour
         }
     }
 
-    // ======================================================
     // FUNCIONES
-    // ======================================================
 
     // HUD
     private void ToggleHUD(bool mostrar)

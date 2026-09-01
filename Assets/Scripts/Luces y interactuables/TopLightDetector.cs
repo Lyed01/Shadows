@@ -6,15 +6,11 @@ using UnityEngine.Rendering.Universal;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class TopLightDetector : LightDetectorBase
 {
-    // ============================================================
     // CONFIGURACIÓN GENERAL
-    // ============================================================\\
     [Header("Configuración General")]
     public AnimationCurve curvaIntensidad = AnimationCurve.EaseInOut(0, 1, 1, 0);
 
-    // ============================================================
     // MOVIMIENTO ENTRE PUNTOS
-    // ============================================================
     [Header("Movimiento en Patrulla")]
     public Transform[] puntosPatrulla;
     public float velocidadMovimiento = 2f;
@@ -23,24 +19,16 @@ public class TopLightDetector : LightDetectorBase
     private int indiceObjetivo = 0;
     private bool retrocediendo = false;
 
-    // ============================================================
     // PARÁMETROS DEL HAZ (CIRCULAR)
-    // ============================================================
     [Header("Haz Cenital Circular")]
     public float radio = 4f;
     [Range(12, 128)] public int resolucion = 48;
 
 
-    // ============================================================
     // MATERIAL VISUAL
-    // ============================================================
-    // ============================================================
     // TITILEO / APAGONES
-    // ============================================================
     [Header("Titileo")]
-    // ============================================================
     // LÁMPARA VISUAL
-    // ============================================================
     [Header("Sprite Lámpara")]
     public Sprite lampSprite;
     public Vector3 lampOffset = Vector3.zero;
@@ -48,9 +36,7 @@ public class TopLightDetector : LightDetectorBase
 
     private SpriteRenderer lampRenderer;
 
-    // ============================================================
     // LUZ 2D
-    // ============================================================
     [Header("Luz 2D")]
     public bool usarLuz2D = true;
     [Range(0f, 2f)] public float intensidadLuz2D = 0.8f;
@@ -58,9 +44,7 @@ public class TopLightDetector : LightDetectorBase
 
     private Light2D luz2D;
 
-    // ============================================================
     // INTERNOS MESH
-    // ============================================================
     private MeshFilter meshFilter;
     private Mesh mesh;
 
@@ -90,10 +74,7 @@ public class TopLightDetector : LightDetectorBase
     private float initMultiplicadorRadioLuz;
 
 
-
-    // ============================================================
     // AWAKE
-    // ============================================================
     void Awake()
     {
         meshFilter = GetComponent<MeshFilter>();
@@ -125,7 +106,6 @@ public class TopLightDetector : LightDetectorBase
         InicializarTitileo();
 
 
-
         initIndiceObjetivo = indiceObjetivo;
         initRetrocediendo = retrocediendo;
 
@@ -140,9 +120,7 @@ public class TopLightDetector : LightDetectorBase
 
     }
 
-    // ============================================================
     // UPDATE
-    // ============================================================
     void Update()
     {
         if (resetInProgress)
@@ -211,10 +189,7 @@ public class TopLightDetector : LightDetectorBase
     }
 
 
-
-    // ============================================================
     // MOVIMIENTO ENTRE PUNTOS
-    // ============================================================
     private void ActualizarMovimiento()
     {
         if (!moverEntrePuntos)
@@ -259,13 +234,9 @@ public class TopLightDetector : LightDetectorBase
         }
     }
 
-    // ============================================================
     // TITILEO
-    // ============================================================
 
-    // ============================================================
     // LÓGICA PRINCIPAL DEL HAZ CIRCULAR
-    // ============================================================
     private void GenerarLuzCircular()
     {
         Vector2 origen = transform.position;
@@ -294,7 +265,6 @@ public class TopLightDetector : LightDetectorBase
             {
                 flame.Extinguir();
             }
-
 
 
             // --- BLOQUES ---
@@ -353,9 +323,7 @@ public class TopLightDetector : LightDetectorBase
         ActualizarFormaLuz2D();
     }
 
-    // ============================================================
     // LUZ 2D
-    // ============================================================
     private void CrearLuz2D()
     {
         var existentes = GetComponentsInChildren<Light2D>(true);
@@ -406,9 +374,7 @@ public class TopLightDetector : LightDetectorBase
             : new Color(1f, 0.95f, 0.7f);
     }
 
-    // ============================================================
     // LÁMPARA VISUAL
-    // ============================================================
     private void CrearLampara()
     {
         if (lampSprite == null) return;
@@ -437,9 +403,7 @@ public class TopLightDetector : LightDetectorBase
             lampRenderer.color = new Color(1f, 1f, 0.85f);
     }
 
-    // ============================================================
     // CAMBIO DE TIPO DE LUZ
-    // ============================================================
     protected override void ActualizarPorTipoDeLuz()
     {
         base.ActualizarPorTipoDeLuz();
@@ -465,9 +429,7 @@ public class TopLightDetector : LightDetectorBase
             luz2D.intensity = encendida ? intensidadLuz2D : 0f;
     }
 
-    // ============================================================
     // ENCENDER / APAGAR LUZ (igual que SpotLightDetector)
-    // ============================================================
     public override void SetLuzActiva(bool encendida)
     {
         luzActiva = encendida;
@@ -499,8 +461,6 @@ public class TopLightDetector : LightDetectorBase
     }
 
 
-
-    // ============================================================
     void OnDrawGizmos()
     {
         Gizmos.color =

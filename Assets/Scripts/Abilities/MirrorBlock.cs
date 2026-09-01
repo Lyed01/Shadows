@@ -32,9 +32,7 @@ public class MirrorBlock : ShadowBlock
     private Vector2 direccionActual;
     public Vector2 DireccionActual => direccionActual;
 
-    // ============================
     // START
-    // ============================
     protected override void Start()
     {
         base.Start();
@@ -50,9 +48,7 @@ public class MirrorBlock : ShadowBlock
     }
 
 
-    // ============================
     // UPDATE (control de apagado + sprites)
-    // ============================
     protected override void Update()
     {
         base.Update();
@@ -77,9 +73,7 @@ public class MirrorBlock : ShadowBlock
 
         recibiendoLuz = false;
     }
-    // ============================
     // FLECHA DE DIRECCIÓN
-    // ============================
     private void CrearFlechaDireccion()
     {
         // Crear objeto hijo
@@ -92,7 +86,6 @@ public class MirrorBlock : ShadowBlock
 
         ActualizarFlecha();
     }
-
 
 
     private void ActualizarFlecha()
@@ -129,12 +122,7 @@ public class MirrorBlock : ShadowBlock
     }
 
 
-
-
-
-    // ============================
     // LUZ DIRECTA DEL SPOTLIGHT
-    // ============================
     public override void RecibirLuz(float daño, TipoLuz tipo)
     {
         recibiendoLuz = true;
@@ -152,10 +140,7 @@ public class MirrorBlock : ShadowBlock
     }
 
 
-
-    // ============================
     // LUZ REFLEJADA DEL EMITTER
-    // ============================
     public void RecibirLuz(Vector2 dirLuz, float daño, TipoLuz tipo,
                        Vector2 normal, float alcanceOriginal, Vector2 puntoImpacto)
     {
@@ -170,10 +155,7 @@ public class MirrorBlock : ShadowBlock
     }
 
 
-
-    // ============================
     // ENCENDER EMITTER
-    // ============================
     private void ActivarLuzReflejada(TipoLuz tipo)
     {
         if (luzInstancia == null)
@@ -202,9 +184,7 @@ public class MirrorBlock : ShadowBlock
         }
     }
 
-    // ============================
     // APAGAR EMITTER
-    // ============================
     private void ApagarLuzReflejada()
     {
         if (luzInstancia != null)
@@ -215,9 +195,7 @@ public class MirrorBlock : ShadowBlock
         }
     }
 
-    // ============================
     // ROTAR HAZ
-    // ============================
     public void RotarHaz()
     {
         direccionActual = new Vector2(direccionActual.y, -direccionActual.x);
@@ -246,9 +224,7 @@ public class MirrorBlock : ShadowBlock
         Log.Info(this, $"MirrorBlock ajustó dirección inicial a {direccionActual}");
     }
 
-    // ============================
     // DESTRUIR BLOQUE
-    // ============================
     public override void DestruirBloque()
     {
         if (luzInstancia != null)

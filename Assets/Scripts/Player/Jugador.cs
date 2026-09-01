@@ -157,8 +157,6 @@ public class Jugador : MonoBehaviour
     }
 
 
-
-
     void FixedUpdate()
     {
 
@@ -230,7 +228,6 @@ public class Jugador : MonoBehaviour
 
         gridManager?.MostrarCeldasDisponibles(transform.position, rangoHabilidad);
     }
-
 
 
     // === Desactivar modo habilidad ===

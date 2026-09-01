@@ -134,14 +134,14 @@ public class AbyssFlame : MonoBehaviour
 
         anim?.Play("AbyssFlameDie");
 
-        // 🔥 Corromper celda
+        // Corromper celda
         if (gridManager != null && gridManager.sueloTilemap != null)
         {
             Vector3Int cell = gridManager.sueloTilemap.WorldToCell(transform.position);
             gridManager.CorromperCeldaUnica(cell);
         }
 
-        // 🔥 SOLO si es del jugador, restaurar cámara y controles
+        // SOLO si es del jugador, restaurar cámara y controles
         if (jugador != null)
         {
             var cineCam = Object.FindFirstObjectByType<CinemachineCamera>();
@@ -152,7 +152,7 @@ public class AbyssFlame : MonoBehaviour
             jugador.SetControlActivo(true);
         }
 
-        // 🧽 Finalmente destruir
+        // Finalmente destruir
         Destroy(gameObject, 0.5f);
     }
 

@@ -85,8 +85,7 @@ public class GameManager : PersistentSingleton<GameManager>
     }
 
 
-    // =============================== SPAWN SYSTEM ===============================
-
+    // SPAWN SYSTEM
     /// <summary>
     /// Decide donde aparece el jugador. Al volver al Hub desde un nivel lo deja
     /// frente a la puerta que uso; en cualquier otro caso usa el SpawnPoint de la
@@ -113,7 +112,6 @@ public class GameManager : PersistentSingleton<GameManager>
         Log.Aviso(this, $"{escena.name} no tiene SpawnPoint. Usando Vector3.zero");
         return Vector3.zero;
     }
-
 
 
     /// <summary>
@@ -155,11 +153,7 @@ public class GameManager : PersistentSingleton<GameManager>
     }
 
 
-
-
-
-    // =============================== UPDATE & GAME STATE ===============================
-
+    // UPDATE & GAME STATE
     void Update()
     {
         if (SceneManager.GetActiveScene().name == Escenas.MainMenu)
@@ -183,8 +177,6 @@ public class GameManager : PersistentSingleton<GameManager>
         //  Nada de popups acá
         Invoke(nameof(ReiniciarFlujoDeJuego), tiempoReinicio);
     }
-
-
 
 
     private void ReiniciarFlujoDeJuego() => StartCoroutine(ReiniciarConFade());
@@ -227,8 +219,6 @@ public class GameManager : PersistentSingleton<GameManager>
     }
 
 
-
-
     public void PausarJuego()
     {
         if (EstadoActual == GameState.Pausado) return;
@@ -247,8 +237,7 @@ public class GameManager : PersistentSingleton<GameManager>
         UIManager.Instance?.MostrarHUD();
     }
 
-    // =============================== CARGA DE ESCENAS ===============================
-
+    // CARGA DE ESCENAS
     public void VolverAlHub()
     {
         regresoDesdeNivel = true;
@@ -284,7 +273,6 @@ public class GameManager : PersistentSingleton<GameManager>
 
         EstadoActual = GameState.Jugando;
     }
-
 
 
     public void CargarNivelDesdePuerta(DoorHub puerta)
@@ -326,9 +314,7 @@ public class GameManager : PersistentSingleton<GameManager>
     }
 
 
-
-    // =============================== UTILIDADES ===============================
-
+    // UTILIDADES
     private IEnumerator EsperarYConectarCamara()
     {
         yield return null;
@@ -380,8 +366,6 @@ public class GameManager : PersistentSingleton<GameManager>
     }
 
 
-
-
     private IEnumerator SincronizarDespuesDeFrame()
     {
         yield return null;
@@ -389,8 +373,7 @@ public class GameManager : PersistentSingleton<GameManager>
             AbilityManager.Instance.SincronizarJugador(jugadorActual);
     }
 
-    // =============================== HUB HELPERS ===============================
-
+    // HUB HELPERS
     private void ReactivarSistemaPopupsHub()
     {
         Log.Info(this, "ReactivarSistemaPopupsHub() llamado. Escena actual: "
@@ -444,8 +427,7 @@ public class GameManager : PersistentSingleton<GameManager>
         objetivo.localScale = escalaFinal;
     }
 
-    // =============================== INTERFAZ PÚBLICA ===============================
-
+    // INTERFAZ PÚBLICA
     /// <summary>
     /// Permite consultar si el juego está en modo jugable (no pausado, muerto o en transición).
     /// </summary>

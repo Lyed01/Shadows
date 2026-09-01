@@ -58,9 +58,7 @@ public class NPCInteractivo : MonoBehaviour
             if (d.unaSolaVez && d.usado)
                 continue;
 
-            // ----------------------
             // FLAG 1
-            // ----------------------
             if (!string.IsNullOrEmpty(d.flag1))
             {
                 bool tiene = SceneStateManager.Instance.HasFlag(d.flag1);
@@ -69,9 +67,7 @@ public class NPCInteractivo : MonoBehaviour
                 if (d.negarFlag1 && tiene) continue;
             }
 
-            // ----------------------
             // FLAG 2
-            // ----------------------
             if (!string.IsNullOrEmpty(d.flag2))
             {
                 bool tiene = SceneStateManager.Instance.HasFlag(d.flag2);
@@ -80,9 +76,7 @@ public class NPCInteractivo : MonoBehaviour
                 if (d.negarFlag2 && tiene) continue;
             }
 
-            // ----------------------
             // AHORA sí el diálogo es válido
-            // ----------------------
             if (d.unaSolaVez)
                 d.usado = true;
 
@@ -107,8 +101,6 @@ public class NPCInteractivo : MonoBehaviour
     {
         jugador = j.transform;
     }
-
-
 
 
 }

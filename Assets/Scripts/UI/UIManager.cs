@@ -57,7 +57,6 @@ public class UIManager : PersistentSingleton<UIManager>
     }
 
 
-
     protected override void OnDestroy()
     {
         base.OnDestroy();
@@ -288,9 +287,6 @@ public class UIManager : PersistentSingleton<UIManager>
         loadingOverlay.blocksRaycasts = false;
         loadingOverlay.gameObject.SetActive(false);
     }
-
-
-
 
 
 }

@@ -53,7 +53,7 @@ public class ReflectiveLightEmitter : MonoBehaviour
             Mathf.Abs(dir.y) > Mathf.Abs(dir.x) ? Mathf.Sign(dir.y) * ext.y : 0
         );
 
-        // ❗ IMPORTANTE: NO mover el transform, solo usar borde para el raycast
+        // IMPORTANTE: NO mover el transform, solo usar borde para el raycast
         // (esto arregla el mesh recortado y el rayo desalineado)
 
         Vector2 origen = (Vector2)col.bounds.center + borde;
@@ -91,7 +91,6 @@ public class ReflectiveLightEmitter : MonoBehaviour
 #endif
 
 
-
         // --- LÓGICA DE IMPACTO ---
         if (hayHit)
         {
@@ -115,7 +114,6 @@ public class ReflectiveLightEmitter : MonoBehaviour
                     m.RecibirLuz(dir, daño, tipoLuz, hit.normal, alcance, punto);
             }
         }
-
 
 
         // --- MESH EXACTO AL RAYO ---

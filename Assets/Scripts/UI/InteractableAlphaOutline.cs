@@ -44,9 +44,7 @@ public class InteractableAlphaOutline : MonoBehaviour
         cam = Camera.main;
         baseSR = GetComponent<SpriteRenderer>();
 
-        // ============================================
         // OUTLINE (NO DUPLICAR)
-        // ============================================
         Transform existingOutline = transform.Find("Outline");
 
         if (existingOutline != null)
@@ -76,9 +74,7 @@ public class InteractableAlphaOutline : MonoBehaviour
             runtimeMat.SetFloat("_Intensity", 0f);
         }
 
-        // ============================================
         // PROMPT (CREAR UNA SOLA VEZ)
-        // ============================================
         if (promptPrefab != null)
         {
             Canvas canvas = FindAnyObjectByType<Canvas>(FindObjectsInactive.Include);
@@ -108,9 +104,7 @@ public class InteractableAlphaOutline : MonoBehaviour
         if (outlineSR.sprite != baseSR.sprite)
             outlineSR.sprite = baseSR.sprite;
 
-        // ============================================
         // OUTLINE FADE + PULSE
-        // ============================================
         float target = playerNear ? 1f : 0f;
 
         float pulse = (playerNear && pulseStrength > 0f)
@@ -120,9 +114,7 @@ public class InteractableAlphaOutline : MonoBehaviour
         currentIntensity = Mathf.Lerp(currentIntensity, target, Time.deltaTime * fadeSpeed);
         runtimeMat.SetFloat("_Intensity", Mathf.Clamp01(currentIntensity + pulse));
 
-        // ============================================
         // PROMPT UI
-        // ============================================
         if (promptCanvas != null && promptTransform != null)
         {
             Vector3 screenPos = cam.WorldToScreenPoint(transform.position + promptOffset);
@@ -147,9 +139,7 @@ public class InteractableAlphaOutline : MonoBehaviour
         }
     }
 
-    // ============================================
     // DETECCIÓN
-    // ============================================
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag(playerTag))
@@ -162,9 +152,7 @@ public class InteractableAlphaOutline : MonoBehaviour
             playerNear = false;
     }
 
-    // ============================================
     // LIMPIEZA AL DESTRUIR
-    // ============================================
     void OnDestroy()
     {
         if (promptTransform != null)

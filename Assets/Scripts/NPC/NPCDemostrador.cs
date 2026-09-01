@@ -39,8 +39,6 @@ public class NPCDemostrador : MonoBehaviour
     public string flagRequerida;
 
 
-
-
     // === Internos ===
     private Rigidbody2D rb;
     private bool ejecutando = false;
@@ -188,9 +186,7 @@ public class NPCDemostrador : MonoBehaviour
     }
 
 
-    // ===========================================================
     // MOVIMIENTO NPC
-    // ===========================================================
     private IEnumerator MoverAlPunto(Vector3 destino)
     {
         Vector2 destino2D = destino;
@@ -270,9 +266,7 @@ public class NPCDemostrador : MonoBehaviour
     }
 
 
-    // ===========================================================
     // HABILIDADES NPC
-    // ===========================================================
     private void EjecutarHabilidad(AbilityType tipo, Vector3 pos)
     {
         var grid = FindFirstObjectByType<GridManager>();
@@ -353,9 +347,7 @@ public class NPCDemostrador : MonoBehaviour
             AudioManager.Instance?.ReproducirFX(fxMirror);
     }
 
-    // ===========================================================
     // RUTA PARA ABYSS FLAME
-    // ===========================================================
     private IEnumerator MoverLlamaPorRuta(Transform[] ruta, float vel)
     {
         if (flameNPC == null)
@@ -385,9 +377,7 @@ public class NPCDemostrador : MonoBehaviour
         }
     }
 
-    // ===========================================================
     // TELETRANSPORTE NPC
-    // ===========================================================
     private IEnumerator TeleportNPC(Vector3 destino)
     {
         var grid = FindFirstObjectByType<GridManager>();
@@ -464,7 +454,6 @@ public class NPCDemostrador : MonoBehaviour
         Destroy(gameObject);
     }
  
-
 
 
 }

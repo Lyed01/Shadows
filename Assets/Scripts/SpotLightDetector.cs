@@ -6,9 +6,7 @@ using UnityEngine.Rendering.Universal;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class SpotLightDetector : LightDetectorBase
 {
-    // ============================================================
     // CONFIGURACIÓN GENERAL
-    // ============================================================
 
     [Header("Estado inicial")]
     public bool empezarApagada = false;
@@ -40,9 +38,7 @@ public class SpotLightDetector : LightDetectorBase
     [Range(0f, 2f)] public float intensidadHaz = 0.8f;
     [Range(0.5f, 2f)] public float multiplicadorAlcanceLuz = 1.1f;
 
-    // ============================================================
     // INTERNOS
-    // ============================================================
     private MeshFilter meshFilter;
     private Mesh mesh;
     private Light2D luzHaz;
@@ -71,9 +67,7 @@ public class SpotLightDetector : LightDetectorBase
     private bool initLuzActiva;
     private bool initLuzEncendida;
 
-    // ------------------------------------------------------
     // AWAKE
-    // ------------------------------------------------------
     void Awake()
     {
         if (empezarApagada)
@@ -113,9 +107,7 @@ public class SpotLightDetector : LightDetectorBase
             CrearLuzHaz();
     }
 
-    // ------------------------------------------------------
     // UPDATE
-    // ------------------------------------------------------
     void Update()
     {
 #if UNITY_EDITOR
@@ -167,9 +159,7 @@ public class SpotLightDetector : LightDetectorBase
         ActualizarPivotVisual();
     }
 
-    // ------------------------------------------------------
     // ROTACIÓN CONSTANTE + OSCILACIÓN
-    // ------------------------------------------------------
     private void ActualizarRotacionConstante()
     {
         if (!rotacionConstante) return;
@@ -217,13 +207,9 @@ public class SpotLightDetector : LightDetectorBase
         }
     }
 
-    // ------------------------------------------------------
     // TITILEO
-    // ------------------------------------------------------
 
-    // ------------------------------------------------------
     // MESH + LUZ
-    // ------------------------------------------------------
     private void GenerarLuzMesh()
     {
         // 1. Apagada manualmente
@@ -352,9 +338,7 @@ public class SpotLightDetector : LightDetectorBase
         }
     }
 
-    // ------------------------------------------------------
     // CREAR LUZ FREEFORM 2D
-    // ------------------------------------------------------
     private void CrearLuzHaz()
     {
         var existentes = GetComponentsInChildren<Light2D>(true);
@@ -395,9 +379,7 @@ public class SpotLightDetector : LightDetectorBase
             luzHaz.color = new Color(1f, 0.95f, 0.7f);
     }
 
-    // ------------------------------------------------------
     // TIPO DE LUZ (API PÚBLICA)
-    // ------------------------------------------------------
     protected override void ActualizarPorTipoDeLuz()
     {
         if (meshRenderer == null)
@@ -411,9 +393,7 @@ public class SpotLightDetector : LightDetectorBase
 #endif
     }
 
-    // ------------------------------------------------------
     // ENCENDER / APAGAR COMPLETAMENTE
-    // ------------------------------------------------------
     public override void SetLuzActiva(bool encendida)
     {
         luzActiva = encendida;
@@ -446,9 +426,7 @@ public class SpotLightDetector : LightDetectorBase
         GenerarLuzMesh();
     }
 
-    // ------------------------------------------------------
     // RESET TOTAL
-    // ------------------------------------------------------
     public override void ResetToInitialState()
     {
         if (noReset) return;

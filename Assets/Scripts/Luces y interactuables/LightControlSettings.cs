@@ -1,19 +1,13 @@
 ﻿using UnityEngine;
 
-//
-// ===============================================================
 // ENUM DEL TIPO DE LUZ
-// ===============================================================
 public enum LightConfigType
 {
     SpotLight,
     TopLight
 }
 
-//
-// ===============================================================
 // WRAPPER SERIALIZABLE (NECESARIO PARA UNITY)
-// ===============================================================
 [System.Serializable]
 public class LightControlSettings
 {
@@ -26,9 +20,7 @@ public class LightControlSettings
     [Header("Configuración para TopLight (si tipo = TopLight)")]
     public TopLightControlSettings topSettings;
 
-    // ============================================================
     // APLICACIÓN UNIFICADA
-    // ============================================================
     public void Aplicar(bool estadoON)
     {
         switch (tipo)
@@ -45,9 +37,7 @@ public class LightControlSettings
         }
     }
 
-    // ============================================================
     // RESET UNIFICADO
-    // ============================================================
     public void Reset()
     {
         switch (tipo)
@@ -75,10 +65,7 @@ public class LightControlSettings
     }
 }
 
-//
-// ===============================================================
 // BASE GENÉRICA
-// ===============================================================
 [System.Serializable]
 public abstract class LightControlSettingsBase
 {
@@ -96,10 +83,7 @@ public abstract class LightControlSettingsBase
     public abstract void AplicarEstado(bool estadoON);
 }
 
-//
-// ===============================================================
 // SPOTLIGHT
-// ===============================================================
 [System.Serializable]
 public class SpotLightControlSettings : LightControlSettingsBase
 {
@@ -191,19 +175,14 @@ public class SpotLightControlSettings : LightControlSettingsBase
     }
 }
 
-//
-// ===============================================================
 // TOPLIGHT
-// ===============================================================
 [System.Serializable]
 public class TopLightControlSettings : LightControlSettingsBase
 {
     [Header("Referencia a TopLight")]
     public TopLightDetector top;
 
-    // ============================================================
     // CAMBIO DE TIPO DE LUZ (NUEVO)
-    // ============================================================
     [Header("Cambio de tipo de luz")]
     public bool cambiarTipoLuz = false;
 
@@ -222,9 +201,7 @@ public class TopLightControlSettings : LightControlSettingsBase
     }
 
 
-    // ============================================================
     // MOVIMIENTO
-    // ============================================================
     [Header("Movimiento entre puntos")]
     public bool modificarMovimiento = false;
 
@@ -232,9 +209,7 @@ public class TopLightControlSettings : LightControlSettingsBase
     public MovimientoModo movimientoON = MovimientoModo.ON;
     public MovimientoModo movimientoOFF = MovimientoModo.OFF;
 
-    // ============================================================
     // ATRIBUTOS VISUALES
-    // ============================================================
     [Header("Radio del haz")]
     public bool modificarRadio = false;
     public float radioON = 4f;
@@ -245,9 +220,7 @@ public class TopLightControlSettings : LightControlSettingsBase
     public float intensidadON = 1f;
     public float intensidadOFF = 0f;
 
-    // ============================================================
     // APLICACIÓN DE ESTADO
-    // ============================================================
     public override void AplicarEstado(bool estadoON)
     {
         if (top == null) return;

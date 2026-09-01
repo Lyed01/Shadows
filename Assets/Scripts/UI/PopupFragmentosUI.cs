@@ -113,9 +113,7 @@ public class PopupFragmentosUI : SceneSingleton<PopupFragmentosUI>
     }
 
 
-    // ============================================================
     // BUSCAR PUERTA CERCANA AL JUGADOR
-    // ============================================================
     Door BuscarPuertaCercana()
     {
         float mejorDist = Mathf.Infinity;
@@ -137,9 +135,7 @@ public class PopupFragmentosUI : SceneSingleton<PopupFragmentosUI>
         return seleccionada;
     }
 
-    // ============================================================
     // POSICIÓN
-    // ============================================================
     private Vector3 ObtenerPosicionSobrePuerta(Door d)
     {
         Collider2D col = d.GetComponent<Collider2D>();
@@ -174,9 +170,7 @@ public class PopupFragmentosUI : SceneSingleton<PopupFragmentosUI>
     }
 
 
-    // ============================================================
     // MOSTRAR / OCULTAR
-    // ============================================================
     public void Mostrar(Vector3 pos, int actuales, int necesarios, Door puerta)
 
     {

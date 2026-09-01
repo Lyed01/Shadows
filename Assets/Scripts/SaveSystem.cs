@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// Unico punto de acceso al progreso guardado del jugador.
@@ -23,9 +23,7 @@ public static class SaveSystem
     private const string ClaveVolumenMaestro = "VolMaster";
     private const string ClaveSilencio = "Mute";
 
-    // ============================================================
     // PROGRESO POR NIVEL
-    // ============================================================
 
     private static string ClaveNivel(string nivelId, string dato) =>
         $"{PrefijoNivel}{nivelId}_{dato}";
@@ -67,9 +65,7 @@ public static class SaveSystem
         return borradas;
     }
 
-    // ============================================================
     // FRAGMENTOS
-    // ============================================================
 
     /// <summary>
     /// Total de estrellas acumuladas. Lo consultan las puertas que exigen un
@@ -87,9 +83,7 @@ public static class SaveSystem
 
     public static int GetFragmentos(string clave) => PlayerPrefs.GetInt(clave, 0);
 
-    // ============================================================
     // HABILIDADES
-    // ============================================================
 
     public static bool GetHabilidad(AbilityType tipo) =>
         PlayerPrefs.GetInt(PrefijoHabilidad + tipo, 0) == 1;
@@ -103,9 +97,7 @@ public static class SaveSystem
     public static void BorrarHabilidad(AbilityType tipo) =>
         PlayerPrefs.DeleteKey(PrefijoHabilidad + tipo);
 
-    // ============================================================
     // AUDIO
-    // ============================================================
 
     public static float VolumenMusica
     {
@@ -137,9 +129,7 @@ public static class SaveSystem
         set => PlayerPrefs.SetInt(ClaveSilencio, value ? 1 : 0);
     }
 
-    // ============================================================
     // GENERAL
-    // ============================================================
 
     /// <summary>Vuelca a disco lo escrito por las propiedades de audio.</summary>
     public static void Guardar() => PlayerPrefs.Save();
