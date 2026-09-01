@@ -25,7 +25,6 @@ public class GameManager : PersistentSingleton<GameManager>
     public Transform spawnTransform;
 
     private Jugador jugadorActual;
-    private string ultimaPuertaID;
     private Vector3 ultimaPuertaPosicion;
     private bool regresoDesdeNivel = false;
     public float tiempoReinicio = 1.0f;
@@ -296,7 +295,6 @@ public class GameManager : PersistentSingleton<GameManager>
             return;
         }
 
-        ultimaPuertaID = puerta.idNivel;
         ultimaPuertaPosicion = puerta.puntoSpawnRetorno != null
             ? puerta.puntoSpawnRetorno.position
             : puerta.transform.position;

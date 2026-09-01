@@ -53,8 +53,6 @@ public class SpotLightDetector : LightDetectorBase
     private float anguloBase;
     private float offsetOscilacion = 0f;
 
-    private bool resetInProgress = false;
-
     // === ESTADO INICIAL REAL ===
     private Vector3 initPos;
     private Quaternion initRot;
@@ -459,8 +457,6 @@ public class SpotLightDetector : LightDetectorBase
 
     private System.Collections.IEnumerator ProcesarReset()
     {
-        resetInProgress = true;
-
         // Transform
         transform.position = initPos;
         transform.rotation = initRot;
@@ -501,8 +497,6 @@ public class SpotLightDetector : LightDetectorBase
         ActualizarPivotVisual();
 
         yield return null;
-
-        resetInProgress = false;
 
         Debug.Log($"🔄 Spotlight {name} reseteado a su estado inicial.");
     }

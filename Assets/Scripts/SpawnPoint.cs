@@ -1,17 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// Marca el punto donde aparece el jugador en una escena. No tiene
+/// comportamiento propio: GameManager lo busca por tipo al cargar el nivel.
+/// </summary>
 public class SpawnPoint : MonoBehaviour
-    
 {
-    // Start is called once baefore the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
