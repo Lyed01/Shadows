@@ -11,7 +11,8 @@ public class NPCDemostrador : MonoBehaviour
     public bool repetir = false;
 
     [Header("Secuencia")]
-    public List<DemostracionPaso> pasos = new();
+    [Tooltip("Los pasos configurados. En runtime se copian a una cola que se consume desde el frente.")]
+    public DemostracionPaso[] pasos = new DemostracionPaso[0];
 
     [Header("Prefabs de habilidades")]
     public GameObject prefabShadowBlock;
@@ -114,8 +115,16 @@ public class NPCDemostrador : MonoBehaviour
 
         do
         {
+            // Los pasos se consumen como cola: se saca el primero, se ejecuta y
+            // se descarta. SimpleLinkedList resuelve ese RemoveFirst en O(1),
+            // mientras que sobre un arreglo cada baja obliga a correr todo lo
+            // que queda.
+            var cola = new SimpleLinkedList<DemostracionPaso>();
             foreach (var paso in pasos)
-                yield return EjecutarPaso(paso);
+                cola.Add(paso);
+
+            while (cola.Count > 0)
+                yield return EjecutarPaso(cola.RemoveFirst());
 
         } while (repetir);
 
@@ -334,7 +343,15 @@ public class NPCDemostrador : MonoBehaviour
         var mirror = Instantiate(prefabMirrorBlock, pos, Quaternion.identity);
         mirror.name = "MirrorBlock_NPC";
 
-        var pasoActual = pasos.Find(p => p.tipo == PasoTipo.UsarHabilidad && p.habilidad == AbilityType.ReflectiveBlocks);
+        DemostracionPaso pasoActual = null;
+        foreach (var paso in pasos)
+        {
+            if (paso.tipo == PasoTipo.UsarHabilidad && paso.habilidad == AbilityType.ReflectiveBlocks)
+            {
+                pasoActual = paso;
+                break;
+            }
+        }
 
         if (pasoActual != null && pasoActual.direccionPersonalizada != Vector2.zero)
         {
