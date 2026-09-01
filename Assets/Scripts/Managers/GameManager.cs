@@ -268,24 +268,20 @@ public class GameManager : PersistentSingleton<GameManager>
         SceneManager.LoadScene(Escenas.Hub);
         yield return null;
 
-        // 🔥 Tararea efecto de aparición del hub
-        fader?.FadeOut(duracionFade);
-        yield return new WaitForSeconds(duracionFade);
-
-        // Logica tuya original de teletransporte
+        // Al cargar la escena, ResolverSpawn ya dejo al jugador frente a la
+        // puerta que uso. Aca solo queda el efecto de aparicion, y tiene que
+        // correr junto con el fade: si se lanza despues, el jugador ya se veia
+        // en pantalla y volver a escalarlo desde cero parece un segundo spawn.
         if (regresoDesdeNivel)
         {
             regresoDesdeNivel = false;
 
-            if (!primeraVezEnHub)
-            {
-                if (ultimaPuertaPosicion != Vector3.zero && jugadorActual != null)
-                {
-                    jugadorActual.transform.position = ultimaPuertaPosicion;
-                    jugadorActual.StartCoroutine(EfectoAparicion(jugadorActual.transform));
-                }
-            }
+            if (!primeraVezEnHub && jugadorActual != null)
+                jugadorActual.StartCoroutine(EfectoAparicion(jugadorActual.transform));
         }
+
+        fader?.FadeOut(duracionFade);
+        yield return new WaitForSeconds(duracionFade);
 
         EstadoActual = GameState.Jugando;
     }
