@@ -120,24 +120,33 @@ public class GameManager : PersistentSingleton<GameManager>
     /// </summary>
     private void SpawnJugador(Scene escena, bool respawn)
     {
+        // En un respawn siempre se instancia. El jugador anterior acaba de recibir
+        // Destroy(), que Unity resuelve recien al final del frame, asi que la
+        // referencia todavia no es nula: chequearla aca dejaria el nivel sin
+        // jugador y sin reiniciar.
         if (!respawn)
+        {
             jugadorActual = FindFirstObjectByType<Jugador>();
 
-        if (jugadorActual == null)
-        {
-            if (jugadorPrefab == null)
+            if (jugadorActual != null)
             {
-                Debug.LogError("[GameManager] Falta asignar el prefab del jugador");
+                StartCoroutine(EsperarYConectarCamara());
                 return;
             }
-
-            Vector3 spawnPos = ResolverSpawn(escena, respawn);
-
-            jugadorActual = Instantiate(jugadorPrefab, spawnPos, Quaternion.identity);
-            jugadorActual.Inicializar(grid, HUDHabilidad.Instance);
-
-            Debug.Log($"[GameManager] Jugador instanciado en {escena.name} en {spawnPos}");
         }
+
+        if (jugadorPrefab == null)
+        {
+            Debug.LogError("[GameManager] Falta asignar el prefab del jugador");
+            return;
+        }
+
+        Vector3 spawnPos = ResolverSpawn(escena, respawn);
+
+        jugadorActual = Instantiate(jugadorPrefab, spawnPos, Quaternion.identity);
+        jugadorActual.Inicializar(grid, HUDHabilidad.Instance);
+
+        Debug.Log($"[GameManager] Jugador instanciado en {escena.name} en {spawnPos}");
 
         StartCoroutine(EsperarYConectarCamara());
     }
