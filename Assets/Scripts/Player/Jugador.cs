@@ -21,7 +21,6 @@ public class Jugador : MonoBehaviour
     private float pasoTimer = 0f;
 
     // === Estado general ===
-    private bool tieneHabilidad = false;
     private bool enModoHabilidad = false;
     private bool vivo = true;
     private bool controlActivo = true;
@@ -276,8 +275,6 @@ public class Jugador : MonoBehaviour
     // === HABILIDAD ===
     public void RecibirHabilidad()
     {
-        tieneHabilidad = true;
-
         if (hudHabilidad != null)
         {
             hudHabilidad.gameObject.SetActive(true);
@@ -304,7 +301,6 @@ public class Jugador : MonoBehaviour
 
     public void DeshabilitarHabilidad()
     {
-        tieneHabilidad = false;
         enModoHabilidad = false;
         ModoHabilidadActivo = false;
         hudHabilidad?.gameObject.SetActive(false);

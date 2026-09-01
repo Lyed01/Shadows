@@ -23,8 +23,6 @@ public class Switch : MonoBehaviour
 
     private bool jugadorEnContacto = false;
 
-    private bool activadoPorNPC = false;
-
     [HideInInspector] public bool noReset = false;
 
 
@@ -74,7 +72,6 @@ public class Switch : MonoBehaviour
 
         if (other.CompareTag("CutsceneCharacter") && !_activado)
         {
-            activadoPorNPC = true;
             ActivarSwitch();
 
             // Hacer permanente

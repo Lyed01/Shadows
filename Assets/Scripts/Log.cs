@@ -1,5 +1,8 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using UnityEngine;
+
+// System.Diagnostics tambien define un Debug: el alias deja claro cual se usa.
+using Debug = UnityEngine.Debug;
 
 /// <summary>
 /// Registro de mensajes del juego.
