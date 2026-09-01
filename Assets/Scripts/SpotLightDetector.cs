@@ -133,7 +133,7 @@ public class SpotLightDetector : LightDetectorBase
         }
 #endif
 
-        // Si la luz está apagada manualmente → no hacer nada
+        // Si la luz está apagada manualmente  no hacer nada
         if (!luzActiva)
         {
             if (meshRenderer != null)
@@ -498,6 +498,6 @@ public class SpotLightDetector : LightDetectorBase
 
         yield return null;
 
-        Debug.Log($"🔄 Spotlight {name} reseteado a su estado inicial.");
+        Log.Info(this, $"Spotlight {name} reseteado a su estado inicial.");
     }
 }

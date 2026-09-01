@@ -95,7 +95,7 @@ public class OpcionesGeneralController : MonoBehaviour
     private void ReiniciarProgreso()
     {
         SaveSystem.BorrarTodo();
-        Debug.Log("🎯 Progreso reiniciado.");
+        Log.Info(this, "Progreso reiniciado.");
 
     }
 }

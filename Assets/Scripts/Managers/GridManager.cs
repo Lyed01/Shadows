@@ -39,7 +39,7 @@ public class GridManager : MonoBehaviour
     public GameObject panelHUDHabilidad;
 
     [Header("Eventos")]
-    public UnityEvent onPlayerDeath;          // 🔹 visible en el inspector
+    public UnityEvent onPlayerDeath;          //  visible en el inspector
 
     // === Datos internos ===
     private Dictionary<Vector3Int, CellData> celdas = new();
@@ -57,7 +57,7 @@ public class GridManager : MonoBehaviour
     {
         if (sueloTilemap == null)
         {
-            Debug.LogError("❌ GridManager: falta asignar el Tilemap del suelo.");
+            Debug.LogError(" GridManager: falta asignar el Tilemap del suelo.");
             return;
         }
 
@@ -74,13 +74,13 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"🧩 GridManager inicializó {celdas.Count} celdas activas.");
+        Log.Info(this, $"GridManager inicializó {celdas.Count} celdas activas.");
     }
 
     // === BLOQUES Y CELDAS ===
     public ResultadoColocacion IntentarColocarBloque(Vector3 worldPos, bool reflectante, Vector3 jugadorPos, float rango)
     {
-        // worldPos Viene del mouse → hay que corregirlo
+        // worldPos Viene del mouse  hay que corregirlo
         float ppu = 16f;
         worldPos.x = Mathf.Round(worldPos.x * ppu) / ppu;
         worldPos.y = Mathf.Round(worldPos.y * ppu) / ppu;
@@ -107,7 +107,7 @@ public class GridManager : MonoBehaviour
         if (distancia > rango)
             return ResultadoColocacion.FueraDeRango;
 
-        // ✅ Colocación exitosa
+        //  Colocación exitosa
         Vector3 spawnPos = sueloTilemap.GetCellCenterWorld(cellPos);
         GameObject prefab = reflectante ? prefabBloqueReflectante : prefabBloque;
         GameObject bloque = Instantiate(prefab, spawnPos, Quaternion.identity);
@@ -165,7 +165,7 @@ public class GridManager : MonoBehaviour
     {
         if (sueloTilemap == null) return;
 
-        // 🔹 Ajuste para compensar el pivot del jugador (mitad de una celda hacia abajo)
+        //  Ajuste para compensar el pivot del jugador (mitad de una celda hacia abajo)
         Vector3 ajuste = new Vector3(0f, -sueloTilemap.cellSize.y * 0.5f, 0f);
         Vector3Int centerCell = sueloTilemap.WorldToCell(worldPos + ajuste);
 
@@ -235,14 +235,14 @@ public class GridManager : MonoBehaviour
     }
     public void NotificarMuerteJugador()
     {
-        Debug.Log("🕯️ Muerte del jugador detectada (GridManager)");
+        Log.Info(this, "Muerte del jugador detectada (GridManager)");
         onPlayerDeath?.Invoke();
     }
     void AplicarCorrupcionPrecolocada()
     {
         if (tilemapCorrupcion == null)
         {
-            Debug.LogWarning("⚠️ No hay tilemapCorrupcion asignado.");
+            Log.Aviso(this, "No hay tilemapCorrupcion asignado.");
             return;
         }
 
@@ -267,7 +267,7 @@ public class GridManager : MonoBehaviour
                 sueloTilemap.SetTile(pos, tileDesbloqueado);
         }
 
-        Debug.Log("🔻 Corrupción precolocada aplicada en el nivel.");
+        Log.Info(this, "Corrupción precolocada aplicada en el nivel.");
     }
 
 

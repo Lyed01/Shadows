@@ -67,7 +67,7 @@ public class LevelTimer : MonoBehaviour
     // === UI ===
     private void ActualizarTexto()
     {
-        // 🔹 Seguridad: si no hay referencia, intenta encontrarlo y salir
+        //  Seguridad: si no hay referencia, intenta encontrarlo y salir
         if (textoTimer == null)
         {
             textoTimer = FindTextoTimer();
@@ -93,7 +93,7 @@ public class LevelTimer : MonoBehaviour
 
     private TextMeshProUGUI FindTextoTimer()
     {
-        // 🔎 Busca un TMP dentro de un HUD persistente
+        //  Busca un TMP dentro de un HUD persistente
         var textos = FindObjectsByType<TextMeshProUGUI>(FindObjectsSortMode.None);
         foreach (var t in textos)
         {
@@ -101,7 +101,7 @@ public class LevelTimer : MonoBehaviour
                 return t;
         }
 
-        Debug.LogWarning("⚠️ LevelTimer no encontró ningún TextMeshProUGUI con 'Timer' o 'Tiempo' en el nombre.");
+        Log.Aviso(this, "LevelTimer no encontró ningún TextMeshProUGUI con 'Timer' o 'Tiempo' en el nombre.");
         return null;
     }
 

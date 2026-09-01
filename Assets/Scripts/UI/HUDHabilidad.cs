@@ -23,14 +23,14 @@ public class HUDHabilidad : PersistentSingleton<HUDHabilidad>
     {
         base.OnBoot();
 
-        Debug.Log($"🧩 HUDHabilidad persistente inicializado en escena: {gameObject.scene.name}");
+        Log.Info(this, $"HUDHabilidad persistente inicializado en escena: {gameObject.scene.name}");
 
         // Si está dentro de un Canvas, hacerlo persistente
         var canvasRoot = transform.root.GetComponentInParent<Canvas>();
         if (canvasRoot != null)
         {
             DontDestroyOnLoad(canvasRoot.gameObject);
-            Debug.Log($"🟢 Canvas raíz persistente detectado: {canvasRoot.name}");
+            Log.Info(this, $"Canvas raíz persistente detectado: {canvasRoot.name}");
         }
         else
         {
@@ -74,14 +74,14 @@ public class HUDHabilidad : PersistentSingleton<HUDHabilidad>
     {
         cargasDisponibles = maxCargas;
         ActualizarHUD();
-        Debug.Log("♻️ HUDHabilidad reiniciado o persistente.");
+        Log.Info(this, "HUDHabilidad reiniciado o persistente.");
     }
 
     private void ActualizarHUD()
     {
         if (iconos == null || iconos.Length == 0)
         {
-            Debug.LogWarning("⚠️ HUDHabilidad: no hay iconos asignados.");
+            Log.Aviso(this, "HUDHabilidad: no hay iconos asignados.");
             return;
         }
 

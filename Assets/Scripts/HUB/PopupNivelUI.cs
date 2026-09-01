@@ -45,7 +45,7 @@ public class PopupNivelUI : SceneSingleton<PopupNivelUI>
         if (panel != null)
             panel.localScale = escalaOculto;
 
-        // 🧩 NUEVO FIX — asegura que el canvas tenga cámara
+        //  NUEVO FIX — asegura que el canvas tenga cámara
         if (canvas == null)
             canvas = GetComponentInParent<Canvas>();
 
@@ -54,7 +54,7 @@ public class PopupNivelUI : SceneSingleton<PopupNivelUI>
             if (canvas.worldCamera == null)
             {
                 canvas.worldCamera = Camera.main;
-                Debug.Log("🎯 Cámara principal asignada al Canvas del PopupNivelUI.");
+                Log.Info(this, "Cámara principal asignada al Canvas del PopupNivelUI.");
             }
         }
 

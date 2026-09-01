@@ -32,7 +32,7 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
             AbilityManager.Instance.OnAbilityUnlocked.AddListener(OnAbilityUnlocked);
             AbilityManager.Instance.OnAbilityLocked.AddListener(OnAbilityLocked);
 
-            // 🟢 SINCRONIZAR habilidades ya desbloqueadas
+            //  SINCRONIZAR habilidades ya desbloqueadas
             SincronizarConAbilityManager();
         }
     }
@@ -70,7 +70,7 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
         ActualizarUI();
 
         var hab = habilidadesDesbloqueadas[indiceActual];
-        Debug.Log($"🔮 Habilidad seleccionada: {hab.nombre}");
+        Log.Info(this, $"Habilidad seleccionada: {hab.nombre}");
     }
 
     private void ActualizarUI()
@@ -106,9 +106,9 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
         if (data != null && !habilidadesDesbloqueadas.Contains(data))
         {
             habilidadesDesbloqueadas.Add(data);
-            Debug.Log($"✨ Habilidad desbloqueada y agregada al selector: {data.nombre}");
+            Log.Info(this, $"Habilidad desbloqueada y agregada al selector: {data.nombre}");
 
-            // Si es la primera habilidad desbloqueada → seleccionarla automáticamente
+            // Si es la primera habilidad desbloqueada  seleccionarla automáticamente
             if (habilidadesDesbloqueadas.Count == 1)
                 indiceActual = 0;
 
@@ -123,7 +123,7 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
         {
             habilidadesDesbloqueadas.Remove(data);
             indiceActual = Mathf.Clamp(indiceActual, 0, habilidadesDesbloqueadas.Count - 1);
-            Debug.Log($"🚫 Habilidad bloqueada y removida: {data.nombre}");
+            Log.Info(this, $"Habilidad bloqueada y removida: {data.nombre}");
             ActualizarUI();
         }
     }
@@ -143,7 +143,7 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
                 if (data != null && !habilidadesDesbloqueadas.Contains(data))
                 {
                     habilidadesDesbloqueadas.Add(data);
-                    Debug.Log($"🔁 Sincronizado: {data.nombre}");
+                    Log.Info(this, $"Sincronizado: {data.nombre}");
                 }
             }
         }

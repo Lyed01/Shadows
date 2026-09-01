@@ -33,15 +33,15 @@ public class LevelExitTrigger : MonoBehaviour
 
     private System.Collections.IEnumerator FlujoSalidaNivel(Jugador jugador)
     {
-        // 🔹 Reproducir sonido de fin de nivel
+        //  Reproducir sonido de fin de nivel
         AudioManager.Instance?.ReproducirUIClick();
 
-        // 🔹 Bloquear input y detener tiempo parcialmente
+        //  Bloquear input y detener tiempo parcialmente
         jugador.SetInputBloqueado(true);
         jugador.SetControlActivo(false);
         GameManager.Instance.CambiarEstado(GameManager.GameState.Transicion);
 
-        // 🔹 Recopilar estadísticas desde LevelScoreManager
+        //  Recopilar estadísticas desde LevelScoreManager
         if (LevelScoreManager.Instance != null)
         {
             float tiempo = LevelScoreManager.Instance.GetTiempoNivel();
@@ -52,19 +52,19 @@ public class LevelExitTrigger : MonoBehaviour
             int estrellas = LevelScoreManager.Instance.CalcularEstrellasFinales();
 
             LevelScoreManager.Instance.GuardarResultados(nombreNivel, estrellas, tiempo, muertes, habilidades);
-            Debug.Log($"🏁 Nivel completado: {nombreNivel} → {estrellas}⭐ ({tiempo:F1}s, {muertes} muertes, {habilidades} habilidades)");
+            Log.Info(this, $"Nivel completado: {nombreNivel}  {estrellas} ({tiempo:F1}s, {muertes} muertes, {habilidades} habilidades)");
         }
 
-        // 🔹 Fade out visual
+        //  Fade out visual
         if (GameManager.Instance.fader != null)
             GameManager.Instance.fader.FadeIn(GameManager.Instance.duracionFade);
 
         yield return new WaitForSeconds(GameManager.Instance.duracionFade);
 
-        // 🔹 Cargar escena final o Hub
+        //  Cargar escena final o Hub
         if (irAEscenaFinal)
         {
-            Debug.Log($"🎬 LevelExitTrigger: Cargando escena final '{nombreEscenaFinal}'");
+            Log.Info(this, $"LevelExitTrigger: Cargando escena final '{nombreEscenaFinal}'");
             UnityEngine.SceneManagement.SceneManager.LoadScene(nombreEscenaFinal);
         }
         else

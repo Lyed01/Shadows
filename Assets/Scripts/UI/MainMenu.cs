@@ -22,11 +22,11 @@ public class MainMenu : MonoBehaviour
         if (!string.IsNullOrEmpty(nombreEscenaJuego))
         {
             SceneManager.LoadScene(nombreEscenaJuego);
-            Debug.Log("🎮 Cargando escena: " + nombreEscenaJuego);
+            Log.Info(this, "Cargando escena: " + nombreEscenaJuego);
         }
         else
         {
-            Debug.LogWarning("⚠️ No se ha definido la escena del juego.");
+            Log.Aviso(this, "No se ha definido la escena del juego.");
         }
     }
 
@@ -37,14 +37,14 @@ public class MainMenu : MonoBehaviour
         {
             panelOpciones.SetActive(true); // Muestra el panel
             gameObject.SetActive(false);   // Oculta el Main Menu
-            Debug.Log("⚙️ Abriendo menú de opciones...");
+            Log.Info(this, "Abriendo menú de opciones...");
         }
     }
 
     // Salir del juego
     public void Salir()
     {
-        Debug.Log("🚪 Saliendo del juego...");
+        Log.Info(this, "Saliendo del juego...");
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false; // Solo en editor
 #else
@@ -59,13 +59,13 @@ public class MainMenu : MonoBehaviour
         {
             panelOpciones.SetActive(false); // Oculta el panel
             gameObject.SetActive(true);     // Muestra el menú principal
-            Debug.Log("⬅️ Volviendo al menú principal");
+            Log.Info(this, "Volviendo al menú principal");
         }
     }
 
     public void ReiniciarProgresoTotal()
     {
-        Debug.Log("🧹 Reiniciando TODO el progreso...");
+        Log.Info(this, "Reiniciando TODO el progreso...");
 
         // Reset LevelScoreManager
         LevelScoreManager.Instance?.ResetProgresoNiveles();
@@ -76,7 +76,7 @@ public class MainMenu : MonoBehaviour
         // Guardar PlayerPrefs
         SaveSystem.Guardar();
 
-        Debug.Log("✨ Progreso reseteado completamente.");
+        Log.Info(this, "Progreso reseteado completamente.");
     }
 
 

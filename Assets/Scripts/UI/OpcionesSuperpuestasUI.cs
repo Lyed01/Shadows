@@ -32,7 +32,7 @@ public class OpcionesSuperpuestasUI : MonoBehaviour
             panelSonido.SetActive(false);
 
         panel.SetActive(true);
-        Debug.Log($"🟣 OpcionesSuperpuestasUI: pestaña activa → {panel.name}");
+        Log.Info(this, $"OpcionesSuperpuestasUI: pestaña activa  {panel.name}");
     }
 
     public void MostrarGeneral() => TraerAlFrente(panelGeneral);

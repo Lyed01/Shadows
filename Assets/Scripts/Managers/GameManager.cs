@@ -32,11 +32,11 @@ public class GameManager : PersistentSingleton<GameManager>
 
     private bool EsHub => SceneManager.GetActiveScene().name == Escenas.Hub;
 
-    // 🧠 Inicialización persistente
+    //  Inicialización persistente
     protected override void OnBoot()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
-        Debug.Log("🟢 GameManager persistente inicializado.");
+        Log.Info(this, "GameManager persistente inicializado.");
     }
 
     protected override void OnDestroy()
@@ -48,7 +48,7 @@ public class GameManager : PersistentSingleton<GameManager>
     private void OnSceneLoaded(Scene escena, LoadSceneMode modo)
     {
 
-        Debug.Log($"🌍 Escena cargada: {escena.name}");
+        Log.Info(this, $"Escena cargada: {escena.name}");
 
 
         if (escena.name == Escenas.Hub)
@@ -56,7 +56,7 @@ public class GameManager : PersistentSingleton<GameManager>
             if (primeraVezEnHub)
             {
                 primeraVezEnHub = false;
-                Debug.Log("🏠 Marcando primera visita REAL al Hub");
+                Log.Info(this, "Marcando primera visita REAL al Hub");
             }
         }
         // CoreManagers NO debe instanciar jugador
@@ -99,7 +99,7 @@ public class GameManager : PersistentSingleton<GameManager>
         if (!respawn && escena.name == Escenas.Hub
             && ultimaPuertaPosicion != Vector3.zero && !primeraVezEnHub)
         {
-            Debug.Log("[GameManager] Regreso al Hub: aparece frente a la puerta");
+            Log.Info(this, "Regreso al Hub: aparece frente a la puerta");
             return ultimaPuertaPosicion;
         }
 
@@ -110,7 +110,7 @@ public class GameManager : PersistentSingleton<GameManager>
         if (grid != null && grid.spawnTransform != null)
             return grid.spawnTransform.position;
 
-        Debug.LogWarning($"[GameManager] {escena.name} no tiene SpawnPoint. Usando Vector3.zero");
+        Log.Aviso(this, $"{escena.name} no tiene SpawnPoint. Usando Vector3.zero");
         return Vector3.zero;
     }
 
@@ -149,7 +149,7 @@ public class GameManager : PersistentSingleton<GameManager>
         jugadorActual = Instantiate(jugadorPrefab, spawnPos, Quaternion.identity);
         jugadorActual.Inicializar(grid, HUDHabilidad.Instance);
 
-        Debug.Log($"[GameManager] Jugador instanciado en {escena.name} en {spawnPos}");
+        Log.Info(this, $"Jugador instanciado en {escena.name} en {spawnPos}");
 
         StartCoroutine(EsperarYConectarCamara());
     }
@@ -180,7 +180,7 @@ public class GameManager : PersistentSingleton<GameManager>
 
         OnPlayerDeath?.Invoke(); // LevelScoreManager escucha esto
 
-        // ❌ Nada de popups acá
+        //  Nada de popups acá
         Invoke(nameof(ReiniciarFlujoDeJuego), tiempoReinicio);
     }
 
@@ -204,16 +204,16 @@ public class GameManager : PersistentSingleton<GameManager>
         grid?.ResetearCeldas();
         ResetearEntornoInteractivo();
 
-        // 👤 Nuevo jugador
+        //  Nuevo jugador
         SpawnJugador(SceneManager.GetActiveScene(), respawn: true);
 
-        // 🔑 AVISAR A TODOS LOS NPCs QUE HAY UN JUGADOR NUEVO
+        //  AVISAR A TODOS LOS NPCs QUE HAY UN JUGADOR NUEVO
         if (jugadorActual != null)
             OnPlayerSpawned?.Invoke(jugadorActual);
 
         OnLevelRestart?.Invoke();
 
-        // 🌌 Si estamos en el Hub, reactivamos sistema de popups con el jugador NUEVO
+        //  Si estamos en el Hub, reactivamos sistema de popups con el jugador NUEVO
         if (EsHub && jugadorActual != null)
         {
             ReactivarSistemaPopupsHub();
@@ -260,7 +260,7 @@ public class GameManager : PersistentSingleton<GameManager>
         EstadoActual = GameState.Transicion;
         Time.timeScale = 1f;
 
-        // 🔥 Cubrimos pantalla instantáneamente
+        //  Cubrimos pantalla instantáneamente
         fader?.InstantBlack();
         yield return null;
 
@@ -291,7 +291,7 @@ public class GameManager : PersistentSingleton<GameManager>
     {
         if (puerta == null)
         {
-            Debug.LogError("❌ CargarNivelDesdePuerta: puerta nula");
+            Debug.LogError(" CargarNivelDesdePuerta: puerta nula");
             return;
         }
 
@@ -299,7 +299,7 @@ public class GameManager : PersistentSingleton<GameManager>
             ? puerta.puntoSpawnRetorno.position
             : puerta.transform.position;
 
-        Debug.Log($"📍 Guardando punto de retorno del Hub: {ultimaPuertaPosicion}");
+        Log.Info(this, $"Guardando punto de retorno del Hub: {ultimaPuertaPosicion}");
         StartCoroutine(CargarEscenaAsync(puerta.nombreEscenaNivel));
     }
 
@@ -308,7 +308,7 @@ public class GameManager : PersistentSingleton<GameManager>
         EstadoActual = GameState.Transicion;
         Time.timeScale = 1f;
 
-        // 🔥 Ocultamos pantalla INMEDIATO para evitar ver HUD o flashes
+        //  Ocultamos pantalla INMEDIATO para evitar ver HUD o flashes
         fader?.InstantBlack();
 
         yield return null; // esperar un frame por seguridad
@@ -317,7 +317,7 @@ public class GameManager : PersistentSingleton<GameManager>
         while (!op.isDone)
             yield return null;
 
-        // 🔥 Ahora que la escena ya cargó, limpiamos visualmente
+        //  Ahora que la escena ya cargó, limpiamos visualmente
         fader?.FadeOut(duracionFade);
 
         yield return new WaitForSeconds(duracionFade);
@@ -337,7 +337,7 @@ public class GameManager : PersistentSingleton<GameManager>
         {
             vcam.Follow = jugadorActual.transform;
             vcam.LookAt = jugadorActual.transform;
-            Debug.Log("🎥 Cámara Cinemachine reconectada al nuevo jugador.");
+            Log.Info(this, "Cámara Cinemachine reconectada al nuevo jugador.");
         }
     }
 
@@ -345,36 +345,36 @@ public class GameManager : PersistentSingleton<GameManager>
     {
         string n = escena.name;
 
-        // 🔴 ESCENAS QUE NUNCA DEBEN TENER HUD
+        //  ESCENAS QUE NUNCA DEBEN TENER HUD
         if (n == Escenas.MainMenu)
         {
-            Debug.Log("🎛 GameManager: MainMenu → HUD apagado.");
+            Log.Info(this, "GameManager: MainMenu  HUD apagado.");
             UIManager.Instance?.OcultarTodo();
             HUDHabilidad.Instance?.gameObject.SetActive(false);
             return;
         }
 
-        // 🔴 ESCENAS MARCADAS COMO CINEMÁTICA
+        //  ESCENAS MARCADAS COMO CINEMÁTICA
         if (UIManager.Instance != null && UIManager.Instance.EscenaSinUI(n))
         {
-            Debug.Log($"🚫 GameManager: '{n}' está marcada como sin UI.");
+            Log.Info(this, $"GameManager: '{n}' está marcada como sin UI.");
             UIManager.Instance.OcultarTodo();
             HUDHabilidad.Instance?.gameObject.SetActive(false);
             return;
         }
 
-        // 🟣 HUB — mostrar HUD normal
+        //  HUB — mostrar HUD normal
         if (escena.name == Escenas.Hub)
         {
-            Debug.Log("🏠 GameManager: En Hub → mostrar HUD.");
+            Log.Info(this, "GameManager: En Hub  mostrar HUD.");
             HUDHabilidad.Instance?.gameObject.SetActive(true);
             UIManager.Instance?.MostrarHUD();
             return;
         }
 
 
-        // 🟢 NIVELES NORMALES — mostrar HUD
-        Debug.Log("🎮 Nivel normal → mostrar HUD.");
+        //  NIVELES NORMALES — mostrar HUD
+        Log.Info(this, "Nivel normal  mostrar HUD.");
         HUDHabilidad.Instance?.gameObject.SetActive(true);
         UIManager.Instance?.MostrarHUD();
     }
@@ -393,7 +393,7 @@ public class GameManager : PersistentSingleton<GameManager>
 
     private void ReactivarSistemaPopupsHub()
     {
-        Debug.Log("🔁 ReactivarSistemaPopupsHub() llamado. Escena actual: "
+        Log.Info(this, "ReactivarSistemaPopupsHub() llamado. Escena actual: "
                   + SceneManager.GetActiveScene().name
                   + " | jugadorActual = " + (jugadorActual ? jugadorActual.name : "NULL"));
 
@@ -401,24 +401,24 @@ public class GameManager : PersistentSingleton<GameManager>
         if (popup != null)
         {
             popup.gameObject.SetActive(true);
-            Debug.Log("🟢 PopupNivelUI activo en Hub.");
+            Log.Info(this, "PopupNivelUI activo en Hub.");
         }
         else
         {
-            Debug.LogWarning("⚠️ No encontré PopupNivelUI en el Hub.");
+            Log.Aviso(this, "No encontré PopupNivelUI en el Hub.");
         }
 
         var puertas = FindObjectsByType<DoorHub>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        Debug.Log("🚪 Puertas encontradas en Hub: " + puertas.Length);
+        Log.Info(this, "Puertas encontradas en Hub: " + puertas.Length);
 
         if (puertas != null && jugadorActual != null)
         {
             foreach (var p in puertas)
             {
-                Debug.Log("➡️ Mandando ForzarChequeoJugador a puerta: " + p.name);
+                Log.Info(this, "Mandando ForzarChequeoJugador a puerta: " + p.name);
                 p.SendMessage("ForzarChequeoJugador", jugadorActual, SendMessageOptions.DontRequireReceiver);
             }
-            Debug.Log("✅ Detección de puertas reactivada.");
+            Log.Info(this, "Detección de puertas reactivada.");
         }
     }
 
@@ -457,7 +457,7 @@ public class GameManager : PersistentSingleton<GameManager>
     public void CambiarEstado(GameState nuevoEstado)
     {
         EstadoActual = nuevoEstado;
-        Debug.Log($"🔄 Estado del juego cambiado a: {nuevoEstado}");
+        Log.Info(this, $"Estado del juego cambiado a: {nuevoEstado}");
     }
     private SpawnPoint FindSpawnPointSoloDeLaEscena(Scene escenaNivel)
     {
@@ -486,23 +486,23 @@ public class GameManager : PersistentSingleton<GameManager>
     }
     private void ResetearEntornoInteractivo()
     {
-        // 🔘 Reiniciar TODOS los switches
+        //  Reiniciar TODOS los switches
         foreach (var sw in FindObjectsByType<Switch>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             sw.ResetSwitch();
 
-        // 🔆 Reiniciar TODOS los receptores de luz
+        //  Reiniciar TODOS los receptores de luz
         foreach (var rec in FindObjectsByType<LightReceptor>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             rec.ResetReceptor();
 
-        // 💡 Reiniciar TODOS los SpotLights cónicos
+        //  Reiniciar TODOS los SpotLights cónicos
         foreach (var luz in FindObjectsByType<SpotLightDetector>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             luz.ResetToInitialState();
 
-        // 🔆 Reiniciar TopLights cenitales (si querés lo mismo)
+        //  Reiniciar TopLights cenitales (si querés lo mismo)
         foreach (var top in FindObjectsByType<TopLightDetector>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             top.ResetToInitialState();
 
-        // 🚪 Reiniciar todas las puertas a su estado inicial
+        //  Reiniciar todas las puertas a su estado inicial
         foreach (var p in FindObjectsByType<Door>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             p.ResetToInitialState();
     }

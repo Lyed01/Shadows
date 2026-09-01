@@ -23,21 +23,21 @@ public class AbilityTrigger : MonoBehaviour
         Jugador jugador = other.GetComponent<Jugador>();
         if (jugador == null) return;
 
-        // 1️⃣ Desbloquea la habilidad globalmente (AbilityManager)
+        // 1⃣ Desbloquea la habilidad globalmente (AbilityManager)
         if (AbilityManager.Instance != null)
         {
             AbilityManager.Instance.Unlock(habilidad);
-            Debug.Log($"🔮 Habilidad desbloqueada: {habilidad}");
+            Log.Info(this, $"Habilidad desbloqueada: {habilidad}");
         }
 
-        // 2️⃣ Activa la UI o feedback local del jugador (solo si ShadowBlocks)
+        // 2⃣ Activa la UI o feedback local del jugador (solo si ShadowBlocks)
         if (habilidad == AbilityType.ShadowBlocks)
             jugador.RecibirHabilidad();
 
-        // 3️⃣ Feedback opcional (efecto, sonido, animación)
+        // 3⃣ Feedback opcional (efecto, sonido, animación)
         // TODO: Instanciar un efecto visual aquí si querés (partículas o sonido)
 
-        // 4️⃣ Elimina el trigger después de activarse
+        // 4⃣ Elimina el trigger después de activarse
         if (destruirTriggerAlActivar)
             Destroy(gameObject);
     }

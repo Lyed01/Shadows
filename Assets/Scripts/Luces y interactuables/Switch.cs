@@ -17,9 +17,9 @@ public class Switch : MonoBehaviour
     public KeyCode activationKey = KeyCode.E;
 
     private SpriteRenderer spriteRenderer;
-    private bool _activado = false; // 👈 ahora privado
+    private bool _activado = false; //  ahora privado
 
-    public bool activado => _activado; // 👈 lectura pública
+    public bool activado => _activado; //  lectura pública
 
     private bool jugadorEnContacto = false;
 
@@ -49,7 +49,7 @@ public class Switch : MonoBehaviour
         AplicarAccionesDeLuz(_activado);
         EvaluarPuertas();
 
-        Debug.Log($"🔘 Switch {(_activado ? "ON" : "OFF")}");
+        Log.Info(this, $"Switch {(_activado ? "ON" : "OFF")}");
     }
 
     private void EvaluarPuertas()
@@ -116,6 +116,6 @@ public class Switch : MonoBehaviour
 
         EvaluarPuertas();
 
-        Debug.Log("🔄 Switch reseteado");
+        Log.Info(this, "Switch reseteado");
     }
 }

@@ -74,15 +74,15 @@ public class DoorHub : MonoBehaviour
         }
     }
 
-    // 🔹 llamado automáticamente por GameManager cuando se crea un nuevo jugador
+    //  llamado automáticamente por GameManager cuando se crea un nuevo jugador
     private void OnPlayerSpawned(Jugador nuevoJugador)
     {
         if (nuevoJugador == null) return;
 
         jugador = nuevoJugador.transform;
-        Debug.Log($"🔁 DoorHub [{idNivel}] reenganchó referencia al nuevo jugador.");
+        Log.Info(this, $"DoorHub [{idNivel}] reenganchó referencia al nuevo jugador.");
 
-        // 🟡 Chequeo inmediato por si el jugador renace dentro del área de activación
+        //  Chequeo inmediato por si el jugador renace dentro del área de activación
         if (Vector2.Distance(jugador.position, transform.position) <= distanciaActivacion)
         {
             var posReferencia = (puntoPopup != null) ? puntoPopup.position : transform.position;
@@ -92,7 +92,7 @@ public class DoorHub : MonoBehaviour
     }
 
 
-    // 🔧 Llamado por GameManager después de respawn para corregir estados inconsistentes
+    //  Llamado por GameManager después de respawn para corregir estados inconsistentes
     public void ForzarChequeoJugador(Jugador j)
     {
         if (j == null) return;

@@ -40,7 +40,7 @@ public class Jugador : MonoBehaviour
     private Vector2 movimiento;
     private Vector2 ultimaDireccion = Vector2.down;
     private string animActual = "";
-    private float bloqueoHabilidadTimer = 0f;   // 🔒 tiempo en el que NO se puede mover ni cancelar
+    private float bloqueoHabilidadTimer = 0f;   //  tiempo en el que NO se puede mover ni cancelar
 
     // Guardamos los constraints originales para restaurarlos
     private RigidbodyConstraints2D constraintsOriginal;
@@ -60,7 +60,7 @@ public class Jugador : MonoBehaviour
         gridManager = gm;
         hudHabilidad = hud;
 
-        // ❗ Solo deshabilitar habilidades si NO estamos en el Hub
+        //  Solo deshabilitar habilidades si NO estamos en el Hub
         if (SceneManager.GetActiveScene().name != Escenas.Hub)
             DeshabilitarHabilidad();
 
@@ -68,7 +68,7 @@ public class Jugador : MonoBehaviour
         {
             AbilityManager.Instance.OnAbilityUnlocked.AddListener(OnHabilidadDesbloqueada);
 
-            // 🔹 Sincroniza TODAS las habilidades desbloqueadas actuales
+            //  Sincroniza TODAS las habilidades desbloqueadas actuales
             foreach (AbilityType tipo in System.Enum.GetValues(typeof(AbilityType)))
             {
                 if (AbilityManager.Instance.IsUnlocked(tipo))
@@ -90,7 +90,7 @@ public class Jugador : MonoBehaviour
         float inputY = Input.GetAxisRaw("Vertical");
         bool presionoSpace = Input.GetKeyDown(KeyCode.Space);
 
-        // 🔄 Actualizar timer de bloqueo inicial
+        //  Actualizar timer de bloqueo inicial
         if (bloqueoHabilidadTimer > 0f)
             bloqueoHabilidadTimer -= Time.deltaTime;
         // === PRIORIDAD: ya estoy en modo habilidad ===
@@ -102,12 +102,12 @@ public class Jugador : MonoBehaviour
             {
                 movimiento = Vector2.zero;
                 ActualizarAnimacion();
-                return;  // ⚠ NO salimos del modo habilidad, NO dejamos mover
+                return;  //  NO salimos del modo habilidad, NO dejamos mover
             }
 
             // 2) Pasado el 1s, ahora sí: Space o WASD sacan del modo habilidad
 
-            // Space de nuevo → salir
+            // Space de nuevo  salir
             if (presionoSpace)
             {
                 DesactivarModoHabilidad();
@@ -115,7 +115,7 @@ public class Jugador : MonoBehaviour
             }
             else
             {
-                // WASD → salir del modo habilidad
+                // WASD  salir del modo habilidad
                 if (inputX != 0 || inputY != 0)
                 {
                     DesactivarModoHabilidad();
@@ -239,12 +239,12 @@ public class Jugador : MonoBehaviour
         enModoHabilidad = false;
         ModoHabilidadActivo = false;
 
-        // 🔓 Restaurar constraints originales
+        //  Restaurar constraints originales
         rb.constraints = constraintsOriginal;
 
         OnDesactivarHabilidad?.Invoke();
 
-        // 🟣 Desvanecer el pulso cuando se sale del modo habilidad
+        //  Desvanecer el pulso cuando se sale del modo habilidad
         if (rangoVisual != null)
         {
             var pulse = rangoVisual.GetComponent<PulseEffect>();
@@ -271,10 +271,10 @@ public class Jugador : MonoBehaviour
         // Reinicia el HUD para el nuevo intento
         hudHabilidad?.Reiniciar();
 
-        // 🔹 Notifica al GridManager
+        //  Notifica al GridManager
         gridManager?.CorromperCeldas(transform.position);
         gridManager?.NotificarMuerteJugador();
-        Debug.Log("[Jugador] Murio, notificando a GameManager");
+        Log.Info(this, "Murio, notificando a GameManager");
     }
 
     // === HABILIDAD ===
@@ -288,7 +288,7 @@ public class Jugador : MonoBehaviour
             hudHabilidad.Reiniciar();
         }
 
-        Debug.Log("🔮 Habilidad obtenida por el jugador");
+        Log.Info(this, "Habilidad obtenida por el jugador");
     }
 
     private void OnHabilidadDesbloqueada(AbilityType tipo)
@@ -303,7 +303,7 @@ public class Jugador : MonoBehaviour
                 break;
         }
 
-        Debug.Log($"🧩 Jugador sincronizó habilidad desbloqueada: {tipo}");
+        Log.Info(this, $"Jugador sincronizó habilidad desbloqueada: {tipo}");
     }
 
     public void DeshabilitarHabilidad()
@@ -358,7 +358,7 @@ public class Jugador : MonoBehaviour
 
         if (!estado && rangoVisual != null)
         {
-            Destroy(rangoVisual); // 💥 Limpieza de rango visual residual
+            Destroy(rangoVisual); //  Limpieza de rango visual residual
             rangoVisual = null;
         }
     }

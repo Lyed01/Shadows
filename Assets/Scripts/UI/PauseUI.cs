@@ -15,14 +15,14 @@ public class PauseUI : MonoBehaviour
     void OnEnable()
     {
         uiActiva = true;
-        Debug.Log("<color=yellow>🟡 PauseMenuUI → ACTIVADA</color>");
+        Log.Info(this, "<color=yellow> PauseMenuUI  ACTIVADA</color>");
     }
 
     void OnDisable()
     {
         uiActiva = false;
         bloqueado = false;
-        Debug.Log("<color=gray>⚫ PauseMenuUI → DESACTIVADA</color>");
+        Log.Info(this, "<color=gray> PauseMenuUI  DESACTIVADA</color>");
     }
 
     // === MÉTODOS ===
@@ -31,7 +31,7 @@ public class PauseUI : MonoBehaviour
         if (!PuedeEjecutar("Reanudar")) return;
 
         bloqueado = true;
-        Debug.Log("<color=green>▶ Reanudando juego...</color>");
+        Log.Info(this, "<color=green>▶ Reanudando juego...</color>");
 
         GameManager.Instance?.ReanudarJuego();
         UIManager.Instance?.MostrarHUD();
@@ -44,7 +44,7 @@ public class PauseUI : MonoBehaviour
         if (!PuedeEjecutar("ReiniciarNivel")) return;
 
         bloqueado = true;
-        Debug.Log("<color=cyan>🔁 Reiniciando nivel...</color>");
+        Log.Info(this, "<color=cyan> Reiniciando nivel...</color>");
 
         GameManager.Instance?.ReanudarJuego();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -57,7 +57,7 @@ public class PauseUI : MonoBehaviour
         if (!PuedeEjecutar("AbrirOpciones")) return;
 
         bloqueado = true;
-        Debug.Log("<color=magenta>⚙️ Abriendo menú de opciones...</color>");
+        Log.Info(this, "<color=magenta> Abriendo menú de opciones...</color>");
 
         UIManager.Instance?.MostrarOpciones();
 
@@ -69,7 +69,7 @@ public class PauseUI : MonoBehaviour
         if (!PuedeEjecutar("VolverAlMenuPrincipal")) return;
 
         bloqueado = true;
-        Debug.Log("<color=red>🏠 Volviendo al menú principal...</color>");
+        Log.Info(this, "<color=red> Volviendo al menú principal...</color>");
 
         GameManager.Instance?.ReanudarJuego();
         SceneManager.LoadScene(nombreEscenaMenuPrincipal);
@@ -93,20 +93,20 @@ public class PauseUI : MonoBehaviour
     {
         if (!uiActiva)
         {
-            Debug.LogWarning($"⛔ [{accion}] cancelado → UI inactiva.");
+            Log.Aviso(this, $"[{accion}] cancelado  UI inactiva.");
             return false;
         }
 
         if (bloqueado)
         {
-            Debug.LogWarning($"⚠️ [{accion}] bloqueado temporalmente.");
+            Log.Aviso(this, $"[{accion}] bloqueado temporalmente.");
             return false;
         }
 
         // Extra: si el canvas o el event system están apagados, avisar
         if (UIManager.Instance != null && UIManager.Instance.gameObject.activeSelf == false)
         {
-            Debug.LogError($"❌ [{accion}] — UIManager inactivo, posible bug de canvas.");
+            Debug.LogError($" [{accion}] — UIManager inactivo, posible bug de canvas.");
             return false;
         }
 
@@ -117,6 +117,6 @@ public class PauseUI : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(delay);
         bloqueado = false;
-        Debug.Log("<color=gray>✅ Botones desbloqueados</color>");
+        Log.Info(this, "<color=gray> Botones desbloqueados</color>");
     }
 }

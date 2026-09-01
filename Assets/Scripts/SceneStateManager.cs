@@ -12,7 +12,7 @@ public class SceneStateManager : SceneSingleton<SceneStateManager>
     {
         if (flags.Add(flag))
         {
-            Debug.Log($"[SCENE FLAG] Activada: {flag}");
+            Log.Info(this, $"[SCENE FLAG] Activada: {flag}");
             OnFlagAdded?.Invoke(flag);
         }
     }
@@ -20,7 +20,7 @@ public class SceneStateManager : SceneSingleton<SceneStateManager>
     public void RemoveFlag(string flag)
     {
         if (flags.Remove(flag))
-            Debug.Log($"[SCENE FLAG] Removida: {flag}");
+            Log.Info(this, $"[SCENE FLAG] Removida: {flag}");
     }
 
 

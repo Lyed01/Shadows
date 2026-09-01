@@ -46,7 +46,7 @@ public class MirrorBlock : ShadowBlock
         if (spriteNormal != null)
             sr.sprite = spriteNormal;
 
-        CrearFlechaDireccion(); // 👈 AÑADIR ESTO
+        CrearFlechaDireccion(); //  AÑADIR ESTO
     }
 
 
@@ -120,7 +120,7 @@ public class MirrorBlock : ShadowBlock
         // Convertimos dir a un ángulo y lo usamos directamente
         float angulo = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 
-        // El sprite apunta hacia arriba → Vector2.up = 90°
+        // El sprite apunta hacia arriba  Vector2.up = 90°
         // Así que corregimos restando 90°
         flechaGO.transform.localRotation = Quaternion.Euler(0, 0, angulo - 90f);
 
@@ -140,7 +140,7 @@ public class MirrorBlock : ShadowBlock
         recibiendoLuz = true;
         tiempoSinLuz = 0f;
 
-        // ⭐ Daño original del ShadowBlock (incluye protección anti-nacimiento)
+        //  Daño original del ShadowBlock (incluye protección anti-nacimiento)
         base.RecibirLuz(daño, tipo);
 
         // Cambia sprite según estado (si no está dañado)
@@ -162,7 +162,7 @@ public class MirrorBlock : ShadowBlock
         recibiendoLuz = true;
         tiempoSinLuz = 0f;
 
-        // ⭐ Usa la misma lógica de ShadowBlock (incluye protección anti-instant-kill)
+        //  Usa la misma lógica de ShadowBlock (incluye protección anti-instant-kill)
         base.RecibirLuz(daño, tipo);
 
         if (vidaActual > 0f && tipo != TipoLuz.Roja)
@@ -223,7 +223,7 @@ public class MirrorBlock : ShadowBlock
         direccionActual = new Vector2(direccionActual.y, -direccionActual.x);
         direccionInicial = direccionActual;
 
-        ActualizarFlecha(); // 👈 AÑADIR ESTO
+        ActualizarFlecha(); //  AÑADIR ESTO
 
         if (emisor != null)
             emisor.SetDireccion(direccionActual);
@@ -243,7 +243,7 @@ public class MirrorBlock : ShadowBlock
         if (emisor != null)
             emisor.SetDireccion(direccionActual);
 
-        Debug.Log($"🔁 MirrorBlock ajustó dirección inicial a {direccionActual}");
+        Log.Info(this, $"MirrorBlock ajustó dirección inicial a {direccionActual}");
     }
 
     // ============================

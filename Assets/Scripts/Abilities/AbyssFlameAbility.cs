@@ -7,7 +7,7 @@ public static class AbyssFlameAbility
     {
         if (jugador == null || jugador.gridManager == null)
         {
-            Debug.LogWarning("⚠️ AbyssFlameAbility: faltan referencias");
+            Log.Aviso(typeof(AbyssFlameAbility), "faltan referencias");
             return;
         }
 
@@ -21,7 +21,7 @@ public static class AbyssFlameAbility
         var prefab = AbilityManager.Instance?.prefabAbyssFlame;
         if (prefab == null)
         {
-            Debug.LogError("❌ AbyssFlameAbility: prefab no asignado en AbilityManager");
+            Debug.LogError(" AbyssFlameAbility: prefab no asignado en AbilityManager");
             return;
         }
 
@@ -34,7 +34,7 @@ public static class AbyssFlameAbility
         var flameComp = flame.GetComponent<AbyssFlame>();
         if (flameComp == null)
         {
-            Debug.LogError("❌ AbyssFlameAbility: el prefab no tiene AbyssFlame.cs");
+            Debug.LogError(" AbyssFlameAbility: el prefab no tiene AbyssFlame.cs");
             jugador.SetInputBloqueado(false);
             jugador.SetControlActivo(true);
             return;
@@ -47,6 +47,6 @@ public static class AbyssFlameAbility
         flameComp.Inicializar(jugador);
         hud?.UsarCargas(2);
 
-        AbilityManager.OnUsarHabilidad?.Invoke(); // ✅ Notifica el uso
+        AbilityManager.OnUsarHabilidad?.Invoke(); //  Notifica el uso
     }
 }

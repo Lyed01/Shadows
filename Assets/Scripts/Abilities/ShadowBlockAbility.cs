@@ -6,16 +6,16 @@ public static class ShadowBlockAbility
     {
         if (jugador == null || jugador.gridManager == null || jugador.hudHabilidad == null)
         {
-            Debug.LogWarning("⚠️ ShadowBlockAbility: faltan referencias");
+            Log.Aviso(typeof(ShadowBlockAbility), "faltan referencias");
             //Chequear cada uno individualmente para ver cual falta
             if (jugador == null)
-                Debug.LogWarning("⚠️ ShadowBlockAbility: falta referencia a Jugador");
+                Log.Aviso(typeof(ShadowBlockAbility), "falta referencia a Jugador");
 
             if (jugador.gridManager == null)
-                Debug.LogWarning("⚠️ ShadowBlockAbility: falta referencia a GridManager");
+                Log.Aviso(typeof(ShadowBlockAbility), "falta referencia a GridManager");
 
             if  (jugador.hudHabilidad == null)
-                Debug.LogWarning("⚠️ ShadowBlockAbility: falta referencia a HUDHabilidad");
+                Log.Aviso(typeof(ShadowBlockAbility), "falta referencia a HUDHabilidad");
 
             return;
         }
@@ -40,7 +40,7 @@ public static class ShadowBlockAbility
             case ResultadoColocacion.Exito:
                 AudioManager.Instance?.ReproducirBloque();
                 hud.UsarCargas(reflectante ? 2 : 1);
-                AbilityManager.OnUsarHabilidad?.Invoke(); // ✅ Notifica al sistema de puntuación
+                AbilityManager.OnUsarHabilidad?.Invoke(); //  Notifica al sistema de puntuación
                 break;
 
             case ResultadoColocacion.NoExisteCelda:

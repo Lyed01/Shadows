@@ -28,7 +28,7 @@ public class UIManager : PersistentSingleton<UIManager>
     {
         string escenaActual = SceneManager.GetActiveScene().name;
 
-        // 🚫 Escenas especiales SIN UI
+        //  Escenas especiales SIN UI
         if (EscenaSinUI(escenaActual))
         {
             OcultarTodo();
@@ -46,7 +46,7 @@ public class UIManager : PersistentSingleton<UIManager>
                 MostrarHUD();
         }
 
-        // ✅ ESTO DEBE ESTAR DENTRO DEL MÉTODO
+        //  ESTO DEBE ESTAR DENTRO DEL MÉTODO
         SceneManager.sceneLoaded += OnSceneLoaded;
 
         if (canvasMenues != null)
@@ -71,7 +71,7 @@ public class UIManager : PersistentSingleton<UIManager>
         if (canvasPrincipal != null && canvasPrincipal.renderMode == RenderMode.ScreenSpaceCamera)
         {
             canvasPrincipal.worldCamera = Camera.main;
-            Debug.Log($"🎥 UIManager: reconectada cámara principal al canvas tras cargar {escena.name}.");
+            Log.Info(this, $"UIManager: reconectada cámara principal al canvas tras cargar {escena.name}.");
         }
     }
 
@@ -87,7 +87,7 @@ public class UIManager : PersistentSingleton<UIManager>
     {
         if (panelPausa == null)
         {
-            Debug.LogWarning("⚠️ UIManager: panelPausa no asignado.");
+            Log.Aviso(this, "UIManager: panelPausa no asignado.");
             return;
         }
 
@@ -97,10 +97,10 @@ public class UIManager : PersistentSingleton<UIManager>
 
         panelPausa.SetActive(true);
         panelActual = panelPausa;
-        Debug.Log("🟡 UIManager: mostrando panel de pausa.");
+        Log.Info(this, "UIManager: mostrando panel de pausa.");
     }
 
-    // 🟢 Mantiene pausa abierta al abrir opciones
+    //  Mantiene pausa abierta al abrir opciones
     public void MostrarOpciones()
     {
         if (panelPausa && !panelPausa.activeSelf)
@@ -170,23 +170,23 @@ public class UIManager : PersistentSingleton<UIManager>
 
         string escenaActual = SceneManager.GetActiveScene().name;
 
-        // 🚫 Nunca mostrar UI en MainMenu
+        //  Nunca mostrar UI en MainMenu
         if (escenaActual == Escenas.MainMenu)
         {
-            Debug.Log("🔕 UIManager: MainMenu detectado → UI completamente desactivada.");
+            Log.Info(this, "UIManager: MainMenu detectado  UI completamente desactivada.");
             OcultarTodo();
             HUDHabilidad.Instance?.gameObject.SetActive(false);
             yield break;
         }
 
 
-        // 🚫 Si es escena sin UI → no activar HUD
+        //  Si es escena sin UI  no activar HUD
         if (EscenaSinUI(escenaActual))
         {
             OcultarTodo();
             yield break;
         }
-        // 🏠 HUB → sí debe mostrar HUD
+        //  HUB  sí debe mostrar HUD
         if (escenaActual == Escenas.Hub)
         {
             MostrarHUD();
@@ -194,11 +194,11 @@ public class UIManager : PersistentSingleton<UIManager>
         }
 
 
-        // ✔ Cualquier otro nivel → mostrar HUD
+        //  Cualquier otro nivel  mostrar HUD
         MostrarHUD();
 
         // EventSystem fix
-        // Si NO HAY EventSystem → crear uno
+        // Si NO HAY EventSystem  crear uno
         var systems = FindObjectsByType<UnityEngine.EventSystems.EventSystem>(
             FindObjectsInactive.Include,
             FindObjectsSortMode.None
@@ -206,16 +206,16 @@ public class UIManager : PersistentSingleton<UIManager>
 
         if (systems.Length == 0)
         {
-            Debug.Log("⚠ No EventSystem en escena, creando uno temporal.");
+            Log.Info(this, "No EventSystem en escena, creando uno temporal.");
             var nuevo = new GameObject("EventSystem")
                 .AddComponent<UnityEngine.EventSystems.EventSystem>();
             nuevo.gameObject.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
 
-            yield break;   // ✔ forma correcta
+            yield break;   //  forma correcta
 
         }
 
-        // SI EXISTE → dejarlo como está, NO TOCARLO
+        // SI EXISTE  dejarlo como está, NO TOCARLO
         systems[0].enabled = true;
         systems[0].gameObject.SetActive(true);
 
@@ -242,11 +242,11 @@ public class UIManager : PersistentSingleton<UIManager>
 
     public bool EscenaSinUI(string nombre)
 {
-    // ❌ Estas escenas SIEMPRE deben mostrar su UI propia
+    //  Estas escenas SIEMPRE deben mostrar su UI propia
     if (nombre == Escenas.Hub) return false;
     if (nombre == Escenas.MainMenu) return false;
 
-    // ✔ Escenas realmente sin UI (cinemáticas, pantallas negras, etc.)
+    //  Escenas realmente sin UI (cinemáticas, pantallas negras, etc.)
     foreach (var s in escenasSinUI)
         if (s == nombre)
             return true;

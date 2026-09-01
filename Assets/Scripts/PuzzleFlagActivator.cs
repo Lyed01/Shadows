@@ -21,7 +21,7 @@ public class PuzzleFlagActivator : MonoBehaviour
         {
             SceneStateManager.Instance.SetFlag(flag);
             flagActivada = true;
-            Debug.Log("💡 FLAG ACTIVADA: " + flag);
+            Log.Info(this, "FLAG ACTIVADA: " + flag);
         }
     }
 

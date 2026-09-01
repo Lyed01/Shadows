@@ -29,7 +29,7 @@ public class StarProgressUI : MonoBehaviour
     void Start()
     {
 
-        Debug.Log($"[StarProgressUI] Fragmentos actuales: {SaveSystem.Fragmentos}");
+        Log.Info(this, $"Fragmentos actuales: {SaveSystem.Fragmentos}");
        
         if (SceneManager.GetActiveScene().name == Escenas.Hub)
         {
@@ -56,15 +56,15 @@ public class StarProgressUI : MonoBehaviour
 
     private void Inicializar()
     {
-        Debug.Log("🟢 Inicializando StarProgressUI en Hub...");
+        Log.Info(this, "Inicializando StarProgressUI en Hub...");
 
-        // 🧩 Reactiva jerarquía por seguridad
+        //  Reactiva jerarquía por seguridad
         Transform actual = transform;
         while (actual != null)
         {
             if (!actual.gameObject.activeSelf)
             {
-                Debug.LogWarning($"⚠️ Reactivando objeto desactivado en jerarquía: {actual.name}");
+                Log.Aviso(this, $"Reactivando objeto desactivado en jerarquía: {actual.name}");
                 actual.gameObject.SetActive(true);
             }
             actual = actual.parent;
@@ -83,7 +83,7 @@ public class StarProgressUI : MonoBehaviour
 
         if (iconoEstrella == null || textoProgreso == null)
         {
-            Debug.LogWarning("⚠️ StarProgressUI: faltan referencias (Image/TMP).");
+            Log.Aviso(this, "StarProgressUI: faltan referencias (Image/TMP).");
             return;
         }
 
@@ -143,7 +143,7 @@ public class StarProgressUI : MonoBehaviour
         // Esperá un pequeño instante para asegurar visibilidad y estabilidad
         yield return new WaitForSecondsRealtime(0.3f);
 
-        // 🔁 Lanza refresco periódico sin interrumpir la animación
+        //  Lanza refresco periódico sin interrumpir la animación
         if (refrescoCoroutine != null)
             StopCoroutine(refrescoCoroutine);
 
@@ -223,7 +223,7 @@ public class StarProgressUI : MonoBehaviour
         if (SaveSystem.Fragmentos != total)
         {
             SaveSystem.Fragmentos = total;
-            Debug.Log($"[StarProgressUI] Fragmentos totales: {total}");
+            Log.Info(this, $"Fragmentos totales: {total}");
         }
 
         return total;

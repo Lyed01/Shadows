@@ -25,7 +25,7 @@ public class StarProgressAnchor : MonoBehaviour
         // Asegura que ambos elementos existan
         if (iconoEstrella == null || textoProgreso == null)
         {
-            Debug.LogWarning($"⚠️ StarProgressAnchor en {name}: faltan referencias a UI (icono o texto).");
+            Log.Aviso(this, $"StarProgressAnchor en {name}: faltan referencias a UI (icono o texto).");
             return;
         }
 
@@ -34,7 +34,7 @@ public class StarProgressAnchor : MonoBehaviour
         {
             if (!gameObject.activeSelf)
             {
-                Debug.Log($"🔵 Reactivando {name} (StarProgressAnchor) porque estaba desactivado.");
+                Log.Info(this, $"Reactivando {name} (StarProgressAnchor) porque estaba desactivado.");
                 gameObject.SetActive(true);
             }
 

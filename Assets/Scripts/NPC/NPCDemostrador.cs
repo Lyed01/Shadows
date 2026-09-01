@@ -88,7 +88,7 @@ public class NPCDemostrador : MonoBehaviour
         }
         else
         {
-            // No requiere flag → iniciar inmediatamente
+            // No requiere flag  iniciar inmediatamente
             StartCoroutine(FlujoDemostracion());
         }
     }
@@ -106,13 +106,13 @@ public class NPCDemostrador : MonoBehaviour
             }
         }
 
-        Debug.Log($"⛔ {name}: Nunca encontró la flag '{flagRequerida}' después de varios intentos.");
+        Log.Info(this, $"{name}: Nunca encontró la flag '{flagRequerida}' después de varios intentos.");
     }
 
     private IEnumerator FlujoDemostracion()
     {
         ejecutando = true;
-        Debug.Log($"🎬 NPC {name} inicia demostración.");
+        Log.Info(this, $"NPC {name} inicia demostración.");
 
         do
         {
@@ -124,7 +124,7 @@ public class NPCDemostrador : MonoBehaviour
         if (otorgarHabilidadAlFinal && AbilityManager.Instance)
         {
             AbilityManager.Instance.Unlock(habilidadEntregada);
-            Debug.Log($"✨ NPC otorgó la habilidad: {habilidadEntregada}");
+            Log.Info(this, $"NPC otorgó la habilidad: {habilidadEntregada}");
         }
 
         ejecutando = false;
@@ -179,11 +179,11 @@ public class NPCDemostrador : MonoBehaviour
                 break;
         }
 
-        // ⭐ FLAG DESPUÉS DE COMPLETAR EL PASO
+        //  FLAG DESPUÉS DE COMPLETAR EL PASO
         if (!string.IsNullOrEmpty(paso.flagAlCompletar))
         {
             SceneStateManager.Instance.SetFlag(paso.flagAlCompletar);
-            Debug.Log("🏁 Paso completado → Flag activada: " + paso.flagAlCompletar);
+            Log.Info(this, "Paso completado  Flag activada: " + paso.flagAlCompletar);
         }
     }
 
@@ -233,7 +233,7 @@ public class NPCDemostrador : MonoBehaviour
     {
         if (anim == null) return;
 
-        // 🟥 PRIORIDAD: si está muriendo, solo reproducir Dying
+        //  PRIORIDAD: si está muriendo, solo reproducir Dying
         if (estaMuriendo)
         {
             if (animActual != "Dying")
@@ -325,7 +325,7 @@ public class NPCDemostrador : MonoBehaviour
         if (flameNPC != null)
         {
             flameNPC.controlNPC = true;
-            flameNPC.Inicializar(null); // ← 💥 clave
+            flameNPC.Inicializar(null); //   clave
         }
 
         if (fxAbyssFlame)
@@ -360,7 +360,7 @@ public class NPCDemostrador : MonoBehaviour
     {
         if (flameNPC == null)
         {
-            Debug.LogWarning("NPC no tiene AbyssFlame instanciada.");
+            Log.Aviso(this, "NPC no tiene AbyssFlame instanciada.");
             yield break;
         }
 
@@ -415,7 +415,7 @@ public class NPCDemostrador : MonoBehaviour
         if (fxTeleport)
             AudioManager.Instance?.ReproducirFX(fxTeleport);
 
-        Debug.Log($"✨ NPC Teleport a {destino}");
+        Log.Info(this, $"NPC Teleport a {destino}");
     }
 
     private void ReproducirPaso()
@@ -434,7 +434,7 @@ public class NPCDemostrador : MonoBehaviour
 
     private IEnumerator MorirNPC()
     {
-        Debug.Log($"💀 NPC {name} muere.");
+        Log.Info(this, $"NPC {name} muere.");
 
         estaMuriendo = true; // Prioridad a la animación de muerte
         rb.simulated = false;
@@ -453,14 +453,14 @@ public class NPCDemostrador : MonoBehaviour
         // ⏳ DAR TIEMPO A QUE SUENE
         yield return new WaitForSeconds(0.3f);
 
-        // ⭐ ENTREGAR HABILIDAD JUSTO ANTES DE DESAPARECER
+        //  ENTREGAR HABILIDAD JUSTO ANTES DE DESAPARECER
         if (otorgarHabilidadAlFinal && AbilityManager.Instance)
         {
             AbilityManager.Instance.Unlock(habilidadEntregada);
-            Debug.Log($"✨ NPC otorgó la habilidad (después de morir): {habilidadEntregada}");
+            Log.Info(this, $"NPC otorgó la habilidad (después de morir): {habilidadEntregada}");
         }
 
-        // 💀 El NPC ahora puede desaparecer
+        //  El NPC ahora puede desaparecer
         Destroy(gameObject);
     }
  

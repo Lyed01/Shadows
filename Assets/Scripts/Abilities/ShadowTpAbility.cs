@@ -7,7 +7,7 @@ public static class ShadowTpAbility
     {
         if (jugador == null || jugador.gridManager == null || jugador.hudHabilidad == null)
         {
-            Debug.LogWarning("⚠️ ShadowTpAbility: faltan referencias necesarias.");
+            Log.Aviso(typeof(ShadowTpAbility), "faltan referencias necesarias.");
             return;
         }
 
@@ -48,31 +48,31 @@ public static class ShadowTpAbility
 
         jugador.SetInputBloqueado(true);
 
-        // 🔹 Fase 1 — Desaparecer
+        //  Fase 1 — Desaparecer
         if (anim != null)
         {
             anim.Play("Teleport_Disappear");
             yield return new WaitForSeconds(0.25f);
         }
 
-        // 🔹 Fase 2 — Mover al destino
+        //  Fase 2 — Mover al destino
         Vector3 destino = grid.sueloTilemap.GetCellCenterWorld(cellDestino);
         destino.y += 0.8f;
         jugador.transform.position = destino;
 
-        // 🔹 Fase 3 — Aparecer
+        //  Fase 3 — Aparecer
         if (anim != null)
         {
             anim.Play("Teleport_Appear");
             yield return new WaitForSeconds(0.25f);
         }
 
-        // 🔹 Fase 4 — Finalizar
+        //  Fase 4 — Finalizar
         jugador.SetInputBloqueado(false);
         hud.UsarCargas(1);
         AbilityManager.OnUsarHabilidad?.Invoke();
 
         jugador.SendMessage("DesactivarModoHabilidad", SendMessageOptions.DontRequireReceiver);
-        Debug.Log("✨ Teletransporte completado correctamente");
+        Log.Info(typeof(ShadowTpAbility), "Teletransporte completado correctamente");
     }
 }

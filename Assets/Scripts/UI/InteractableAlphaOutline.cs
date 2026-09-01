@@ -85,7 +85,7 @@ public class InteractableAlphaOutline : MonoBehaviour
 
             if (canvas == null)
             {
-                Debug.LogError("❌ InteractableAlphaOutline: No se encontró Canvas.");
+                Debug.LogError(" InteractableAlphaOutline: No se encontró Canvas.");
                 return;
             }
 

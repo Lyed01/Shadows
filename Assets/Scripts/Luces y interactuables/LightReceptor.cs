@@ -50,7 +50,7 @@ public class LightReceptor : MonoBehaviour
     }
 
     // ============================================================
-    // 🔸 Activación por luz
+    //  Activación por luz
     // ============================================================
     public void RecibirLuz(TipoLuz tipo)
     {
@@ -73,12 +73,12 @@ public class LightReceptor : MonoBehaviour
             cfg.Aplicar(true);
         }
 
-        // 👉 En vez de abrir/cerrar directamente, RE-EVALUAMOS la lógica de la puerta
+        //  En vez de abrir/cerrar directamente, RE-EVALUAMOS la lógica de la puerta
         EvaluarPuertas();
 
         ActivarObjetos();
 
-        Debug.Log($"🔆 Receptor {name} ACTIVADO");
+        Log.Info(this, $"Receptor {name} ACTIVADO");
     }
 
     private void Desactivar()
@@ -90,16 +90,16 @@ public class LightReceptor : MonoBehaviour
 
         AplicarAccionesLuces(false);
 
-        // 👉 Igual que con el Switch: solo pedimos que la puerta se re-evalúe
+        //  Igual que con el Switch: solo pedimos que la puerta se re-evalúe
         EvaluarPuertas();
 
         DesactivarObjetos();
 
-        Debug.Log($"💤 Receptor {name} DESACTIVADO");
+        Log.Info(this, $"Receptor {name} DESACTIVADO");
     }
 
     // ============================================================
-    // 🔥 SISTEMA DE CONTROL DE LUCES UNIFICADO
+    //  SISTEMA DE CONTROL DE LUCES UNIFICADO
     // ============================================================
     private void AplicarAccionesLuces(bool estadoON)
     {
@@ -111,7 +111,7 @@ public class LightReceptor : MonoBehaviour
     }
 
     // ============================================================
-    // 🔓 CONTROL DE PUERTAS (CENTRALIZADO)
+    //  CONTROL DE PUERTAS (CENTRALIZADO)
     // ============================================================
     private void EvaluarPuertas()
     {
@@ -124,7 +124,7 @@ public class LightReceptor : MonoBehaviour
 
     public void AbrirPuertas()
     {
-        // ⚠ Si seguís usando esto desde otro lado, dejalo;
+        //  Si seguís usando esto desde otro lado, dejalo;
         // pero para la lógica "2 receptores requieren abrir puerta", usá siempre EvaluarPuertas().
         foreach (var p in puertas)
         {
@@ -144,7 +144,7 @@ public class LightReceptor : MonoBehaviour
     }
 
     // ============================================================
-    // 🔹 CONTROL DE OBJETOS
+    //  CONTROL DE OBJETOS
     // ============================================================
     private void ActivarObjetos()
     {
@@ -159,7 +159,7 @@ public class LightReceptor : MonoBehaviour
     }
 
     // ============================================================
-    // 🔄 RESET COMPLETO
+    //  RESET COMPLETO
     // ============================================================
     public void ResetReceptor()
     {
@@ -181,9 +181,9 @@ public class LightReceptor : MonoBehaviour
             if (cfg != null)
                 cfg.Reset();
 
-        // 👉 Otra vez, nada de forzar puerta cerrada: que la puerta se evalúe
+        //  Otra vez, nada de forzar puerta cerrada: que la puerta se evalúe
         EvaluarPuertas();
 
-        Debug.Log($"🔄 Receptor {name} reseteado.");
+        Log.Info(this, $"Receptor {name} reseteado.");
     }
 }

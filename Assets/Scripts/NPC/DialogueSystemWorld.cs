@@ -108,7 +108,7 @@ public class DialogueSystemWorld : PersistentSingleton<DialogueSystemWorld>
         // AQUÍ TODAVÍA necesitamos saber quién habló
         Transform emisorBackup = ultimoNPCQueHablo;
 
-        // 🔥 Disparamos el evento mientras ultimoNPCQueHablo tiene valor
+        //  Disparamos el evento mientras ultimoNPCQueHablo tiene valor
         OnDialogueEnd?.Invoke();
 
         // recién ahora lo limpiamos
@@ -151,7 +151,7 @@ public class DialogueSystemWorld : PersistentSingleton<DialogueSystemWorld>
 
         Transform emisorBackup = ultimoNPCQueHablo;
 
-        // 🔥 Disparamos el evento ANTES de limpiar
+        //  Disparamos el evento ANTES de limpiar
         OnDialogueEnd?.Invoke();
 
         ultimoNPCQueHablo = null;
@@ -160,7 +160,7 @@ public class DialogueSystemWorld : PersistentSingleton<DialogueSystemWorld>
         dialogoActual = null;
         indiceLinea = 0;
 
-        Debug.Log("🛑 Diálogo forzado a cerrar.");
+        Log.Info(this, "Diálogo forzado a cerrar.");
     }
 
 

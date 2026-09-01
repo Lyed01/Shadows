@@ -45,7 +45,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     protected override void OnBoot()
     {
         base.OnBoot();
-        Debug.Log("🟢 AbilityManager persistente inicializado.");
+        Log.Info(this, "AbilityManager persistente inicializado.");
 
         LoadProgress();
 
@@ -63,7 +63,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     // === RESTABLECER CARGAS / MUERTE ===
     private void ReiniciarCargasGlobales()
     {
-        Debug.Log("♻️ AbilityManager: Reiniciando cargas tras la muerte del jugador");
+        Log.Info(this, "AbilityManager: Reiniciando cargas tras la muerte del jugador");
 
         var hud = HUDHabilidad.Instance;
         if (hud != null)
@@ -73,10 +73,10 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     // === GESTIÓN DE HABILIDADES ===
     public void Unlock(AbilityType tipo)
     {
-        // 🟦 CASO ESPECIAL: AbilityMode NO SE DESBLOQUEA
+        //  CASO ESPECIAL: AbilityMode NO SE DESBLOQUEA
         if (tipo == AbilityType.AbilityMode)
         {
-            Debug.Log("ℹ️ AbilityMode no se desbloquea; solo muestra el pop-up.");
+            Log.Info(this, "ℹ AbilityMode no se desbloquea; solo muestra el pop-up.");
 
             if (popupHabilidad != null)
             {
@@ -84,7 +84,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
                 popupHabilidad.Mostrar(datos.icono, datos.titulo, datos.descripcion);
             }
 
-            return; // ⛔ No continúa hacia el desbloqueo real
+            return; //  No continúa hacia el desbloqueo real
         }
 
         // === DESBLOQUEO NORMAL PARA OTRAS HABILIDADES ===
@@ -103,7 +103,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
             popupHabilidad.Mostrar(datos.icono, datos.titulo, datos.descripcion);
         }
 
-        Debug.Log($"🌀 Habilidad desbloqueada: {tipo}");
+        Log.Info(this, $"Habilidad desbloqueada: {tipo}");
     }
 
 
@@ -115,7 +115,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
         OnAbilityLocked.Invoke(tipo);
         SaveSystem.SetHabilidad(tipo, false);
 
-        Debug.Log($"🛑 Habilidad bloqueada: {tipo}");
+        Log.Info(this, $"Habilidad bloqueada: {tipo}");
     }
 
     public bool IsUnlocked(AbilityType tipo)
@@ -128,7 +128,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
         foreach (var tipo in new List<AbilityType>(habilidades.Keys))
             Lock(tipo);
 
-        Debug.Log("🔁 Todas las habilidades han sido bloqueadas (reset global).");
+        Log.Info(this, "Todas las habilidades han sido bloqueadas (reset global).");
     }
 
     public List<AbilityType> GetUnlockedAbilities()
@@ -144,7 +144,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     {
         foreach (var kvp in habilidades)
             SaveSystem.SetHabilidad(kvp.Key, kvp.Value);
-        Debug.Log("💾 Progreso de habilidades guardado.");
+        Log.Info(this, "Progreso de habilidades guardado.");
     }
 
     public void LoadProgress()
@@ -157,7 +157,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
                 OnAbilityUnlocked.Invoke(tipo);
         }
 
-        Debug.Log("📦 Habilidades cargadas desde PlayerPrefs.");
+        Log.Info(this, "Habilidades cargadas desde PlayerPrefs.");
     }
 
     // === SINCRONIZACIÓN CON EL JUGADOR ===
@@ -178,15 +178,15 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
                 jugador.RecibirHabilidad();
         }
 
-        Debug.Log("🔁 Habilidades sincronizadas con jugador en nueva escena.");
+        Log.Info(this, "Habilidades sincronizadas con jugador en nueva escena.");
     }
 
 #if UNITY_EDITOR
-    [ContextMenu("🧹 Resetear PlayerPrefs (debug)")]
+    [ContextMenu(" Resetear PlayerPrefs (debug)")]
 #endif
     public void ResetearProgresoDebug()
     {
-        Debug.Log("🧹 Reseteando TODAS las habilidades a estado bloqueado...");
+        Log.Info(this, "Reseteando TODAS las habilidades a estado bloqueado...");
 
         // 1. Borrar PlayerPrefs
         foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))
@@ -205,7 +205,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
         // 4. Reiniciar HUD si existe
         HUDHabilidad.Instance?.Reiniciar();
 
-        Debug.Log("✨ TODAS las habilidades fueron bloqueadas y el estado fue limpiado.");
+        Log.Info(this, "TODAS las habilidades fueron bloqueadas y el estado fue limpiado.");
         LoadProgress();
     }
 

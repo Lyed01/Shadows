@@ -155,7 +155,7 @@ public class TopLightDetector : LightDetectorBase
         meshRenderer.sharedMaterial =
             tipoLuz == TipoLuz.Roja ? materialRoja : materialAmarilla;
 
-        // ⚠ APAGADO MANUAL → luzActiva controla TODO el apagado real
+        //  APAGADO MANUAL  luzActiva controla TODO el apagado real
         if (!luzActiva)
         {
             if (meshRenderer != null)
@@ -180,7 +180,7 @@ public class TopLightDetector : LightDetectorBase
         // TITILEO
         ActualizarTitileo();
 
-        // ⚠ SI EL TITILEO APAGA → SOLO APAGA EL HAZ, NO LA LÁMPARA
+        //  SI EL TITILEO APAGA  SOLO APAGA EL HAZ, NO LA LÁMPARA
         if (!luzEncendida)
         {
             if (meshRenderer != null)
@@ -287,7 +287,7 @@ public class TopLightDetector : LightDetectorBase
             // --- JUGADOR ---
             if (hit.collider && hit.collider.TryGetComponent(out Jugador j))
                 j.Matar();
-            // 🔥 LUZ ROJA cenital elimina AbyssFlame
+            //  LUZ ROJA cenital elimina AbyssFlame
             if (tipoLuz == TipoLuz.Roja &&
                 hit.collider &&
                 hit.collider.TryGetComponent(out AbyssFlame flame))
@@ -315,7 +315,7 @@ public class TopLightDetector : LightDetectorBase
                     iluminadosEsteFrame.Add(sb);
                 }
 
-                // MirrorBlock → lo agregamos en la próxima versión
+                // MirrorBlock  lo agregamos en la próxima versión
                 // (si querés ya mismo te lo integro)
             }
 
@@ -571,7 +571,7 @@ public class TopLightDetector : LightDetectorBase
         yield return null;
 
         resetInProgress = false;
-        Debug.Log($"🔄 TopLight {name} reseteada.");
+        Log.Info(this, $"TopLight {name} reseteada.");
     }
 
 }

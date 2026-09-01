@@ -22,7 +22,7 @@ public class CursorManager : PersistentSingleton<CursorManager>
     protected override void OnBoot()
     {
         base.OnBoot();
-        Debug.Log("🟢 CursorManager persistente inicializado.");
+        Log.Info(this, "CursorManager persistente inicializado.");
         SetCursor(0); // Estado normal inicial
 
         // Suscribirse a eventos del sistema de habilidad
@@ -48,9 +48,9 @@ public class CursorManager : PersistentSingleton<CursorManager>
     {
         // Reforzar conexión con el EventSystem al cambiar escena
         if (EventSystem.current != null)
-            Debug.Log($"🧩 CursorManager: reconectado al EventSystem de {escena.name}");
+            Log.Info(this, $"CursorManager: reconectado al EventSystem de {escena.name}");
         else
-            Debug.LogWarning($"⚠️ CursorManager: no se encontró EventSystem en {escena.name}");
+            Log.Aviso(this, $"CursorManager: no se encontró EventSystem en {escena.name}");
     }
 
     void Update()

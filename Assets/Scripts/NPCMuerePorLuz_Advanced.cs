@@ -29,7 +29,7 @@ public class NPCMuerePorLuz_Advanced : MonoBehaviour
 
         yaMurio = true;
 
-        Debug.Log("💀 NPC murió por la luz: " + name);
+        Log.Info(this, "NPC murió por la luz: " + name);
 
         // Activar flag si corresponde
         if (!string.IsNullOrEmpty(flagAlMorir))

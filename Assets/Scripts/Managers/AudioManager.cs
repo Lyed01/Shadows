@@ -203,7 +203,7 @@ public class AudioManager : PersistentSingleton<AudioManager>
     {
         if (clip == null)
         {
-            Debug.LogWarning("⚠️ AudioManager: intento de reproducir un SFX nulo.");
+            Log.Aviso(this, "AudioManager: intento de reproducir un SFX nulo.");
             return;
         }
 

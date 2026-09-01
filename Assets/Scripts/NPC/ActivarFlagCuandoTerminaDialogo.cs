@@ -26,9 +26,9 @@ public class ActivarFlagCuandoTerminaDialogo : MonoBehaviour
         if (emisor == this.transform || emisor.IsChildOf(this.transform))
         {
             SceneStateManager.Instance.SetFlag(flagAActivar);
-            Debug.Log("🏁 FLAG ACTIVADA: " + flagAActivar + " por " + name);
+            Log.Info(this, "FLAG ACTIVADA: " + flagAActivar + " por " + name);
         }
-        Debug.Log("DEBUG FLAG: ultimoNPCQueHablo = " + DialogueSystemWorld.Instance.ultimoNPCQueHablo);
+        Log.Info(this, "DEBUG FLAG: ultimoNPCQueHablo = " + DialogueSystemWorld.Instance.ultimoNPCQueHablo);
 
     }
 }

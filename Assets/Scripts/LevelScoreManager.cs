@@ -108,7 +108,7 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
 
                 idNivel = so.idNivel;
 
-                Debug.Log($"[LevelScoreManager] Configuracion cargada para {escena}");
+                Log.Info(this, $"Configuracion cargada para {escena}");
                 return true;
             }
         }
@@ -176,9 +176,9 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
     {
         SaveSystem.GuardarResultado(nivelID, estrellas, tiempo, muertes, habilidades);
 
-        Debug.Log($"[LevelScoreManager] {nivelID}: {estrellas} estrellas, {tiempo:F1}s, {muertes} muertes, {habilidades} habilidades");
+        Log.Info(this, $"{nivelID}: {estrellas} estrellas, {tiempo:F1}s, {muertes} muertes, {habilidades} habilidades");
     }
-    [ContextMenu("🧹 Limpiar progreso de niveles (DEBUG)")]
+    [ContextMenu(" Limpiar progreso de niveles (DEBUG)")]
     public void ResetProgresoNiveles()
     {
         int cantidadReseteada = 0;
@@ -187,7 +187,7 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
             cantidadReseteada += SaveSystem.BorrarProgresoNivel($"Nivel{i}");
 
         SaveSystem.Guardar();
-        Debug.Log($"[LevelScoreManager] Progreso reseteado. Claves eliminadas: {cantidadReseteada}");
+        Log.Info(this, $"Progreso reseteado. Claves eliminadas: {cantidadReseteada}");
     }
 
 }

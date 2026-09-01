@@ -6,20 +6,20 @@ public static class MirrorBlockAbility
     {
         if (jugador == null)
         {
-            Debug.LogWarning("❌ MirrorBlockAbility: jugador nulo.");
+            Log.Aviso(typeof(MirrorBlockAbility), "jugador nulo.");
             return;
         }
 
         if (!Jugador.ModoHabilidadActivo)
         {
-            Debug.Log("⚠ No estás en modo habilidad (Space).");
+            Log.Info(typeof(MirrorBlockAbility), "No estás en modo habilidad (Space).");
             return;
         }
 
         var habilidad = AbilitySelector.Instance?.GetHabilidadActual();
         if (habilidad == null || habilidad.tipo != AbilityType.ReflectiveBlocks)
         {
-            Debug.Log("⚠ Habilidad actual no es ReflectiveBlocks.");
+            Log.Info(typeof(MirrorBlockAbility), "Habilidad actual no es ReflectiveBlocks.");
             return;
         }
 
@@ -31,7 +31,7 @@ public static class MirrorBlockAbility
         Collider2D[] hits = Physics2D.OverlapCircleAll(mousePos2D, 0.25f);
         if (hits.Length == 0)
         {
-            Debug.Log("⚠ No se detectó ningún objeto cerca del cursor.");
+            Log.Info(typeof(MirrorBlockAbility), "No se detectó ningún objeto cerca del cursor.");
             return;
         }
 
@@ -44,20 +44,20 @@ public static class MirrorBlockAbility
 
         if (mirror == null)
         {
-            Debug.Log("⚠ No se detectó un MirrorBlock bajo el cursor.");
+            Log.Info(typeof(MirrorBlockAbility), "No se detectó un MirrorBlock bajo el cursor.");
             return;
         }
 
         float distancia = Vector2.Distance(jugador.transform.position, mirror.transform.position);
         if (distancia > jugador.rangoHabilidad)
         {
-            Debug.Log("❌ Bloque fuera del rango de habilidad.");
+            Log.Info(typeof(MirrorBlockAbility), "Bloque fuera del rango de habilidad.");
             return;
         }
 
         // Rotar el haz
         mirror.RotarHaz();
-        AbilityManager.OnUsarHabilidad?.Invoke(); // ✅ Notifica uso de habilidad
-        Debug.Log($"🔁 MirrorBlock rotado: {mirror.name}");
+        AbilityManager.OnUsarHabilidad?.Invoke(); //  Notifica uso de habilidad
+        Log.Info(typeof(MirrorBlockAbility), $"MirrorBlock rotado: {mirror.name}");
     }
 }
