@@ -53,8 +53,10 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
         GameManager.OnPlayerDeath += ReiniciarCargasGlobales;
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
+
         GameManager.OnPlayerDeath -= ReiniciarCargasGlobales;
     }
 

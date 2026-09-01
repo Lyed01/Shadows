@@ -40,7 +40,11 @@ public class GameManager : PersistentSingleton<GameManager>
         Debug.Log("🟢 GameManager persistente inicializado.");
     }
 
-    private void OnDestroy() => SceneManager.sceneLoaded -= OnSceneLoaded;
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
 
     private void OnSceneLoaded(Scene escena, LoadSceneMode modo)
     {

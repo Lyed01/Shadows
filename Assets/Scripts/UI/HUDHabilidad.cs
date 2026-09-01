@@ -46,8 +46,10 @@ public class HUDHabilidad : PersistentSingleton<HUDHabilidad>
         GameManager.OnLevelRestart += Reiniciar;
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
+
         GameManager.OnPlayerDeath -= Reiniciar;
         GameManager.OnLevelRestart -= Reiniciar;
     }

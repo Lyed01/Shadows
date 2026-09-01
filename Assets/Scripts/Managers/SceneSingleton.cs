@@ -1,14 +1,15 @@
 using UnityEngine;
 
 /// <summary>
-/// Singleton que sobrevive a los cambios de escena. Los managers del juego
-/// viven en CoreManagers y se acceden desde cualquier escena por Instance.
+/// Singleton que vive dentro de una escena y muere con ella. Sirve para los
+/// elementos que son unicos por escena, como los popups del Hub o el selector
+/// de habilidades, y que no deben sobrevivir a un cambio de nivel.
 ///
-/// La clase derivada pone su inicializacion en OnBoot(), no en Awake(): asi
-/// solo corre en la instancia que realmente queda activa, y no en la copia que
-/// se descarta cuando ya habia una.
+/// La diferencia con PersistentSingleton es que este no llama a
+/// DontDestroyOnLoad, y que limpia Instance al destruirse: la escena siguiente
+/// trae la suya.
 /// </summary>
-public abstract class PersistentSingleton<T> : MonoBehaviour where T : MonoBehaviour
+public abstract class SceneSingleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     public static T Instance { get; private set; }
 
@@ -21,20 +22,18 @@ public abstract class PersistentSingleton<T> : MonoBehaviour where T : MonoBehav
         }
 
         Instance = this as T;
-        DontDestroyOnLoad(gameObject);
-        OnBoot();
+        OnAwake();
     }
 
     /// <summary>
     /// Inicializacion de la clase derivada. Corre una sola vez, en la instancia
     /// que queda viva.
     /// </summary>
-    protected virtual void OnBoot() { }
+    protected virtual void OnAwake() { }
 
     /// <summary>
     /// Las derivadas que necesiten limpiar suscripciones deben sobreescribirlo
-    /// y llamar a base.OnDestroy(), para que Instance no quede apuntando a un
-    /// objeto ya destruido.
+    /// y llamar a base.OnDestroy().
     /// </summary>
     protected virtual void OnDestroy()
     {

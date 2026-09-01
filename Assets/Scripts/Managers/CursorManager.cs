@@ -34,8 +34,10 @@ public class CursorManager : PersistentSingleton<CursorManager>
         UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
+
         Jugador.OnActivarHabilidad -= ActivarHabilidad;
         Jugador.OnDesactivarHabilidad -= DesactivarHabilidad;
         AbilityManager.OnUsarHabilidad -= HabilidadUsada;

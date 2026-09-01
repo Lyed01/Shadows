@@ -48,8 +48,10 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         GameManager.OnPlayerDeath += RegistrarMuerte;
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
+
         SceneManager.sceneLoaded -= OnSceneLoaded;
         AbilityManager.OnUsarHabilidad -= RegistrarUsoHabilidad;
         GameManager.OnPlayerDeath -= RegistrarMuerte;

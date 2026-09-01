@@ -58,8 +58,10 @@ public class UIManager : PersistentSingleton<UIManager>
 
 
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
+
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
