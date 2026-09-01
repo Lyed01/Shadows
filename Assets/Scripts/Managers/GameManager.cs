@@ -480,7 +480,6 @@ public class GameManager : PersistentSingleton<GameManager>
         foreach (var luz in FindObjectsByType<SpotLightDetector>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             luz.ResetToInitialState();
 
-        //  Reiniciar TopLights cenitales (si querés lo mismo)
         foreach (var top in FindObjectsByType<TopLightDetector>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             top.ResetToInitialState();
 

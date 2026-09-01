@@ -76,7 +76,6 @@ public class MirrorBlock : ShadowBlock
     // FLECHA DE DIRECCIÓN
     private void CrearFlechaDireccion()
     {
-        // Crear objeto hijo
         flechaGO = new GameObject("IndicadorFlecha");
         flechaGO.transform.SetParent(transform);
 
@@ -224,7 +223,6 @@ public class MirrorBlock : ShadowBlock
         Log.Info(this, $"MirrorBlock ajustó dirección inicial a {direccionActual}");
     }
 
-    // DESTRUIR BLOQUE
     public override void DestruirBloque()
     {
         if (luzInstancia != null)

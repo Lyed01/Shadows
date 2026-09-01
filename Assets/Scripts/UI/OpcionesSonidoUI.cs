@@ -18,7 +18,6 @@ public class OpcionesSonidoUI : MonoBehaviour
 
     void Start()
     {
-        // Cargar valores guardados
         volGeneralTemp = SaveSystem.VolumenMaestro;
         volMusicaTemp = SaveSystem.VolumenMusica;
         volEfectosTemp = SaveSystem.VolumenEfectos;
@@ -68,7 +67,6 @@ public class OpcionesSonidoUI : MonoBehaviour
             return;
         }
 
-        // Guardar preferencias
         SaveSystem.VolumenMaestro = volGeneralTemp;
         SaveSystem.VolumenMusica = volMusicaTemp;
         SaveSystem.VolumenEfectos = volEfectosTemp;

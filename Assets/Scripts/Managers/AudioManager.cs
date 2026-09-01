@@ -48,14 +48,12 @@ public class AudioManager : PersistentSingleton<AudioManager>
     {
         base.OnBoot();
 
-        // Crear canales si no existen
         musicaSource ??= gameObject.AddComponent<AudioSource>();
         musicaSource.loop = true;
 
         fxSource ??= gameObject.AddComponent<AudioSource>();
         uiSource ??= gameObject.AddComponent<AudioSource>();
 
-        // Cargar configuraciones previas
         volumenMusica = SaveSystem.VolumenMusica;
         volumenFX = SaveSystem.VolumenEfectos;
         volumenUI = SaveSystem.VolumenInterfaz;

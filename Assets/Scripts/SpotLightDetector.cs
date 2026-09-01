@@ -82,7 +82,6 @@ public class SpotLightDetector : LightDetectorBase
         anguloActual = Mathf.Atan2(direccion.y, direccion.x) * Mathf.Rad2Deg;
         anguloBase = anguloActual;
 
-        // Guardar estado inicial
         initPos = transform.position;
         initRot = transform.rotation;
 
@@ -278,7 +277,6 @@ public class SpotLightDetector : LightDetectorBase
             vertices.Add(transform.InverseTransformPoint(puntoMundo));
         }
 
-        // Aplicar daño por bloque
         foreach (var kvp in iluminadosEsteFrame)
         {
             float dist = kvp.Value;
@@ -338,7 +336,6 @@ public class SpotLightDetector : LightDetectorBase
         }
     }
 
-    // CREAR LUZ FREEFORM 2D
     private void CrearLuzHaz()
     {
         var existentes = GetComponentsInChildren<Light2D>(true);

@@ -87,7 +87,6 @@ public class StarProgressUI : MonoBehaviour
             return;
         }
 
-        // Limpia texto e inicia animación
         textoProgreso.text = "";
         iconoEstrella.enabled = true;
 

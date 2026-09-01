@@ -369,7 +369,6 @@ public class NPCDemostrador : MonoBehaviour
                 yield return new WaitForFixedUpdate();
             }
 
-            // detener
             flameNPC.SetDireccionNPC(Vector2.zero);
 
             // pequeña pausa opcional

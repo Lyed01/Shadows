@@ -39,7 +39,6 @@ public class ScreenFader : MonoBehaviour
         canvasGroup.blocksRaycasts = true;
     }
 
-    // Limpia inmediatamente (sin animación)
     public void InstantClear()
     {
         if (currentFade != null) StopCoroutine(currentFade);

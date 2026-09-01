@@ -113,7 +113,6 @@ public class PopupFragmentosUI : SceneSingleton<PopupFragmentosUI>
     }
 
 
-    // BUSCAR PUERTA CERCANA AL JUGADOR
     Door BuscarPuertaCercana()
     {
         float mejorDist = Mathf.Infinity;

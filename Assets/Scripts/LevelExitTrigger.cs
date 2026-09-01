@@ -33,7 +33,6 @@ public class LevelExitTrigger : MonoBehaviour
 
     private System.Collections.IEnumerator FlujoSalidaNivel(Jugador jugador)
     {
-        //  Reproducir sonido de fin de nivel
         AudioManager.Instance?.ReproducirUIClick();
 
         //  Bloquear input y detener tiempo parcialmente
@@ -48,7 +47,6 @@ public class LevelExitTrigger : MonoBehaviour
             int muertes = LevelScoreManager.Instance.GetMuertes();
             int habilidades = LevelScoreManager.Instance.GetHabilidadesUsadas();
 
-            // Calcular estrellas finales
             int estrellas = LevelScoreManager.Instance.CalcularEstrellasFinales();
 
             LevelScoreManager.Instance.GuardarResultados(nombreNivel, estrellas, tiempo, muertes, habilidades);
@@ -61,7 +59,6 @@ public class LevelExitTrigger : MonoBehaviour
 
         yield return new WaitForSeconds(GameManager.Instance.duracionFade);
 
-        //  Cargar escena final o Hub
         if (irAEscenaFinal)
         {
             Log.Info(this, $"LevelExitTrigger: Cargando escena final '{nombreEscenaFinal}'");

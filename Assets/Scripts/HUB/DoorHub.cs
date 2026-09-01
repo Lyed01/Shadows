@@ -43,7 +43,6 @@ public class DoorHub : MonoBehaviour
     {
         jugador = FindFirstObjectByType<Jugador>()?.transform;
 
-        // Cargar progreso y luz
         estrellas = SaveSystem.GetEstrellas(idNivel);
         ActualizarLuz();
     }

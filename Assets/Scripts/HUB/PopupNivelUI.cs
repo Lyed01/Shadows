@@ -45,7 +45,7 @@ public class PopupNivelUI : SceneSingleton<PopupNivelUI>
         if (panel != null)
             panel.localScale = escalaOculto;
 
-        //  NUEVO FIX — asegura que el canvas tenga cámara
+        // El canvas necesita camara asignada para posicionar el popup
         if (canvas == null)
             canvas = GetComponentInParent<Canvas>();
 

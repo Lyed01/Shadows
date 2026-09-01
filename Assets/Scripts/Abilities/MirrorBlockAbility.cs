@@ -27,7 +27,6 @@ public static class MirrorBlockAbility
         Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 mousePos2D = new Vector2(mouseWorld.x, mouseWorld.y);
 
-        // Buscar colisión alrededor del cursor
         Collider2D[] hits = Physics2D.OverlapCircleAll(mousePos2D, 0.25f);
         if (hits.Length == 0)
         {

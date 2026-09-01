@@ -90,7 +90,6 @@ public class Jugador : MonoBehaviour
         float inputY = Input.GetAxisRaw("Vertical");
         bool presionoSpace = Input.GetKeyDown(KeyCode.Space);
 
-        //  Actualizar timer de bloqueo inicial
         if (bloqueoHabilidadTimer > 0f)
             bloqueoHabilidadTimer -= Time.deltaTime;
         // === PRIORIDAD: ya estoy en modo habilidad ===
@@ -310,7 +309,7 @@ public class Jugador : MonoBehaviour
         ModoHabilidadActivo = false;
         hudHabilidad?.gameObject.SetActive(false);
 
-        // Por las dudas, restaurar constraints
+        // El modo habilidad congela la posicion: hay que soltarla siempre
         rb.constraints = constraintsOriginal;
     }
 

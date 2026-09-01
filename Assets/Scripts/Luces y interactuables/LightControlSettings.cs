@@ -197,7 +197,7 @@ public class TopLightControlSettings : LightControlSettingsBase
         cambioAplicado = false;
 
         if (top != null)
-            top.SetTipoLuz(top.tipoLuz);  // FIX — antes usaba un campo que NO existe
+            top.SetTipoLuz(top.tipoLuz);
     }
 
 

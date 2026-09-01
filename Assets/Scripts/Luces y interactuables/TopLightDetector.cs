@@ -285,8 +285,6 @@ public class TopLightDetector : LightDetectorBase
                     iluminadosEsteFrame.Add(sb);
                 }
 
-                // MirrorBlock  lo agregamos en la próxima versión
-                // (si querés ya mismo te lo integro)
             }
 
             vertices.Add(transform.InverseTransformPoint(punto));
