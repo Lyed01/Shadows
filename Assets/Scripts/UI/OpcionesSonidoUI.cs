@@ -19,10 +19,10 @@ public class OpcionesSonidoUI : MonoBehaviour
     void Start()
     {
         // Cargar valores guardados
-        volGeneralTemp = PlayerPrefs.GetFloat("VolMaster", 1f);
-        volMusicaTemp = PlayerPrefs.GetFloat("VolMusica", 0.7f);
-        volEfectosTemp = PlayerPrefs.GetFloat("VolEfectos", 1f);
-        muteTemp = PlayerPrefs.GetInt("Mute", 0) == 1;
+        volGeneralTemp = SaveSystem.VolumenMaestro;
+        volMusicaTemp = SaveSystem.VolumenMusica;
+        volEfectosTemp = SaveSystem.VolumenEfectos;
+        muteTemp = SaveSystem.Silenciado;
 
         // ✅ Permitir valores superiores a 1.0
         if (sliderGeneral)
@@ -69,11 +69,11 @@ public class OpcionesSonidoUI : MonoBehaviour
         }
 
         // Guardar preferencias
-        PlayerPrefs.SetFloat("VolMaster", volGeneralTemp);
-        PlayerPrefs.SetFloat("VolMusica", volMusicaTemp);
-        PlayerPrefs.SetFloat("VolEfectos", volEfectosTemp);
-        PlayerPrefs.SetInt("Mute", muteTemp ? 1 : 0);
-        PlayerPrefs.Save();
+        SaveSystem.VolumenMaestro = volGeneralTemp;
+        SaveSystem.VolumenMusica = volMusicaTemp;
+        SaveSystem.VolumenEfectos = volEfectosTemp;
+        SaveSystem.Silenciado = muteTemp;
+        SaveSystem.Guardar();
 
         Debug.Log($"💾 Volúmenes aplicados → Master={volGeneralTemp:F2} | Música={volMusicaTemp:F2} | FX={volEfectosTemp:F2} | Mute={muteTemp}");
     }

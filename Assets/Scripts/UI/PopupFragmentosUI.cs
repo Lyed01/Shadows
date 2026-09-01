@@ -96,7 +96,7 @@ public class PopupFragmentosUI : MonoBehaviour
 
         puertaActual = puertaMasCercana;
 
-        int actuales = PlayerPrefs.GetInt(puertaActual.claveFragmentos, 0);
+        int actuales = SaveSystem.GetFragmentos(puertaActual.claveFragmentos);
         int necesarios = puertaActual.fragmentosNecesarios;
 
         Vector3 pos = ObtenerPosicionSobrePuerta(puertaActual);

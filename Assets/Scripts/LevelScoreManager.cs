@@ -172,13 +172,9 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
 
     public void GuardarResultados(string nivelID, int estrellas, float tiempo, int muertes, int habilidades)
     {
-        PlayerPrefs.SetInt($"Nivel_{nivelID}_Estrellas", estrellas);
-        PlayerPrefs.SetFloat($"Nivel_{nivelID}_Tiempo", tiempo);
-        PlayerPrefs.SetInt($"Nivel_{nivelID}_Muertes", muertes);
-        PlayerPrefs.SetInt($"Nivel_{nivelID}_Habilidades", habilidades);
-        PlayerPrefs.Save();
+        SaveSystem.GuardarResultado(nivelID, estrellas, tiempo, muertes, habilidades);
 
-        Debug.Log($"💾 Guardado → {nivelID}: {estrellas}⭐ | {tiempo:F1}s | {muertes} muertes | {habilidades} habs");
+        Debug.Log($"[LevelScoreManager] {nivelID}: {estrellas} estrellas, {tiempo:F1}s, {muertes} muertes, {habilidades} habilidades");
     }
     [ContextMenu("🧹 Limpiar progreso de niveles (DEBUG)")]
     public void ResetProgresoNiveles()
@@ -186,28 +182,10 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         int cantidadReseteada = 0;
 
         for (int i = 1; i <= 50; i++)
-        {
-            string nivel = $"Nivel{i}";
-            string[] claves =
-            {
-            $"Nivel_{nivel}_Estrellas",
-            $"Nivel_{nivel}_Tiempo",
-            $"Nivel_{nivel}_Muertes",
-            $"Nivel_{nivel}_Habilidades"
-        };
+            cantidadReseteada += SaveSystem.BorrarProgresoNivel($"Nivel{i}");
 
-            foreach (string clave in claves)
-            {
-                if (PlayerPrefs.HasKey(clave))
-                {
-                    PlayerPrefs.DeleteKey(clave);
-                    cantidadReseteada++;
-                }
-            }
-        }
-
-        PlayerPrefs.Save();
-        Debug.Log($"🧹 Progreso reseteado. Claves eliminadas: {cantidadReseteada}");
+        SaveSystem.Guardar();
+        Debug.Log($"[LevelScoreManager] Progreso reseteado. Claves eliminadas: {cantidadReseteada}");
     }
 
 }

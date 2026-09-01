@@ -44,7 +44,7 @@ public class DoorHub : MonoBehaviour
         jugador = FindFirstObjectByType<Jugador>()?.transform;
 
         // Cargar progreso y luz
-        estrellas = PlayerPrefs.GetInt($"Nivel_{idNivel}_Estrellas", 0);
+        estrellas = SaveSystem.GetEstrellas(idNivel);
         ActualizarLuz();
     }
 
@@ -132,8 +132,7 @@ public class DoorHub : MonoBehaviour
     public void ActualizarProgreso(int nuevasEstrellas)
     {
         estrellas = Mathf.Max(estrellas, nuevasEstrellas);
-        PlayerPrefs.SetInt($"Nivel_{idNivel}_Estrellas", estrellas);
-        PlayerPrefs.Save();
+        SaveSystem.SetEstrellas(idNivel, estrellas);
         ActualizarLuz();
     }
 

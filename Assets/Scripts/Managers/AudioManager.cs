@@ -65,12 +65,12 @@ public class AudioManager : MonoBehaviour
         uiSource ??= gameObject.AddComponent<AudioSource>();
 
         // Cargar configuraciones previas
-        volumenMusica = PlayerPrefs.GetFloat("VolMusica", 0.7f);
-        volumenFX = PlayerPrefs.GetFloat("VolEfectos", 1f);
-        volumenUI = PlayerPrefs.GetFloat("VolGeneral", 0.8f);
-        multiplicadorGlobal = PlayerPrefs.GetFloat("VolMaster", 1f);
+        volumenMusica = SaveSystem.VolumenMusica;
+        volumenFX = SaveSystem.VolumenEfectos;
+        volumenUI = SaveSystem.VolumenInterfaz;
+        multiplicadorGlobal = SaveSystem.VolumenMaestro;
 
-        bool mute = PlayerPrefs.GetInt("Mute", 0) == 1;
+        bool mute = SaveSystem.Silenciado;
 
         if (mute)
         {
@@ -201,11 +201,11 @@ public class AudioManager : MonoBehaviour
 
     private void GuardarPreferencias()
     {
-        PlayerPrefs.SetFloat("VolMusica", volumenMusica);
-        PlayerPrefs.SetFloat("VolEfectos", volumenFX);
-        PlayerPrefs.SetFloat("VolGeneral", volumenUI);
-        PlayerPrefs.SetFloat("VolMaster", multiplicadorGlobal);
-        PlayerPrefs.Save();
+        SaveSystem.VolumenMusica = volumenMusica;
+        SaveSystem.VolumenEfectos = volumenFX;
+        SaveSystem.VolumenInterfaz = volumenUI;
+        SaveSystem.VolumenMaestro = multiplicadorGlobal;
+        SaveSystem.Guardar();
     }
 
     public void PlaySfx(AudioClip clip)

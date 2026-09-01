@@ -74,7 +74,7 @@ public class MainMenu : MonoBehaviour
         AbilityManager.Instance?.ResetearProgresoDebug();
 
         // Guardar PlayerPrefs
-        PlayerPrefs.Save();
+        SaveSystem.Guardar();
 
         Debug.Log("✨ Progreso reseteado completamente.");
     }

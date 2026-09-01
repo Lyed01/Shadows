@@ -93,8 +93,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
 
         OnAbilityUnlocked.Invoke(tipo);
 
-        PlayerPrefs.SetInt($"Habilidad_{tipo}", 1);
-        PlayerPrefs.Save();
+        SaveSystem.SetHabilidad(tipo, true);
 
         if (popupHabilidad != null)
         {
@@ -112,8 +111,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
 
         habilidades[tipo] = false;
         OnAbilityLocked.Invoke(tipo);
-        PlayerPrefs.SetInt($"Habilidad_{tipo}", 0);
-        PlayerPrefs.Save();
+        SaveSystem.SetHabilidad(tipo, false);
 
         Debug.Log($"🛑 Habilidad bloqueada: {tipo}");
     }
@@ -143,9 +141,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     public void SaveProgress()
     {
         foreach (var kvp in habilidades)
-            PlayerPrefs.SetInt($"Habilidad_{kvp.Key}", kvp.Value ? 1 : 0);
-
-        PlayerPrefs.Save();
+            SaveSystem.SetHabilidad(kvp.Key, kvp.Value);
         Debug.Log("💾 Progreso de habilidades guardado.");
     }
 
@@ -153,7 +149,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     {
         foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))
         {
-            bool desbloqueada = PlayerPrefs.GetInt($"Habilidad_{tipo}", 0) == 1;
+            bool desbloqueada = SaveSystem.GetHabilidad(tipo);
             habilidades[tipo] = desbloqueada;
             if (desbloqueada)
                 OnAbilityUnlocked.Invoke(tipo);
@@ -192,9 +188,9 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
 
         // 1. Borrar PlayerPrefs
         foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))
-            PlayerPrefs.DeleteKey($"Habilidad_{tipo}");
+            SaveSystem.BorrarHabilidad(tipo);
 
-        PlayerPrefs.Save();
+        SaveSystem.Guardar();
 
         // 2. Vaciar el diccionario interno correctamente
         foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))

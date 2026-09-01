@@ -29,7 +29,7 @@ public class StarProgressUI : MonoBehaviour
     void Start()
     {
 
-        Debug.Log("Fragmentos actuales: " + PlayerPrefs.GetInt("FragmentosTotales"));
+        Debug.Log($"[StarProgressUI] Fragmentos actuales: {SaveSystem.Fragmentos}");
        
         if (SceneManager.GetActiveScene().name == Escenas.Hub)
         {
@@ -214,18 +214,15 @@ public class StarProgressUI : MonoBehaviour
 
         for (int i = 1; i <= 50; i++)
         {
-            string clave = $"Nivel_Nivel{i}_Estrellas";
-            if (PlayerPrefs.HasKey(clave))
-                total += PlayerPrefs.GetInt(clave, 0);
+            total += SaveSystem.GetEstrellas($"Nivel{i}");
         }
 
         // El total alimenta a las puertas que exigen fragmentos. Se escribe solo
         // cuando cambia: este metodo corre cada dos segundos mientras el jugador
         // esta en el Hub, y PlayerPrefs.Save() va a disco.
-        if (PlayerPrefs.GetInt("FragmentosTotales", -1) != total)
+        if (SaveSystem.Fragmentos != total)
         {
-            PlayerPrefs.SetInt("FragmentosTotales", total);
-            PlayerPrefs.Save();
+            SaveSystem.Fragmentos = total;
             Debug.Log($"[StarProgressUI] Fragmentos totales: {total}");
         }
 

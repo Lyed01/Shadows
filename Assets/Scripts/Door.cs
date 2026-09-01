@@ -15,7 +15,7 @@ public class Door : MonoBehaviour
     [Header("Requisitos de progreso opcionales")]
     public bool requiereFragmentos = false;
     public int fragmentosNecesarios = 0;
-    public string claveFragmentos = "FragmentosTotales";
+    public string claveFragmentos = SaveSystem.ClaveFragmentos;
 
     [HideInInspector] public bool noReset = false;
 
@@ -78,7 +78,7 @@ public class Door : MonoBehaviour
         // === 3) Revisar fragmentos requeridos ===
         if (requiereFragmentos)
         {
-            int fragmentosActuales = PlayerPrefs.GetInt(claveFragmentos, 0);
+            int fragmentosActuales = SaveSystem.GetFragmentos(claveFragmentos);
 
             if (fragmentosActuales < fragmentosNecesarios)
             {

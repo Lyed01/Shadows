@@ -94,8 +94,7 @@ public class OpcionesGeneralController : MonoBehaviour
     // Reiniciar progreso
     private void ReiniciarProgreso()
     {
-        PlayerPrefs.DeleteAll();
-        PlayerPrefs.Save();
+        SaveSystem.BorrarTodo();
         Debug.Log("🎯 Progreso reiniciado.");
 
     }
