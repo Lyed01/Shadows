@@ -3,10 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
-public class HUDHabilidadNotificacion : MonoBehaviour
+public class HUDHabilidadNotificacion : PersistentSingleton<HUDHabilidadNotificacion>
 {
-    public static HUDHabilidadNotificacion Instance { get; private set; }
-
     [Header("Referencias UI")]
     public CanvasGroup canvasGroup;      // para fade in/out
     public TextMeshProUGUI texto;
@@ -21,21 +19,6 @@ public class HUDHabilidadNotificacion : MonoBehaviour
     public AudioClip sonidoNotificacion;
 
     private Coroutine rutinaActual;
-
-    void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-
-        if (canvasGroup != null)
-            canvasGroup.alpha = 0f;
-    }
 
     void OnEnable()
     {

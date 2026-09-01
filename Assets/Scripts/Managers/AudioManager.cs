@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager : PersistentSingleton<AudioManager>
 {
-    public static AudioManager Instance { get; private set; }
-
     [Header("Multiplicador global de volumen")]
     [Range(0.1f, 3f)] public float multiplicadorGlobal = 1f;
 
@@ -46,16 +44,9 @@ public class AudioManager : MonoBehaviour
     public List<AudioClip> sonidosHUDAdvertencia = new();
     public List<AudioClip> sonidosCorromperSuelo = new();
 
-    private void Awake()
+    protected override void OnBoot()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        base.OnBoot();
 
         // Crear canales si no existen
         musicaSource ??= gameObject.AddComponent<AudioSource>();

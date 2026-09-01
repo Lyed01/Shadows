@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class DialogueSystemWorld : MonoBehaviour
+public class DialogueSystemWorld : PersistentSingleton<DialogueSystemWorld>
 {
-    public static DialogueSystemWorld Instance { get; private set; }
-
     [Header("Configuración")]
     public GameObject prefabBurbuja;
     public Vector3 offset = new Vector3(0, 1.5f, 0);
@@ -21,18 +19,6 @@ public class DialogueSystemWorld : MonoBehaviour
     public Transform ultimoNPCQueHablo { get; private set; }
 
 
-
-    void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
 
     public void IniciarDialogo(DialogueData data, Transform npc)
     {
