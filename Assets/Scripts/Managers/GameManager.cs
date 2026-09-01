@@ -374,35 +374,22 @@ public class GameManager : PersistentSingleton<GameManager>
     }
 
     // HUB HELPERS
+    /// <summary>
+    /// Deja el popup del Hub listo tras cargar la escena o revivir al jugador.
+    /// Ya no hace falta avisarle a cada puerta: PopupNivelUI recorre el registro
+    /// de DoorHub por su cuenta y elige la mas cercana en cada frame.
+    /// </summary>
     private void ReactivarSistemaPopupsHub()
     {
-        Log.Info(this, "ReactivarSistemaPopupsHub() llamado. Escena actual: "
-                  + SceneManager.GetActiveScene().name
-                  + " | jugadorActual = " + (jugadorActual ? jugadorActual.name : "NULL"));
-
         var popup = FindFirstObjectByType<PopupNivelUI>(FindObjectsInactive.Include);
-        if (popup != null)
+
+        if (popup == null)
         {
-            popup.gameObject.SetActive(true);
-            Log.Info(this, "PopupNivelUI activo en Hub.");
-        }
-        else
-        {
-            Log.Aviso(this, "No encontré PopupNivelUI en el Hub.");
+            Log.Aviso(this, "No hay PopupNivelUI en el Hub");
+            return;
         }
 
-        var puertas = FindObjectsByType<DoorHub>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        Log.Info(this, "Puertas encontradas en Hub: " + puertas.Length);
-
-        if (puertas != null && jugadorActual != null)
-        {
-            foreach (var p in puertas)
-            {
-                Log.Info(this, "Mandando ForzarChequeoJugador a puerta: " + p.name);
-                p.SendMessage("ForzarChequeoJugador", jugadorActual, SendMessageOptions.DontRequireReceiver);
-            }
-            Log.Info(this, "Detección de puertas reactivada.");
-        }
+        popup.gameObject.SetActive(true);
     }
 
 

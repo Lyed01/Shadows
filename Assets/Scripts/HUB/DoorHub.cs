@@ -3,6 +3,14 @@
 [RequireComponent(typeof(Collider2D))]
 public class DoorHub : MonoBehaviour
 {
+    /// <summary>
+    /// Todas las puertas vivas del Hub. PopupNivelUI la recorre por indice en
+    /// cada frame para elegir la mas cercana al jugador, y por eso es una
+    /// SimpleArrayList: se llena una vez al cargar la escena y despues solo se
+    /// lee por posicion, que es donde la implementacion estatica rinde.
+    /// </summary>
+    public static readonly SimpleArrayList<DoorHub> Registradas = new SimpleArrayList<DoorHub>();
+
     [Header("Datos del nivel")]
     public string idNivel = "Nivel1";
     public string nombreEscenaNivel = "Nivel1";
@@ -25,94 +33,31 @@ public class DoorHub : MonoBehaviour
     public Transform puntoPopup;
 
     // runtime
-    private Transform jugador;
-    private bool popupVisible = false;
     private int estrellas = 0;
 
     private void OnEnable()
     {
-        GameManager.OnPlayerSpawned += OnPlayerSpawned;
+        if (!Registradas.Contains(this))
+            Registradas.Add(this);
     }
 
     private void OnDisable()
     {
-        GameManager.OnPlayerSpawned -= OnPlayerSpawned;
+        Registradas.Remove(this);
     }
 
     void Start()
     {
-        jugador = FindFirstObjectByType<Jugador>()?.transform;
-
         estrellas = SaveSystem.GetEstrellas(idNivel);
         ActualizarLuz();
     }
 
-    void Update()
-    {
-        if (jugador == null || PopupNivelUI.Instance == null) return;
+    /// <summary>Donde se ancla el popup de esta puerta.</summary>
+    public Vector3 PosicionPopup => puntoPopup != null ? puntoPopup.position : transform.position;
 
-        var posReferencia = (puntoPopup != null) ? puntoPopup.position : transform.position;
-        float dist = Vector2.Distance(jugador.position, transform.position);
-
-        if (dist <= distanciaActivacion)
-        {
-            if (!popupVisible)
-            {
-                popupVisible = true;
-                PopupNivelUI.Instance.Mostrar(this, posReferencia, tituloNivel, descripcionNivel, estrellas);
-            }
-            else
-            {
-                PopupNivelUI.Instance.ActualizarPosicion(posReferencia);
-            }
-        }
-        else if (popupVisible)
-        {
-            popupVisible = false;
-            PopupNivelUI.Instance.Ocultar();
-        }
-    }
-
-    //  llamado automáticamente por GameManager cuando se crea un nuevo jugador
-    private void OnPlayerSpawned(Jugador nuevoJugador)
-    {
-        if (nuevoJugador == null) return;
-
-        jugador = nuevoJugador.transform;
-        Log.Info(this, $"DoorHub [{idNivel}] reenganchó referencia al nuevo jugador.");
-
-        //  Chequeo inmediato por si el jugador renace dentro del área de activación
-        if (Vector2.Distance(jugador.position, transform.position) <= distanciaActivacion)
-        {
-            var posReferencia = (puntoPopup != null) ? puntoPopup.position : transform.position;
-            popupVisible = true;
-            PopupNivelUI.Instance?.Mostrar(this, posReferencia, tituloNivel, descripcionNivel, estrellas);
-        }
-    }
-
-
-    //  Llamado por GameManager después de respawn para corregir estados inconsistentes
-    public void ForzarChequeoJugador(Jugador j)
-    {
-        if (j == null) return;
-
-        jugador = j.transform;
-
-        float dist = Vector2.Distance(jugador.position, transform.position);
-        var posReferencia = (puntoPopup != null) ? puntoPopup.position : transform.position;
-
-        if (dist <= distanciaActivacion)
-        {
-            popupVisible = true;
-            PopupNivelUI.Instance?.Mostrar(this, posReferencia, tituloNivel, descripcionNivel, estrellas);
-        }
-        else
-        {
-            popupVisible = false;
-            PopupNivelUI.Instance?.Ocultar();
-        }
-    }
-
+    public float DistanciaActivacion => distanciaActivacion;
+    public string TituloNivel => tituloNivel;
+    public string DescripcionNivel => descripcionNivel;
 
     public int ObtenerEstrellas() => estrellas;
 

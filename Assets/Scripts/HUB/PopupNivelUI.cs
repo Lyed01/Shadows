@@ -28,6 +28,7 @@ public class PopupNivelUI : SceneSingleton<PopupNivelUI>
     public Vector2 offsetPantalla = new Vector2(0f, 60f);
 
     private DoorHub puertaActual;
+    private Transform jugador;
     private Coroutine animCoroutine;
     private Camera cam;
     private bool visible;
@@ -66,6 +67,81 @@ public class PopupNivelUI : SceneSingleton<PopupNivelUI>
     {
         if (botonJugar != null)
             botonJugar.onClick.AddListener(OnClickJugar);
+    }
+
+    void OnEnable()
+    {
+        GameManager.OnPlayerSpawned += RegistrarJugador;
+    }
+
+    void OnDisable()
+    {
+        GameManager.OnPlayerSpawned -= RegistrarJugador;
+    }
+
+    private void RegistrarJugador(Jugador j)
+    {
+        if (j != null) jugador = j.transform;
+    }
+
+    void Update()
+    {
+        if (jugador == null)
+        {
+            var enEscena = FindFirstObjectByType<Jugador>();
+            if (enEscena == null) return;
+            jugador = enEscena.transform;
+        }
+
+        DoorHub cercana = PuertaMasCercana();
+
+        if (cercana == null)
+        {
+            Ocultar();
+            return;
+        }
+
+        if (cercana != puertaActual || !visible)
+        {
+            Mostrar(cercana, cercana.PosicionPopup, cercana.TituloNivel,
+                    cercana.DescripcionNivel, cercana.ObtenerEstrellas());
+        }
+        else
+        {
+            ActualizarPosicion(cercana.PosicionPopup);
+        }
+    }
+
+    /// <summary>
+    /// Recorre el registro de puertas por indice y devuelve la mas cercana que
+    /// tenga al jugador dentro de su radio, o null si no hay ninguna.
+    ///
+    /// Antes cada una de las 26 puertas hacia esta cuenta en su propio Update y
+    /// pedia el popup por su cuenta, asi que dos puertas cercanas se lo
+    /// disputaban. Ahora la decision se toma en un solo lugar.
+    /// </summary>
+    private DoorHub PuertaMasCercana()
+    {
+        DoorHub elegida = null;
+        float mejorDistancia = float.MaxValue;
+
+        var puertas = DoorHub.Registradas;
+
+        for (int i = 0; i < puertas.Count; i++)
+        {
+            DoorHub puerta = puertas[i];
+            if (puerta == null) continue;
+
+            float distancia = Vector2.Distance(jugador.position, puerta.transform.position);
+
+            if (distancia <= puerta.DistanciaActivacion && distancia < mejorDistancia)
+            {
+                mejorDistancia = distancia;
+                elegida = puerta;
+            }
+        }
+
+        return elegida;
     }
 
     // === MOSTRAR / OCULTAR ===
