@@ -3,6 +3,36 @@ using System.Collections.Generic;
 
 public class AudioManager : PersistentSingleton<AudioManager>
 {
+    // === PRIORIDAD DE SONIDOS ===
+    // Cuando varios NPCs y sistemas piden un FX en el mismo frame (pasos,
+    // habilidades, muertes, avisos...) no se reproducen todos: se encolan con
+    // una prioridad y cada frame solo suenan los "maxFXPorFrame" mas
+    // importantes. El resto se descarta para no saturar de audio al jugador.
+    public const float PrioridadBaja = 1f;   // pasos
+    public const float PrioridadMedia = 2f;  // bloques, teletransporte, dialogo
+    public const float PrioridadAlta = 3f;   // muerte, habilidades especiales
+
+    private readonly struct SolicitudSonido
+    {
+        public readonly AudioClip Clip;
+        public readonly float Pitch;
+
+        public SolicitudSonido(AudioClip clip, float pitch)
+        {
+            Clip = clip;
+            Pitch = pitch;
+        }
+    }
+
+    [Header("Límite de sonidos simultáneos")]
+    [Tooltip("Cuantos FX de la cola se reproducen como máximo en cada frame. El resto de ese frame se descarta.")]
+    public int maxFXPorFrame = 3;
+
+    // Se pide siempre encolar (Enqueue) y muy pocas veces por frame se saca el
+    // de mayor prioridad (Dequeue): por eso conviene la implementación
+    // estática, que resuelve el alta en O(1) amortizado. Ver PruebaColasDePrioridad.
+    private readonly ISimplePriorityQueue<SolicitudSonido> colaFX = new SimpleArrayPriorityQueue<SolicitudSonido>();
+
     [Header("Multiplicador global de volumen")]
     [Range(0.1f, 3f)] public float multiplicadorGlobal = 1f;
 
@@ -87,18 +117,46 @@ public class AudioManager : PersistentSingleton<AudioManager>
 
     // === MÉTODOS PRINCIPALES ===
 
-    public void ReproducirFX(AudioClip clip)
+    /// <summary>
+    /// No reproduce el clip directamente: lo encola con su prioridad. La cola
+    /// se procesa una vez por frame en Update, que decide cuales suenan.
+    /// </summary>
+    public void ReproducirFX(AudioClip clip, float prioridad = PrioridadMedia)
     {
         if (clip == null) return;
-        fxSource.pitch = Random.Range(0.96f, 1.04f);
-        fxSource.PlayOneShot(clip, volumenFX * multiplicadorGlobal);
+        colaFX.Enqueue(new SolicitudSonido(clip, Random.Range(0.96f, 1.04f)), prioridad);
     }
 
-    public void ReproducirFX(List<AudioClip> clips)
+    public void ReproducirFX(List<AudioClip> clips, float prioridad = PrioridadMedia)
     {
         if (clips == null || clips.Count == 0) return;
         AudioClip clip = clips[Random.Range(0, clips.Count)];
-        ReproducirFX(clip);
+        ReproducirFX(clip, prioridad);
+    }
+
+    private void Update()
+    {
+        ProcesarColaDeFX();
+    }
+
+    /// <summary>
+    /// Saca de la cola los "maxFXPorFrame" pedidos de mayor prioridad y los
+    /// reproduce. Los que sobran ese frame se descartan: si en un mismo
+    /// instante suenan diez pasos y una muerte, la muerte gana el lugar.
+    /// </summary>
+    private void ProcesarColaDeFX()
+    {
+        int reproducidos = 0;
+
+        while (reproducidos < maxFXPorFrame && colaFX.Count > 0)
+        {
+            SolicitudSonido solicitud = colaFX.Dequeue();
+            fxSource.pitch = solicitud.Pitch;
+            fxSource.PlayOneShot(solicitud.Clip, volumenFX * multiplicadorGlobal);
+            reproducidos++;
+        }
+
+        colaFX.Clear();
     }
 
     public void ReproducirUI(AudioClip clip)
@@ -122,15 +180,15 @@ public class AudioManager : PersistentSingleton<AudioManager>
     public void ReproducirPaso(bool esCorrupto)
     {
         if (esCorrupto)
-            ReproducirFX(pasosCorruptos);
+            ReproducirFX(pasosCorruptos, PrioridadBaja);
         else
-            ReproducirFX(pasosNormales);
+            ReproducirFX(pasosNormales, PrioridadBaja);
     }
 
-    public void ReproducirMuerte() => ReproducirFX(sonidosMuerte);
+    public void ReproducirMuerte() => ReproducirFX(sonidosMuerte, PrioridadAlta);
     public void ReproducirBloque() => ReproducirFX(sonidosBloqueColocado);
     public void ReproducirTeleport() => ReproducirFX(sonidosTeleport);
-    public void ReproducirHabilidad() => ReproducirFX(sonidosHabilidadUsada);
+    public void ReproducirHabilidad() => ReproducirFX(sonidosHabilidadUsada, PrioridadAlta);
     public void ReproducirAdvertencia() =>
         ReproducirUI(sonidosHUDAdvertencia.Count > 0 ? sonidosHUDAdvertencia[Random.Range(0, sonidosHUDAdvertencia.Count)] : null);
     public void ReproducirCorromperSuelo() => ReproducirFX(sonidosCorromperSuelo);

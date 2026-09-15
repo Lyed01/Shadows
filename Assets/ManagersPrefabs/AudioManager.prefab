@@ -81,7 +81,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 9c6e9ad8332f0024e9f5efc45d53a45a, type: 3}
   sonidosHUDAdvertencia:
   - {fileID: 8300000, guid: 72ed7d08d6b515e4e8d04143a72510c2, type: 3}
-  sonidosCorromperSuelo: []
+  sonidosCorromperSuelo:
+  - {fileID: 8300000, guid: d096e7275845ff346b2d69e5eff1d9d2, type: 3}
 --- !u!82 &26630486122344783
 AudioSource:
   m_ObjectHideFlags: 0

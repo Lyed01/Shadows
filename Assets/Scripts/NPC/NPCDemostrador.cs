@@ -454,7 +454,7 @@ public class NPCDemostrador : MonoBehaviour
 
         // Sonido de muerte
         if (morir)
-            AudioManager.Instance?.ReproducirFX(morir);
+            AudioManager.Instance?.ReproducirFX(morir, AudioManager.PrioridadAlta);
 
         // ⏳ DAR TIEMPO A QUE SUENE
         yield return new WaitForSeconds(0.3f);
