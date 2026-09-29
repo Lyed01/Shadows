@@ -11,7 +11,7 @@ public class PopupHabilidadUI : MonoBehaviour
     public TMP_Text titulo;
     public TMP_Text descripcion;
 
-    [Header("Animación")]
+    [Header("Animacion")]
     public float fadeSpeed = 2f;
     public float tiempoVisible = 3f;
     public Vector3 scaleIn = Vector3.one;
