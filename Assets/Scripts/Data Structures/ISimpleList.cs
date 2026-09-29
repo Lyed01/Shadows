@@ -22,11 +22,17 @@ public interface ISimpleList<T> : IEnumerable<T>
     /// <summary>Inserta en una posicion, corriendo el resto hacia atras.</summary>
     void Insert(int indice, T item);
 
+    /// <summary>Agrega al final todos los elementos del arreglo recibido.</summary>
+    void AddRange(T[] items);
+
     /// <summary>Quita la primera aparicion del elemento. Devuelve si lo encontro.</summary>
     bool Remove(T item);
 
     /// <summary>Quita el elemento de una posicion.</summary>
     void RemoveAt(int indice);
+
+    /// <summary>Quita cantidad elementos empezando por indice.</summary>
+    void RemoveRange(int indice, int cantidad);
 
     /// <summary>Quita el primer elemento y lo devuelve.</summary>
     T RemoveFirst();
@@ -39,4 +45,7 @@ public interface ISimpleList<T> : IEnumerable<T>
 
     /// <summary>Vacia la lista.</summary>
     void Clear();
+
+    /// <summary>Copia los elementos a un arreglo nuevo, en orden.</summary>
+    T[] ToArray();
 }

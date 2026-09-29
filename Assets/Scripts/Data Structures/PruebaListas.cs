@@ -94,6 +94,24 @@ public class PruebaListas : MonoBehaviour
         lista[0] = "modificado";
         Verificar("El indexador escribe", lista[0] == "modificado");
 
+        int antesDelRange = lista.Count;
+        lista.AddRange(new[] { "r1", "r2", "r3" });
+        Verificar("AddRange agrega todos", lista.Count == antesDelRange + 3);
+        Verificar("AddRange respeta el orden",
+            lista[antesDelRange] == "r1" && lista[antesDelRange + 2] == "r3");
+
+        lista.RemoveRange(antesDelRange, 2);
+        Verificar("RemoveRange saca el tramo", lista.Count == antesDelRange + 1);
+        Verificar("RemoveRange deja lo que sigue", lista[antesDelRange] == "r3");
+        Verificar("RemoveRange no toca lo anterior", lista[0] == "modificado");
+
+        string[] copia = lista.ToArray();
+        Verificar("ToArray copia todo", copia.Length == lista.Count);
+        Verificar("ToArray respeta el orden", copia[0] == "modificado");
+
+        lista.RemoveRange(0, 0);
+        Verificar("RemoveRange de cero no cambia nada", lista.Count == copia.Length);
+
         int recorridos = 0;
         foreach (var _ in lista) recorridos++;
         Verificar("foreach recorre todo", recorridos == lista.Count);
@@ -116,6 +134,8 @@ public class PruebaListas : MonoBehaviour
         foreach (var _ in lista) recorridos++;
         Verificar("Lista vacia: foreach no itera", recorridos == 0);
 
+        Verificar("Lista vacia: ToArray devuelve vacio", lista.ToArray().Length == 0);
+
         lista.Add("unico");
         Verificar("Un elemento: es el primero y el ultimo",
             lista[0] == "unico" && lista.Count == 1);
@@ -128,6 +148,27 @@ public class PruebaListas : MonoBehaviour
 
         Verificar("Un elemento: Insert fuera de rango tira excepcion",
             Tira<ArgumentOutOfRangeException>(() => lista.Insert(5, "x")));
+
+        Verificar("AddRange de null tira excepcion",
+            Tira<ArgumentNullException>(() => lista.AddRange(null)));
+
+        Verificar("RemoveRange que se pasa del final tira excepcion",
+            Tira<ArgumentOutOfRangeException>(() => lista.RemoveRange(0, 5)));
+
+        Verificar("RemoveRange con cantidad negativa tira excepcion",
+            Tira<ArgumentOutOfRangeException>(() => lista.RemoveRange(0, -1)));
+
+        lista.AddRange(new[] { "a", "b" });
+        lista.RemoveRange(1, 2);
+        Verificar("RemoveRange hasta el final deja bien la cola", lista.Count == 1);
+        lista.Add("despues del corte");
+        Verificar("Y se puede seguir agregando",
+            lista.Count == 2 && lista[1] == "despues del corte");
+        lista.RemoveRange(0, lista.Count);
+        Verificar("RemoveRange de todo vacia la lista", lista.Count == 0);
+
+        // Se restaura el unico elemento, porque lo que sigue lo da por hecho.
+        lista.Add("unico");
 
         lista.RemoveFirst();
         Verificar("Sacar el unico deja la lista vacia", lista.Count == 0);

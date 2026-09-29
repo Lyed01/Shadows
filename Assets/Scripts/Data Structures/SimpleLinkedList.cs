@@ -97,6 +97,19 @@ public class SimpleLinkedList<T> : ISimpleList<T>
         cantidad++;
     }
 
+    /// <summary>
+    /// Agrega todos los elementos del arreglo al final, enlazandolos uno tras
+    /// otro. El puntero a la cola evita recorrer la lista en cada alta.
+    /// </summary>
+    public void AddRange(T[] items)
+    {
+        if (items == null)
+            throw new ArgumentNullException(nameof(items));
+
+        for (int i = 0; i < items.Length; i++)
+            Add(items[i]);
+    }
+
     public bool Remove(T item)
     {
         var comparador = EqualityComparer<T>.Default;
@@ -132,6 +145,41 @@ public class SimpleLinkedList<T> : ISimpleList<T>
         Desenlazar(anterior, anterior.Siguiente);
     }
 
+    /// <summary>
+    /// Quita un tramo completo. Busca una sola vez el nodo anterior al tramo y
+    /// despues saltea los nodos de una, sin volver a recorrer desde la cabeza
+    /// en cada baja.
+    /// </summary>
+    public void RemoveRange(int indice, int cantidadAQuitar)
+    {
+        if (indice < 0 || cantidadAQuitar < 0 || indice + cantidadAQuitar > cantidad)
+            throw new ArgumentOutOfRangeException(nameof(indice),
+                $"Rango [{indice}, {indice + cantidadAQuitar}) fuera de una lista de {cantidad} elementos.");
+
+        if (cantidadAQuitar == 0) return;
+
+        Nodo anterior = indice == 0 ? null : NodoEn(indice - 1);
+        Nodo actual = anterior == null ? cabeza : anterior.Siguiente;
+
+        for (int i = 0; i < cantidadAQuitar; i++)
+        {
+            Nodo siguiente = actual.Siguiente;
+            actual.Siguiente = null;
+            actual = siguiente;
+        }
+
+        if (anterior == null)
+            cabeza = actual;
+        else
+            anterior.Siguiente = actual;
+
+        // El tramo pudo llegar hasta el final, y ahi la cola cambia de lugar.
+        if (actual == null)
+            cola = anterior;
+
+        cantidad -= cantidadAQuitar;
+    }
+
     public T RemoveFirst()
     {
         if (cabeza == null)
@@ -165,6 +213,20 @@ public class SimpleLinkedList<T> : ISimpleList<T>
         cabeza = null;
         cola = null;
         cantidad = 0;
+    }
+
+    public T[] ToArray()
+    {
+        T[] copia = new T[cantidad];
+        Nodo actual = cabeza;
+
+        for (int i = 0; i < cantidad; i++)
+        {
+            copia[i] = actual.Valor;
+            actual = actual.Siguiente;
+        }
+
+        return copia;
     }
 
     /// <summary>Saca un nodo de la cadena y mantiene cabeza, cola y cantidad al dia.</summary>
