@@ -8,10 +8,12 @@ using System.Collections.Generic;
 /// llena, igual que SimpleArrayList.
 ///
 /// Conviene cuando lo que mas se hace es encolar (Enqueue), porque agregar es
-/// siempre appendear al final. El costo se paga al sacar el de mayor
-/// prioridad (Dequeue/Peek), que tiene que recorrer todo el arreglo para
-/// encontrarlo. Por eso es la eleccion correcta para un proceso donde las
-/// altas son mucho mas frecuentes que las bajas.
+/// siempre appendear al final. El costo se paga al sacar el mas prioritario
+/// (Dequeue/Peek), que tiene que recorrer todo el arreglo para encontrarlo.
+/// Por eso es la eleccion correcta para un proceso donde las altas son mucho
+/// mas frecuentes que las bajas.
+///
+/// El numero de prioridad mas chico es el que sale primero.
 ///
 ///   Enqueue       O(1) amortizado
 ///   Dequeue       O(n)
@@ -23,9 +25,9 @@ public class SimpleArrayPriorityQueue<T> : ISimplePriorityQueue<T>
     private struct Entrada
     {
         public T Item;
-        public float Prioridad;
+        public int Prioridad;
 
-        public Entrada(T item, float prioridad)
+        public Entrada(T item, int prioridad)
         {
             Item = item;
             Prioridad = prioridad;
@@ -52,10 +54,12 @@ public class SimpleArrayPriorityQueue<T> : ISimplePriorityQueue<T>
 
     public int Count => cantidad;
 
+    public bool IsEmpty => cantidad == 0;
+
     /// <summary>Cuantos elementos entran sin volver a agrandar el arreglo.</summary>
     public int Capacidad => elementos.Length;
 
-    public void Enqueue(T item, float prioridad)
+    public void Enqueue(T item, int prioridad)
     {
         AsegurarEspacio(cantidad + 1);
         elementos[cantidad] = new Entrada(item, prioridad);
@@ -64,7 +68,7 @@ public class SimpleArrayPriorityQueue<T> : ISimplePriorityQueue<T>
 
     public T Dequeue()
     {
-        int indice = IndiceDeMayorPrioridad();
+        int indice = IndiceDelMasPrioritario();
         T item = elementos[indice].Item;
 
         // El arreglo no esta ordenado, asi que no hace falta correr todo lo
@@ -79,13 +83,13 @@ public class SimpleArrayPriorityQueue<T> : ISimplePriorityQueue<T>
     public T Peek()
     {
         ValidarNoVacia();
-        return elementos[IndiceDeMayorPrioridad()].Item;
+        return elementos[IndiceDelMasPrioritario()].Item;
     }
 
-    public float PeekPriority()
+    public int GetHighestPriority()
     {
         ValidarNoVacia();
-        return elementos[IndiceDeMayorPrioridad()].Prioridad;
+        return elementos[IndiceDelMasPrioritario()].Prioridad;
     }
 
     public bool Contains(T item)
@@ -107,13 +111,29 @@ public class SimpleArrayPriorityQueue<T> : ISimplePriorityQueue<T>
         cantidad = 0;
     }
 
-    private int IndiceDeMayorPrioridad()
+    /// <summary>
+    /// Copia los items pendientes. Salen en el orden interno del arreglo, que
+    /// no es el de prioridad: el orden lo garantiza Dequeue, no el arreglo.
+    /// </summary>
+    public T[] ToArray()
+    {
+        T[] copia = new T[cantidad];
+
+        for (int i = 0; i < cantidad; i++)
+            copia[i] = elementos[i].Item;
+
+        return copia;
+    }
+
+    private int IndiceDelMasPrioritario()
     {
         ValidarNoVacia();
 
+        // Gana el numero mas chico. El > estricto deja ganar al primero que
+        // aparece cuando hay empate, que es el que llego antes.
         int mejor = 0;
         for (int i = 1; i < cantidad; i++)
-            if (elementos[i].Prioridad > elementos[mejor].Prioridad)
+            if (elementos[i].Prioridad < elementos[mejor].Prioridad)
                 mejor = i;
 
         return mejor;

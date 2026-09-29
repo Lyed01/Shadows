@@ -61,29 +61,33 @@ public class PruebaColasDePrioridad : MonoBehaviour
 
     private void ProbarContrato(ISimplePriorityQueue<string> cola)
     {
-        Verificar("Arranca vacia", cola.Count == 0);
+        Verificar("Arranca vacia", cola.Count == 0 && cola.IsEmpty);
 
-        cola.Enqueue("tarea comun", 1f);
-        cola.Enqueue("tarea urgente", 10f);
-        cola.Enqueue("tarea media", 5f);
+        // El numero mas chico es el que sale primero.
+        cola.Enqueue("tarea comun", 10);
+        cola.Enqueue("tarea urgente", 1);
+        cola.Enqueue("tarea media", 5);
         Verificar("Enqueue deja tres elementos", cola.Count == 3);
+        Verificar("Ya no esta vacia", !cola.IsEmpty);
 
-        Verificar("Peek devuelve el de mayor prioridad", cola.Peek() == "tarea urgente");
-        Verificar("PeekPriority devuelve su prioridad", cola.PeekPriority() == 10f);
+        Verificar("Peek devuelve el mas prioritario", cola.Peek() == "tarea urgente");
+        Verificar("GetHighestPriority devuelve su prioridad", cola.GetHighestPriority() == 1);
         Verificar("Peek no saca el elemento", cola.Count == 3);
 
         Verificar("Contains encuentra", cola.Contains("tarea media"));
         Verificar("Contains niega lo ausente", !cola.Contains("no existe"));
 
+        Verificar("ToArray devuelve todos los pendientes", cola.ToArray().Length == 3);
+
         string primero = cola.Dequeue();
-        Verificar("Dequeue devuelve el de mayor prioridad", primero == "tarea urgente");
+        Verificar("Dequeue devuelve el mas prioritario", primero == "tarea urgente");
         Verificar("Dequeue acorta la cola", cola.Count == 2);
 
         string segundo = cola.Dequeue();
         Verificar("Dequeue respeta el orden de prioridad", segundo == "tarea media");
 
-        cola.Enqueue("otra urgente", 10f);
-        cola.Enqueue("otra comun", 1f);
+        cola.Enqueue("otra urgente", 1);
+        cola.Enqueue("otra comun", 10);
         Verificar("Sigue aceptando altas despues de sacar elementos", cola.Count == 3);
 
         int recorridos = 0;
@@ -91,7 +95,7 @@ public class PruebaColasDePrioridad : MonoBehaviour
         Verificar("foreach recorre todo", recorridos == cola.Count);
 
         cola.Clear();
-        Verificar("Clear vacia", cola.Count == 0);
+        Verificar("Clear vacia", cola.Count == 0 && cola.IsEmpty);
     }
 
     private void ProbarCasosBorde(ISimplePriorityQueue<string> cola)
@@ -108,12 +112,18 @@ public class PruebaColasDePrioridad : MonoBehaviour
         foreach (var _ in cola) recorridos++;
         Verificar("Cola vacia: foreach no itera", recorridos == 0);
 
-        cola.Enqueue("unico", 3f);
+        Verificar("Cola vacia: ToArray devuelve vacio", cola.ToArray().Length == 0);
+
+        Verificar("Cola vacia: GetHighestPriority tira excepcion",
+            Tira<InvalidOperationException>(() => cola.GetHighestPriority()));
+
+        cola.Enqueue("unico", 9);
         Verificar("Un elemento: es el primero", cola.Peek() == "unico" && cola.Count == 1);
 
-        // Empate de prioridad: alcanza con que ambos salgan, sin importar el orden
-        cola.Enqueue("empate a", 7f);
-        cola.Enqueue("empate b", 7f);
+        // Empate de prioridad: las dos son mas prioritarias que 'unico', asi que
+        // salen antes; entre ellas el orden no se comprueba aca.
+        cola.Enqueue("empate a", 4);
+        cola.Enqueue("empate b", 4);
         Verificar("Prioridades empatadas: entran las dos", cola.Count == 3);
         cola.Dequeue();
         cola.Dequeue();
@@ -123,7 +133,7 @@ public class PruebaColasDePrioridad : MonoBehaviour
         Verificar("Sacar el unico deja la cola vacia", cola.Count == 0);
 
         // Encolar despues de vaciar valida que los punteros internos quedaron bien
-        cola.Enqueue("despues de vaciar", 1f);
+        cola.Enqueue("despues de vaciar", 1);
         Verificar("Vuelve a aceptar altas despues de vaciarse",
             cola.Count == 1 && cola.Peek() == "despues de vaciar");
     }

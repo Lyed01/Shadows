@@ -8,9 +8,11 @@ public class AudioManager : PersistentSingleton<AudioManager>
     // habilidades, muertes, avisos...) no se reproducen todos: se encolan con
     // una prioridad y cada frame solo suenan los "maxFXPorFrame" mas
     // importantes. El resto se descarta para no saturar de audio al jugador.
-    public const float PrioridadBaja = 1f;   // pasos
-    public const float PrioridadMedia = 2f;  // bloques, teletransporte, dialogo
-    public const float PrioridadAlta = 3f;   // muerte, habilidades especiales
+    // La cola atiende primero al numero mas chico, como los puestos de una
+    // carrera.
+    public const int PrioridadAlta = 1;   // muerte, habilidades especiales
+    public const int PrioridadMedia = 2;  // bloques, teletransporte, dialogo
+    public const int PrioridadBaja = 3;   // pasos
 
     private readonly struct SolicitudSonido
     {
@@ -121,13 +123,13 @@ public class AudioManager : PersistentSingleton<AudioManager>
     /// No reproduce el clip directamente: lo encola con su prioridad. La cola
     /// se procesa una vez por frame en Update, que decide cuales suenan.
     /// </summary>
-    public void ReproducirFX(AudioClip clip, float prioridad = PrioridadMedia)
+    public void ReproducirFX(AudioClip clip, int prioridad = PrioridadMedia)
     {
         if (clip == null) return;
         colaFX.Enqueue(new SolicitudSonido(clip, Random.Range(0.96f, 1.04f)), prioridad);
     }
 
-    public void ReproducirFX(List<AudioClip> clips, float prioridad = PrioridadMedia)
+    public void ReproducirFX(List<AudioClip> clips, int prioridad = PrioridadMedia)
     {
         if (clips == null || clips.Count == 0) return;
         AudioClip clip = clips[Random.Range(0, clips.Count)];
