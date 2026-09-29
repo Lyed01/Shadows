@@ -32,7 +32,21 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     public static Action OnUsarHabilidad;
 
     // === Estados internos ===
-    private readonly Dictionary<AbilityType, bool> habilidades = new();
+    /// <summary>
+    /// Las habilidades que el jugador tiene desbloqueadas. Es un conjunto: una
+    /// habilidad esta o no esta, nunca dos veces, y el orden no importa.
+    ///
+    /// Se usa la implementacion estatica. Las dos cuestan O(n) en todo, asi que
+    /// la eleccion no se decide por tiempo: el conjunto no pasa de cinco
+    /// elementos, uno por AbilityType, y entra entero en la capacidad inicial
+    /// del arreglo sin tener que agrandarlo nunca. Guardarlo contiguo cuesta
+    /// menos memoria que enlazar un nodo con su puntero por cada habilidad.
+    ///
+    /// Las consultas no corren por frame: se desbloquea al tocar un trigger o
+    /// terminar un dialogo, y se lee al cargar la partida y al spawnear al
+    /// jugador.
+    /// </summary>
+    private readonly ISimpleSet<AbilityType> desbloqueadas = new SimpleArraySet<AbilityType>();
 
     // === Eventos locales (para UI y feedback) ===
     public AbilityEvent OnAbilityUnlocked = new();
@@ -76,42 +90,50 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
         //  CASO ESPECIAL: AbilityMode NO SE DESBLOQUEA
         if (tipo == AbilityType.AbilityMode)
         {
-            Log.Info(this, "ℹ AbilityMode no se desbloquea; solo muestra el pop-up.");
+            Log.Info(this, "AbilityMode no se desbloquea; solo muestra el pop-up.");
 
             if (popupHabilidad != null)
-            {
-                var datos = ObtenerDatosHabilidad(tipo);
-                popupHabilidad.Mostrar(datos.icono, datos.titulo, datos.descripcion);
-            }
+                NotificarDesbloqueo(tipo);
 
             return; //  No continúa hacia el desbloqueo real
         }
 
         // === DESBLOQUEO NORMAL PARA OTRAS HABILIDADES ===
-        if (habilidades.TryGetValue(tipo, out bool activa) && activa)
+        // Add ya avisa si estaba: si devuelve false no hay nada nuevo que anunciar.
+        if (!desbloqueadas.Add(tipo))
             return;
-
-        habilidades[tipo] = true;
 
         OnAbilityUnlocked.Invoke(tipo);
 
         SaveSystem.SetHabilidad(tipo, true);
 
         if (popupHabilidad != null)
-        {
-            var datos = ObtenerDatosHabilidad(tipo);
-            popupHabilidad.Mostrar(datos.icono, datos.titulo, datos.descripcion);
-        }
+            NotificarDesbloqueo(tipo);
 
         Log.Info(this, $"Habilidad desbloqueada: {tipo}");
+    }
+
+    /// <summary>
+    /// Manda la notificacion a la fila del PopupManager en lugar de mostrarla
+    /// de una, asi dos desbloqueos seguidos no se pisan.
+    ///
+    /// El modo habilidad va primero cuando coincide con otro: es la mecanica
+    /// base y sin entenderla el resto no se puede usar.
+    /// </summary>
+    private void NotificarDesbloqueo(AbilityType tipo)
+    {
+        int prioridad = tipo == AbilityType.AbilityMode ? 1 : 2;
+
+        PopupManager.Obtener().EncolarHabilidad(
+            popupHabilidad, ObtenerDatosHabilidad(tipo), prioridad);
     }
 
 
     public void Lock(AbilityType tipo)
     {
-        if (!habilidades.ContainsKey(tipo)) return;
+        if (!desbloqueadas.Contains(tipo)) return;
 
-        habilidades[tipo] = false;
+        desbloqueadas.Remove(tipo);
         OnAbilityLocked.Invoke(tipo);
         SaveSystem.SetHabilidad(tipo, false);
 
@@ -120,12 +142,13 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
 
     public bool IsUnlocked(AbilityType tipo)
     {
-        return habilidades.ContainsKey(tipo) && habilidades[tipo];
+        return desbloqueadas.Contains(tipo);
     }
 
     public void ResetAll()
     {
-        foreach (var tipo in new List<AbilityType>(habilidades.Keys))
+        // Se copia antes de recorrer, porque Lock modifica el conjunto.
+        foreach (var tipo in desbloqueadas.ToArray())
             Lock(tipo);
 
         Log.Info(this, "Todas las habilidades han sido bloqueadas (reset global).");
@@ -133,17 +156,16 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
 
     public List<AbilityType> GetUnlockedAbilities()
     {
-        List<AbilityType> activas = new();
-        foreach (var kvp in habilidades)
-            if (kvp.Value) activas.Add(kvp.Key);
-        return activas;
+        return new List<AbilityType>(desbloqueadas.ToArray());
     }
 
     // === PERSISTENCIA DE HABILIDADES ===
     public void SaveProgress()
     {
-        foreach (var kvp in habilidades)
-            SaveSystem.SetHabilidad(kvp.Key, kvp.Value);
+        // Se recorre el enum y no el conjunto, porque tambien hay que dejar
+        // guardadas en false las que no estan desbloqueadas.
+        foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))
+            SaveSystem.SetHabilidad(tipo, desbloqueadas.Contains(tipo));
         Log.Info(this, "Progreso de habilidades guardado.");
     }
 
@@ -151,10 +173,10 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     {
         foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))
         {
-            bool desbloqueada = SaveSystem.GetHabilidad(tipo);
-            habilidades[tipo] = desbloqueada;
-            if (desbloqueada)
-                OnAbilityUnlocked.Invoke(tipo);
+            if (!SaveSystem.GetHabilidad(tipo)) continue;
+
+            desbloqueadas.Add(tipo);
+            OnAbilityUnlocked.Invoke(tipo);
         }
 
         Log.Info(this, "Habilidades cargadas desde PlayerPrefs.");
@@ -172,11 +194,8 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
             hud.Reiniciar();
         }
 
-        foreach (AbilityType tipo in habilidades.Keys)
-        {
-            if (habilidades[tipo])
-                jugador.RecibirHabilidad();
-        }
+        foreach (AbilityType _ in desbloqueadas)
+            jugador.RecibirHabilidad();
 
         Log.Info(this, "Habilidades sincronizadas con jugador en nueva escena.");
     }
@@ -194,9 +213,8 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
 
         SaveSystem.Guardar();
 
-        // 2. Vaciar el diccionario interno correctamente
-        foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))
-            habilidades[tipo] = false;
+        // 2. Vaciar el conjunto interno
+        desbloqueadas.Clear();
 
         // 3. Emitir eventos de bloqueo para que la UI se actualice
         foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))

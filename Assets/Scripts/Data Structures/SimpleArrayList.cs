@@ -78,6 +78,24 @@ public class SimpleArrayList<T> : ISimpleList<T>
         cantidad++;
     }
 
+    /// <summary>
+    /// Agrega todos los elementos del arreglo al final. Pide el espacio una
+    /// sola vez en lugar de dejar que Add lo pida en cada vuelta.
+    /// </summary>
+    public void AddRange(T[] items)
+    {
+        if (items == null)
+            throw new ArgumentNullException(nameof(items));
+
+        AsegurarEspacio(cantidad + items.Length);
+
+        for (int i = 0; i < items.Length; i++)
+        {
+            elementos[cantidad] = items[i];
+            cantidad++;
+        }
+    }
+
     public bool Remove(T item)
     {
         int indice = IndexOf(item);
@@ -98,6 +116,28 @@ public class SimpleArrayList<T> : ISimpleList<T>
         // Se limpia la ultima celda para no retener una referencia que ya no
         // pertenece a la lista y evitar que el recolector la de por viva.
         elementos[cantidad] = default;
+    }
+
+    /// <summary>
+    /// Quita un tramo completo. Corre lo que queda una sola vez, en vez de
+    /// llamar a RemoveAt en cada posicion y desplazar la cola una vez por
+    /// elemento.
+    /// </summary>
+    public void RemoveRange(int indice, int cantidadAQuitar)
+    {
+        if (indice < 0 || cantidadAQuitar < 0 || indice + cantidadAQuitar > cantidad)
+            throw new ArgumentOutOfRangeException(nameof(indice),
+                $"Rango [{indice}, {indice + cantidadAQuitar}) fuera de una lista de {cantidad} elementos.");
+
+        if (cantidadAQuitar == 0) return;
+
+        for (int i = indice; i < cantidad - cantidadAQuitar; i++)
+            elementos[i] = elementos[i + cantidadAQuitar];
+
+        for (int i = cantidad - cantidadAQuitar; i < cantidad; i++)
+            elementos[i] = default;
+
+        cantidad -= cantidadAQuitar;
     }
 
     public T RemoveFirst()
@@ -129,6 +169,16 @@ public class SimpleArrayList<T> : ISimpleList<T>
             elementos[i] = default;
 
         cantidad = 0;
+    }
+
+    public T[] ToArray()
+    {
+        T[] copia = new T[cantidad];
+
+        for (int i = 0; i < cantidad; i++)
+            copia[i] = elementos[i];
+
+        return copia;
     }
 
     private void ValidarIndice(int indice)

@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections;
 
-public class PopupNivelUI : SceneSingleton<PopupNivelUI>
+public class PopupNivelUI : SceneSingleton<PopupNivelUI>, IPopupArbitrado
 {
     [Header("Referencias UI")]
     public Canvas canvas;                 // Canvas del Hub (Screen Space Camera)
@@ -28,6 +28,7 @@ public class PopupNivelUI : SceneSingleton<PopupNivelUI>
     public Vector2 offsetPantalla = new Vector2(0f, 60f);
 
     private DoorHub puertaActual;
+    private DoorHub candidata;
     private Transform jugador;
     private Coroutine animCoroutine;
     private Camera cam;
@@ -93,24 +94,37 @@ public class PopupNivelUI : SceneSingleton<PopupNivelUI>
             jugador = enEscena.transform;
         }
 
-        DoorHub cercana = PuertaMasCercana();
+        candidata = PuertaMasCercana();
 
-        if (cercana == null)
+        if (candidata == null)
         {
             Ocultar();
             return;
         }
 
-        if (cercana != puertaActual || !visible)
+        // No se muestra por su cuenta: se postula y el manager decide, porque
+        // el popup de fragmentos puede estar pidiendo la pantalla al mismo
+        // tiempo.
+        PopupManager.Obtener().Postular(this, PopupManager.PrioridadNivel);
+    }
+
+    // === ARBITRAJE ===
+    public void MostrarPopup()
+    {
+        if (candidata == null) return;
+
+        if (candidata != puertaActual || !visible)
         {
-            Mostrar(cercana, cercana.PosicionPopup, cercana.TituloNivel,
-                    cercana.DescripcionNivel, cercana.ObtenerEstrellas());
+            Mostrar(candidata, candidata.PosicionPopup, candidata.TituloNivel,
+                    candidata.DescripcionNivel, candidata.ObtenerEstrellas());
         }
         else
         {
-            ActualizarPosicion(cercana.PosicionPopup);
+            ActualizarPosicion(candidata.PosicionPopup);
         }
     }
+
+    public void OcultarPopup() => Ocultar();
 
     /// <summary>
     /// Recorre el registro de puertas por indice y devuelve la mas cercana que

@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
-public class PopupFragmentosUI : SceneSingleton<PopupFragmentosUI>
+public class PopupFragmentosUI : SceneSingleton<PopupFragmentosUI>, IPopupArbitrado
 {
     [Header("UI")]
     public CanvasGroup canvasGroup;
@@ -25,6 +25,7 @@ public class PopupFragmentosUI : SceneSingleton<PopupFragmentosUI>
     private Door[] puertasConFragmentos = new Door[0];
     private Transform jugador;
     private Door puertaActual;
+    private Door candidata;
     private Coroutine anim;
     private bool visible = false;
     private Vector3 worldPosObjetivo; // <-- NUEVO (posición que debe seguir)
@@ -83,34 +84,33 @@ public class PopupFragmentosUI : SceneSingleton<PopupFragmentosUI>
     {
         if (jugador == null) return;
 
-        Door puertaMasCercana = BuscarPuertaCercana();
+        candidata = BuscarPuertaCercana();
 
-        if (puertaMasCercana == null)
+        if (candidata == null)
         {
             Ocultar();
             return;
         }
 
-        puertaActual = puertaMasCercana;
-
-        int actuales = SaveSystem.GetFragmentos(puertaActual.claveFragmentos);
-        int necesarios = puertaActual.fragmentosNecesarios;
-
-        Vector3 pos = ObtenerPosicionSobrePuerta(puertaActual);
-
-        Mostrar(pos, actuales, necesarios, puertaMasCercana);
-
+        // Es el de menor prioridad: si hay una puerta de nivel cerca, o una
+        // notificacion de habilidad en curso, le deja la pantalla.
+        PopupManager.Obtener().Postular(this, PopupManager.PrioridadFragmentos);
     }
 
-    void LateUpdate()
+    // === ARBITRAJE ===
+    public void MostrarPopup()
     {
-        if (visible && puertaActual != null)
-        {
-            // Se reposiciona constantemente encima de la puerta
-            worldPosObjetivo = ObtenerPosicionSobrePuerta(puertaActual);
-            ActualizarPosicion(worldPosObjetivo);
-        }
+        if (candidata == null) return;
+
+        // Mostrar corre en cada frame que gana el turno, asi que ademas de
+        // aparecer mantiene el cartel pegado encima de la puerta.
+        int actuales = SaveSystem.GetFragmentos(candidata.claveFragmentos);
+
+        Mostrar(ObtenerPosicionSobrePuerta(candidata), actuales,
+                candidata.fragmentosNecesarios, candidata);
     }
+
+    public void OcultarPopup() => Ocultar();
 
 
     Door BuscarPuertaCercana()

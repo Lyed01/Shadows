@@ -4,10 +4,12 @@ using System.Collections.Generic;
 
 /// <summary>
 /// Implementacion dinamica del TDA Priority Queue: cada elemento vive en su
-/// propio nodo, y los nodos se mantienen siempre ordenados de mayor a menor
-/// prioridad. La cabeza es, por construccion, el de mayor prioridad.
+/// propio nodo, y los nodos se mantienen siempre ordenados por prioridad. La
+/// cabeza es, por construccion, el mas prioritario.
 ///
-/// Conviene cuando lo que mas se hace es sacar el de mayor prioridad
+/// El numero de prioridad mas chico es el que sale primero.
+///
+/// Conviene cuando lo que mas se hace es sacar el mas prioritario
 /// (Dequeue/Peek), porque ya esta ubicado en la cabeza y no hay nada que
 /// buscar. El costo se paga al encolar (Enqueue), que tiene que recorrer la
 /// cadena para encontrar el lugar donde insertar y mantener el orden.
@@ -22,10 +24,10 @@ public class SimpleLinkedPriorityQueue<T> : ISimplePriorityQueue<T>
     private class Nodo
     {
         public T Item;
-        public float Prioridad;
+        public int Prioridad;
         public Nodo Siguiente;
 
-        public Nodo(T item, float prioridad)
+        public Nodo(T item, int prioridad)
         {
             Item = item;
             Prioridad = prioridad;
@@ -38,21 +40,24 @@ public class SimpleLinkedPriorityQueue<T> : ISimplePriorityQueue<T>
 
     public int Count => cantidad;
 
-    public void Enqueue(T item, float prioridad)
+    public bool IsEmpty => cantidad == 0;
+
+    public void Enqueue(T item, int prioridad)
     {
         Nodo nuevo = new Nodo(item, prioridad);
 
-        if (cabeza == null || prioridad > cabeza.Prioridad)
+        if (cabeza == null || prioridad < cabeza.Prioridad)
         {
             nuevo.Siguiente = cabeza;
             cabeza = nuevo;
         }
         else
         {
-            // Se busca el ultimo nodo cuya prioridad todavia es mayor o igual
-            // a la nueva, para insertar justo despues y no romper el orden.
+            // Se avanza mientras el siguiente sea igual de prioritario o mas,
+            // para insertar despues de todos ellos: asi un empate respeta el
+            // orden de llegada.
             Nodo actual = cabeza;
-            while (actual.Siguiente != null && actual.Siguiente.Prioridad >= prioridad)
+            while (actual.Siguiente != null && actual.Siguiente.Prioridad <= prioridad)
                 actual = actual.Siguiente;
 
             nuevo.Siguiente = actual.Siguiente;
@@ -79,7 +84,7 @@ public class SimpleLinkedPriorityQueue<T> : ISimplePriorityQueue<T>
         return cabeza.Item;
     }
 
-    public float PeekPriority()
+    public int GetHighestPriority()
     {
         ValidarNoVacia();
         return cabeza.Prioridad;
@@ -97,6 +102,24 @@ public class SimpleLinkedPriorityQueue<T> : ISimplePriorityQueue<T>
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Copia los items pendientes. Como los nodos se mantienen ordenados, el
+    /// arreglo sale en orden de prioridad.
+    /// </summary>
+    public T[] ToArray()
+    {
+        T[] copia = new T[cantidad];
+        Nodo actual = cabeza;
+
+        for (int i = 0; i < cantidad; i++)
+        {
+            copia[i] = actual.Item;
+            actual = actual.Siguiente;
+        }
+
+        return copia;
     }
 
     public void Clear()
