@@ -32,19 +32,42 @@ public class MirrorBlock : ShadowBlock
     private Vector2 direccionActual;
     public Vector2 DireccionActual => direccionActual;
 
-    // START
-    protected override void Start()
+    // Direccion con la que viene el prefab. RotarHaz pisa direccionInicial, asi
+    // que sin esta copia un bloque reciclado heredaria la rotacion del anterior.
+    private Vector2 direccionDelPrefab;
+    private bool direccionGuardada;
+
+    protected override void Inicializar()
     {
-        base.Start();
+        base.Inicializar();
 
         sr = GetComponent<SpriteRenderer>();
 
-        direccionActual = direccionInicial;
+        if (!direccionGuardada)
+        {
+            direccionDelPrefab = direccionInicial;
+            direccionGuardada = true;
+        }
 
-        if (spriteNormal != null)
+        CrearFlechaDireccion();
+    }
+
+    public override void Reiniciar()
+    {
+        base.Reiniciar();
+
+        ApagarLuzReflejada();
+
+        recibiendoLuz = false;
+        tiempoSinLuz = 0f;
+
+        direccionInicial = direccionDelPrefab;
+        direccionActual = direccionDelPrefab;
+
+        if (sr != null && spriteNormal != null)
             sr.sprite = spriteNormal;
 
-        CrearFlechaDireccion(); //  AÑADIR ESTO
+        ActualizarFlecha();
     }
 
 
@@ -76,6 +99,9 @@ public class MirrorBlock : ShadowBlock
     // FLECHA DE DIRECCIÓN
     private void CrearFlechaDireccion()
     {
+        // Un bloque reciclado ya la tiene: sin esto se acumularia una por uso.
+        if (flechaGO != null) return;
+
         flechaGO = new GameObject("IndicadorFlecha");
         flechaGO.transform.SetParent(transform);
 
@@ -225,8 +251,7 @@ public class MirrorBlock : ShadowBlock
 
     public override void DestruirBloque()
     {
-        if (luzInstancia != null)
-            Destroy(luzInstancia);
+        ApagarLuzReflejada();
 
         base.DestruirBloque();
     }

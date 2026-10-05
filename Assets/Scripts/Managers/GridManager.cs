@@ -44,6 +44,12 @@ public class GridManager : MonoBehaviour
     // === Datos internos ===
     private Dictionary<Vector3Int, CellData> celdas = new();
     private List<GameObject> bloquesInstanciados = new();
+
+    /// <summary>
+    /// Recicla los bloques en vez de crear y destruir uno por colocación.
+    /// Vive acá porque los bloques son de la escena y mueren con ella.
+    /// </summary>
+    private readonly PoolDeBloques pool = new();
     private List<Vector3Int> celdasMostradas = new();
 
     void Start()
@@ -110,19 +116,18 @@ public class GridManager : MonoBehaviour
         //  Colocación exitosa
         Vector3 spawnPos = sueloTilemap.GetCellCenterWorld(cellPos);
         GameObject prefab = reflectante ? prefabBloqueReflectante : prefabBloque;
-        GameObject bloque = Instantiate(prefab, spawnPos, Quaternion.identity);
 
-        ShadowBlock sb = bloque.GetComponent<ShadowBlock>();
-        if (sb != null)
-        {
-            sb.cellPos = cellPos;
-            sb.gridManager = this;
-            sb.hudHabilidad = hudHabilidad;
-        }
+        ShadowBlock sb = pool.Obtener(prefab, spawnPos);
+        if (sb == null)
+            return ResultadoColocacion.NoExisteCelda;
+
+        sb.cellPos = cellPos;
+        sb.gridManager = this;
+        sb.hudHabilidad = hudHabilidad;
 
         data.occupied = true;
         celdas[cellPos] = data;
-        bloquesInstanciados.Add(bloque);
+        bloquesInstanciados.Add(sb.gameObject);
 
         return ResultadoColocacion.Exito;
     }
@@ -130,9 +135,25 @@ public class GridManager : MonoBehaviour
     public void EliminarShadowBlocks()
     {
         foreach (GameObject b in bloquesInstanciados)
-            if (b != null) Destroy(b);
+        {
+            if (b == null) continue;
+
+            // Vuelven al pool en vez de destruirse, pero sin pasar por
+            // DestruirBloque: esto es una limpieza, no una muerte, y no tiene
+            // que devolver cargas ni avisar a nadie.
+            ShadowBlock sb = b.GetComponent<ShadowBlock>();
+            if (sb != null)
+                pool.Devolver(sb);
+            else
+                Destroy(b);
+        }
 
         bloquesInstanciados.Clear();
+    }
+
+    private void OnDestroy()
+    {
+        pool.Vaciar();
     }
 
     public void ResetearCeldas()
@@ -143,6 +164,16 @@ public class GridManager : MonoBehaviour
             if (kvp.Value.unlocked)
                 sueloTilemap.SetTile(kvp.Key, tileDesbloqueado);
         }
+    }
+
+    /// <summary>
+    /// Saca el bloque de la lista de colocados. Lo llama el propio bloque al
+    /// morir: como ahora se recicla en vez de destruirse, su GameObject sigue
+    /// vivo y sin esto quedaría anotado dos veces cuando vuelva a usarse.
+    /// </summary>
+    public void OlvidarBloque(GameObject bloque)
+    {
+        bloquesInstanciados.Remove(bloque);
     }
 
     public void LiberarCelda(Vector3Int cellPos)

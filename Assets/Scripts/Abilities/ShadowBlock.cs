@@ -25,14 +25,30 @@ public class ShadowBlock : MonoBehaviour
     // Marca de tiempo para evitar liberar celdas si se destruye instantáneamente
     private float tiempoCreacion;
 
+    private bool inicializado;
+
     protected virtual void Awake()
     {
         tiempoCreacion = Time.time;
     }
+
     // === Ciclo de vida ===
     protected virtual void Start()
     {
-        vidaActual = vidaBajoLuz;
+        Inicializar();
+        Reiniciar();
+    }
+
+    /// <summary>
+    /// Lo que se arma una sola vez en la vida del objeto: cachear componentes y
+    /// crear la barra de vida. Separado de Reiniciar porque el bloque se recicla
+    /// desde el pool, y entonces Start no vuelve a correr.
+    /// </summary>
+    protected virtual void Inicializar()
+    {
+        if (inicializado) return;
+        inicializado = true;
+
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         if (spriteOriginal == null && spriteRenderer != null)
@@ -43,7 +59,27 @@ public class ShadowBlock : MonoBehaviour
             GameObject barra = Instantiate(barraPrefab, transform);
             barra.transform.localPosition = new Vector3(0, 0.6f, 0);
             barraInstanciada = barra.GetComponent<LifeBar>();
-            barraInstanciada?.SetVida(vidaActual, vidaBajoLuz);
+        }
+    }
+
+    /// <summary>
+    /// Deja el bloque como recién colocado. Lo llama el pool antes de volver a
+    /// entregarlo, porque el objeto reciclado conserva el estado del uso anterior.
+    /// </summary>
+    public virtual void Reiniciar()
+    {
+        Inicializar();
+
+        tiempoCreacion = Time.time;
+        vidaActual = vidaBajoLuz;
+        bajoLuz = false;
+
+        if (spriteRenderer != null && spriteOriginal != null)
+            spriteRenderer.sprite = spriteOriginal;
+
+        if (barraInstanciada != null)
+        {
+            barraInstanciada.SetVida(vidaActual, vidaBajoLuz);
             barraInstanciada.gameObject.SetActive(false); // invisible hasta recibir daño
         }
     }
@@ -147,9 +183,31 @@ public class ShadowBlock : MonoBehaviour
                 gridManager.LiberarCelda(cellPos);
         }
 
+        if (gridManager != null)
+            gridManager.OlvidarBloque(gameObject);
+
         hudHabilidad?.RecuperarCargas();
         OnBloqueDestruido?.Invoke(this);
 
-        Destroy(gameObject);
+        Guardar();
     }
+
+    /// <summary>
+    /// Saca el bloque de juego. Si vino de un pool vuelve ahí para reusarse; si
+    /// no, se destruye como antes. Lo segundo cubre los bloques que algún NPC o
+    /// una escena dejan puestos sin pasar por el GridManager.
+    /// </summary>
+    protected void Guardar()
+    {
+        if (pool != null)
+            pool.Devolver(this);
+        else
+            Destroy(gameObject);
+    }
+
+    /// <summary>Pool que entregó este bloque, o null si se creó suelto.</summary>
+    [HideInInspector] public PoolDeBloques pool;
+
+    /// <summary>Prefab del que salió, para saber a qué fila del pool vuelve.</summary>
+    [HideInInspector] public GameObject prefabDeOrigen;
 }
