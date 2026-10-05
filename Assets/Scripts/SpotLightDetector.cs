@@ -118,7 +118,10 @@ public class SpotLightDetector : LightDetectorBase
             meshRenderer.sharedMaterial =
                 (tipoLuz == TipoLuz.Roja) ? materialRoja : materialAmarilla;
 
-            GenerarLuzMesh();
+            // Fuera de play mode se dibuja el haz pero no se aplica nada: sin
+            // esto la luz mata al jugador, activa receptores y daña bloques con
+            // solo tener la escena abierta.
+            GenerarLuzMesh(aplicarEfectos: false);
             ActualizarPivotVisual();
             return;
         }
@@ -209,7 +212,16 @@ public class SpotLightDetector : LightDetectorBase
     // TITILEO
 
     // MESH + LUZ
-    private void GenerarLuzMesh()
+
+    /// <summary>
+    /// Arma la geometria del haz y, si se le pide, aplica lo que la luz le hace
+    /// a lo que toca: matar al jugador, apagar llamas, avisar a los receptores y
+    /// dañar bloques.
+    ///
+    /// Son dos trabajos distintos y por eso se pueden pedir por separado: en el
+    /// editor interesa ver el haz, no que la escena reaccione.
+    /// </summary>
+    private void GenerarLuzMesh(bool aplicarEfectos = true)
     {
         // 1. Apagada manualmente
         if (!luzActiva)
@@ -246,31 +258,34 @@ public class SpotLightDetector : LightDetectorBase
             Vector2 puntoMundo =
                 hit.collider ? hit.point : origen + dirRay * alcance;
 
-            // Daño al jugador
-            if (hit.collider && hit.collider.TryGetComponent(out Jugador j))
-                j.Matar();
-
-            // Luz roja mata AbyssFlame
-            if (tipoLuz == TipoLuz.Roja &&
-                hit.collider &&
-                hit.collider.TryGetComponent(out AbyssFlame flame))
+            if (aplicarEfectos && hit.collider)
             {
-                flame.Extinguir();
-            }
+                // Daño al jugador
+                if (hit.collider.TryGetComponent(out Jugador j))
+                    j.Matar();
 
-            // Enviar luz a receptores
-            if (hit.collider && hit.collider.TryGetComponent(out LightReceptor receptor))
-                receptor.RecibirLuz(tipoLuz);
-
-            // ShadowBlocks
-            if (hit.collider && hit.collider.TryGetComponent(out ShadowBlock sb))
-            {
-                float distancia = Vector2.Distance(origen, puntoMundo);
-
-                if (!iluminadosEsteFrame.ContainsKey(sb) ||
-                    distancia < iluminadosEsteFrame[sb])
+                // Luz roja mata AbyssFlame
+                if (tipoLuz == TipoLuz.Roja &&
+                    hit.collider.TryGetComponent(out AbyssFlame flame))
                 {
-                    iluminadosEsteFrame[sb] = distancia;
+                    flame.Extinguir();
+                }
+
+                // Enviar luz a receptores
+                if (hit.collider.TryGetComponent(out LightReceptor receptor))
+                    receptor.RecibirLuz(tipoLuz);
+
+                // ShadowBlocks: se anota el mas cercano de cada uno para no
+                // aplicarle el daño una vez por rayo.
+                if (hit.collider.TryGetComponent(out ShadowBlock sb))
+                {
+                    float distancia = Vector2.Distance(origen, puntoMundo);
+
+                    if (!iluminadosEsteFrame.ContainsKey(sb) ||
+                        distancia < iluminadosEsteFrame[sb])
+                    {
+                        iluminadosEsteFrame[sb] = distancia;
+                    }
                 }
             }
 

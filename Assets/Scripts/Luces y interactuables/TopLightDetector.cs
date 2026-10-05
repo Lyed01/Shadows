@@ -237,7 +237,13 @@ public class TopLightDetector : LightDetectorBase
     // TITILEO
 
     // LÓGICA PRINCIPAL DEL HAZ CIRCULAR
-    private void GenerarLuzCircular()
+
+    /// <summary>
+    /// Arma el circulo de luz y, si se le pide, aplica lo que la luz hace sobre
+    /// lo que toca. Van separados porque son dos trabajos distintos: en el
+    /// editor interesa ver la forma, no que la escena reaccione.
+    /// </summary>
+    private void GenerarLuzCircular(bool aplicarEfectos = true)
     {
         Vector2 origen = transform.position;
 
@@ -255,36 +261,29 @@ public class TopLightDetector : LightDetectorBase
             RaycastHit2D hit = Physics2D.Raycast(origen, dir, radio, mascaraBloqueos);
             Vector2 punto = hit.collider ? hit.point : origen + dir * radio;
 
-            // --- JUGADOR ---
-            if (hit.collider && hit.collider.TryGetComponent(out Jugador j))
-                j.Matar();
-            //  LUZ ROJA cenital elimina AbyssFlame
-            if (tipoLuz == TipoLuz.Roja &&
-                hit.collider &&
-                hit.collider.TryGetComponent(out AbyssFlame flame))
+            if (aplicarEfectos && hit.collider)
             {
-                flame.Extinguir();
-            }
+                // --- JUGADOR ---
+                if (hit.collider.TryGetComponent(out Jugador j))
+                    j.Matar();
 
-
-            // --- BLOQUES ---
-            if (hit.collider && hit.collider.TryGetComponent(out ShadowBlock sb))
-            {
-                float dist = Vector2.Distance(origen, punto);
-                float intensidad = curvaIntensidad.Evaluate(1f - dist / radio);
-                float daño = dañoBase * intensidad * Time.deltaTime;
-
-                // LUZ ROJA DESTRUYE
-                if (tipoLuz == TipoLuz.Roja)
+                //  LUZ ROJA cenital elimina AbyssFlame
+                if (tipoLuz == TipoLuz.Roja &&
+                    hit.collider.TryGetComponent(out AbyssFlame flame))
                 {
-                    sb.RecibirLuz(9999f, tipoLuz);
+                    flame.Extinguir();
                 }
-                else
+
+                // --- BLOQUES ---
+                if (hit.collider.TryGetComponent(out ShadowBlock sb))
                 {
+                    float dist = Vector2.Distance(origen, punto);
+                    float intensidad = curvaIntensidad.Evaluate(1f - dist / radio);
+                    float daño = dañoBase * intensidad * Time.deltaTime;
+
                     sb.RecibirLuz(daño, tipoLuz);
                     iluminadosEsteFrame.Add(sb);
                 }
-
             }
 
             vertices.Add(transform.InverseTransformPoint(punto));
