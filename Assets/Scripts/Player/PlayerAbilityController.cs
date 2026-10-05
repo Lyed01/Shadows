@@ -39,11 +39,11 @@ public class PlayerAbilityController : MonoBehaviour
         switch (habilidadActual.tipo)
         {
             case AbilityType.ShadowBlocks:
-                ShadowBlockAbility.ColocarBloque(false, jugador);
+                ShadowBlockAbility.ColocarBloque(ShadowBlock.IdSombra, jugador);
                 break;
 
             case AbilityType.ReflectiveBlocks:
-                ShadowBlockAbility.ColocarBloque(true, jugador);
+                ShadowBlockAbility.ColocarBloque(ShadowBlock.IdEspejo, jugador);
                 break;
 
             case AbilityType.AbyssFlame:

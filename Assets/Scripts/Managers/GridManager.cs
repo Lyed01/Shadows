@@ -33,6 +33,9 @@ public class GridManager : MonoBehaviour
     public GameObject prefabBloque;
     public GameObject prefabBloqueReflectante;
 
+    [Tooltip("Tipos de bloque extra. Arrastrar el prefab acá alcanza para que la fábrica lo conozca: cada uno declara su propio id.")]
+    public List<GameObject> prefabsExtra = new();
+
     [Header("Spawn del Jugador")]
     public Transform spawnTransform;          // Solo define la posición inicial (GameManager instancia al jugador)
     public HUDHabilidad hudHabilidad;         // Referencia opcional para las habilidades
@@ -50,6 +53,29 @@ public class GridManager : MonoBehaviour
     /// Vive acá porque los bloques son de la escena y mueren con ella.
     /// </summary>
     private readonly PoolDeBloques pool = new();
+
+    private FabricaDeBloques fabrica;
+
+    /// <summary>
+    /// Arma los bloques del nivel. Se expone para que quien los coloca pueda
+    /// preguntarle por un tipo sin conocer los prefabs.
+    /// </summary>
+    public FabricaDeBloques Fabrica
+    {
+        get
+        {
+            if (fabrica == null)
+            {
+                fabrica = new FabricaDeBloques(pool);
+                fabrica.Registrar(prefabBloque, prefabBloqueReflectante);
+
+                if (prefabsExtra != null)
+                    fabrica.Registrar(prefabsExtra.ToArray());
+            }
+
+            return fabrica;
+        }
+    }
     private List<Vector3Int> celdasMostradas = new();
 
     void Start()
@@ -84,7 +110,11 @@ public class GridManager : MonoBehaviour
     }
 
     // === BLOQUES Y CELDAS ===
-    public ResultadoColocacion IntentarColocarBloque(Vector3 worldPos, bool reflectante, Vector3 jugadorPos, float rango)
+    /// <summary>
+    /// Coloca un bloque del tipo pedido. Recibe el id y no un prefab ni un
+    /// booleano: quién coloca no tiene por qué saber cuántos tipos hay.
+    /// </summary>
+    public ResultadoColocacion IntentarColocarBloque(Vector3 worldPos, string idBloque, Vector3 jugadorPos, float rango)
     {
         // worldPos Viene del mouse  hay que corregirlo
         float ppu = 16f;
@@ -115,9 +145,8 @@ public class GridManager : MonoBehaviour
 
         //  Colocación exitosa
         Vector3 spawnPos = sueloTilemap.GetCellCenterWorld(cellPos);
-        GameObject prefab = reflectante ? prefabBloqueReflectante : prefabBloque;
 
-        ShadowBlock sb = pool.Obtener(prefab, spawnPos);
+        ShadowBlock sb = Fabrica.Crear(idBloque, spawnPos);
         if (sb == null)
             return ResultadoColocacion.NoExisteCelda;
 

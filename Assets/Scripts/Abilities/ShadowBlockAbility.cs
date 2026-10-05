@@ -2,7 +2,11 @@
 
 public static class ShadowBlockAbility
 {
-    public static void ColocarBloque(bool reflectante, Jugador jugador)
+    /// <summary>
+    /// Coloca el bloque del tipo pedido donde apunta el mouse. Recibe el id y
+    /// no un booleano, así que agregar un tipo nuevo no obliga a tocar esto.
+    /// </summary>
+    public static void ColocarBloque(string idBloque, Jugador jugador)
     {
         if (jugador == null || jugador.gridManager == null || jugador.hudHabilidad == null)
         {
@@ -24,22 +28,26 @@ public static class ShadowBlockAbility
         var hud = jugador.hudHabilidad;
         var rango = jugador.rangoHabilidad;
 
-        if (!hud.TieneCargas(reflectante ? 2 : 1))
+        // El costo lo declara el prefab del bloque, no esta funcion: antes
+        // estaba escrito a mano y daba por sentado que solo habia dos tipos.
+        int costo = grid.Fabrica.CostoDe(idBloque);
+
+        if (!hud.TieneCargas(costo))
         {
             hud.MostrarAviso("Energía insuficiente.");
             return;
         }
-        
+
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePos.z = 0;
-        
-        var resultado = grid.IntentarColocarBloque(mousePos, reflectante, jugador.transform.position, rango);
+
+        var resultado = grid.IntentarColocarBloque(mousePos, idBloque, jugador.transform.position, rango);
 
         switch (resultado)
         {
             case ResultadoColocacion.Exito:
                 AudioManager.Instance?.ReproducirBloque();
-                hud.UsarCargas(reflectante ? 2 : 1);
+                hud.UsarCargas(costo);
                 AbilityManager.OnUsarHabilidad?.Invoke(); //  Notifica al sistema de puntuación
                 break;
 

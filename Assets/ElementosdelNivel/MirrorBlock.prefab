@@ -36,6 +36,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &100312443008840126
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -54,6 +55,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -75,9 +78,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
+  m_MaskInteraction: 0
   m_Sprite: {fileID: -985395824052470088, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -87,7 +92,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!61 &6409399550573494863
 BoxCollider2D:
@@ -147,6 +151,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45602877b51bc4c4fa2f6431636a4ccb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  idTipo: espejo
+  costoCargas: 2
   vidaBajoLuz: 35
   barraPrefab: {fileID: 4951610743849140546, guid: b166a6038d419da4989dadf8b0c62e8e, type: 3}
   spriteOriginal: {fileID: -985395824052470088, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
@@ -162,6 +168,7 @@ MonoBehaviour:
   gridManager: {fileID: 0}
   cellPos: {x: 0, y: 0, z: 0}
   hudHabilidad: {fileID: 0}
+  prefabDeOrigen: {fileID: 0}
   prefabLuzReflectiva: {fileID: 920859950915848304, guid: 63767a6da4619f64c953d06bc3fa26f8, type: 3}
   direccionInicial: {x: 1, y: 0}
   alcance: 36.1

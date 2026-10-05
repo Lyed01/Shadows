@@ -2,6 +2,19 @@
 
 public class ShadowBlock : MonoBehaviour
 {
+    /// <summary>Id del bloque de sombra comun, el que trae el prefab base.</summary>
+    public const string IdSombra = "sombra";
+
+    /// <summary>Id del bloque espejo.</summary>
+    public const string IdEspejo = "espejo";
+
+    [Header("Identidad")]
+    [Tooltip("Nombre con el que la fabrica conoce a este tipo de bloque. Tiene que ser distinto en cada prefab.")]
+    public string idTipo = IdSombra;
+
+    [Tooltip("Cuantas cargas de habilidad cuesta colocarlo.")]
+    public int costoCargas = 1;
+
     [Header("Vida")]
     public float vidaBajoLuz = 5f;
     protected float vidaActual;
