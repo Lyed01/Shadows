@@ -23,6 +23,12 @@ public abstract class LightDetectorBase : MonoBehaviour
     [Header("Daño")]
     public float dañoBase = 1f;
 
+    [Tooltip("Que parte del haz mata al jugador. Con 0,9 el 90% central es letal " +
+             "y el 10% del borde solo se ve. El borde tenue mataba igual que el " +
+             "centro, y por eso habia muertes que se sentian injustas.")]
+    [Range(0.1f, 1f)]
+    public float fraccionLetal = 0.9f;
+
     [Header("Capas")]
     public LayerMask mascaraBloqueos;
 

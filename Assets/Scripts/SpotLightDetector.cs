@@ -36,6 +36,10 @@ public class SpotLightDetector : LightDetectorBase
     [Header("Luz 2D del haz")]
     public bool luzSigueHaz = true;
     [Range(0f, 2f)] public float intensidadHaz = 0.8f;
+
+    [Tooltip("Cuanto se estira el resplandor mas alla del haz. Es solo decorativo: " +
+             "la zona que mata la define fraccionLetal, no esto. Con 1 el resplandor " +
+             "termina donde termina el haz dibujado.")]
     [Range(0.5f, 2f)] public float multiplicadorAlcanceLuz = 1.1f;
 
     // INTERNOS
@@ -258,10 +262,17 @@ public class SpotLightDetector : LightDetectorBase
             Vector2 puntoMundo =
                 hit.collider ? hit.point : origen + dirRay * alcance;
 
+            // Que tan al costado del eje va este rayo: 0 en el centro del haz,
+            // 1 en el borde. Define si lo que toque muere o solo se ilumina.
+            float desvioDelEje = Mathf.Abs(t - 0.5f) * 2f;
+            bool rayoLetal = desvioDelEje <= fraccionLetal;
+
             if (aplicarEfectos && hit.collider)
             {
-                // Daño al jugador
-                if (hit.collider.TryGetComponent(out Jugador j))
+                // Al jugador solo lo mata el nucleo. El borde se ve pero no hace
+                // daño: antes moria igual rozando el filo tenue que parado en el
+                // centro.
+                if (rayoLetal && hit.collider.TryGetComponent(out Jugador j))
                     j.Matar();
 
                 // Luz roja mata AbyssFlame
@@ -436,6 +447,38 @@ public class SpotLightDetector : LightDetectorBase
 
         InicializarTitileo();
         GenerarLuzMesh();
+    }
+
+    /// <summary>
+    /// Dibuja en el editor donde empieza y donde termina lo que mata, que no
+    /// coincide con lo que se ve: el haz se dibuja entero y el resplandor va
+    /// todavia mas lejos, pero solo el nucleo hace daño.
+    /// </summary>
+    private void OnDrawGizmosSelected()
+    {
+        Vector2 origen = pivotRotacion != null
+            ? (Vector2)pivotRotacion.position
+            : (Vector2)transform.position;
+
+        Vector2 dirBase = direccion.sqrMagnitude < 0.0001f ? Vector2.up : direccion.normalized;
+
+        // Borde del haz: hasta aca se ve, pero no mata
+        Gizmos.color = new Color(1f, 0.95f, 0.5f, 0.35f);
+        DibujarBorde(origen, dirBase, anguloCono);
+
+        // Borde del nucleo: de aca para adentro, mata
+        Gizmos.color = new Color(1f, 0.3f, 0.2f, 0.9f);
+        DibujarBorde(origen, dirBase, anguloCono * fraccionLetal);
+    }
+
+    private void DibujarBorde(Vector2 origen, Vector2 dirBase, float apertura)
+    {
+        Vector2 izq = Quaternion.Euler(0, 0, -apertura * 0.5f) * dirBase;
+        Vector2 der = Quaternion.Euler(0, 0, apertura * 0.5f) * dirBase;
+
+        Gizmos.DrawLine(origen, origen + izq * alcance);
+        Gizmos.DrawLine(origen, origen + der * alcance);
+        Gizmos.DrawLine(origen + izq * alcance, origen + der * alcance);
     }
 
     // RESET TOTAL

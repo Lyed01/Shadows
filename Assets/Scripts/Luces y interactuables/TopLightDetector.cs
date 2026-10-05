@@ -263,8 +263,14 @@ public class TopLightDetector : LightDetectorBase
 
             if (aplicarEfectos && hit.collider)
             {
+                // En el haz cenital el nucleo no es una franja sino el centro
+                // del circulo: mata cerca de la lampara y el anillo de afuera
+                // solo alumbra.
+                float distanciaAlCentro = Vector2.Distance(origen, punto);
+                bool dentroDelNucleo = distanciaAlCentro <= radio * fraccionLetal;
+
                 // --- JUGADOR ---
-                if (hit.collider.TryGetComponent(out Jugador j))
+                if (dentroDelNucleo && hit.collider.TryGetComponent(out Jugador j))
                     j.Matar();
 
                 //  LUZ ROJA cenital elimina AbyssFlame
@@ -460,10 +466,15 @@ public class TopLightDetector : LightDetectorBase
 
     void OnDrawGizmos()
     {
-        Gizmos.color =
-            tipoLuz == TipoLuz.Roja ? Color.red : Color.yellow;
-
+        // Alcance: hasta aca llega la luz, pero el borde no mata
+        Gizmos.color = tipoLuz == TipoLuz.Roja
+            ? new Color(1f, 0.3f, 0.3f, 0.35f)
+            : new Color(1f, 0.95f, 0.4f, 0.35f);
         Gizmos.DrawWireSphere(transform.position, radio);
+
+        // Nucleo: de aca para adentro, mata
+        Gizmos.color = new Color(1f, 0.3f, 0.2f, 0.9f);
+        Gizmos.DrawWireSphere(transform.position, radio * fraccionLetal);
     }
 
 

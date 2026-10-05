@@ -178,4 +178,4 @@ MonoBehaviour:
   spriteActivo: {fileID: -427553547, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
   spriteNormal: {fileID: -985395824052470088, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
   spriteFlecha: {fileID: 1695352213868668530, guid: dee6d57c7f54a6f4a8a601d0a5bdbab4, type: 3}
-  tiempoApagado: 3
+  tiempoApagado: 0.1

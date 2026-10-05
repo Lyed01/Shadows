@@ -24,6 +24,10 @@ public class MirrorBlock : ShadowBlock
     // --- Lógica de encendido/apagado ---
     private bool recibiendoLuz = false;
     private float tiempoSinLuz = 0f;
+
+    [Tooltip("Gracia antes de cortar el reflejo cuando deja de llegar luz. Es para " +
+             "que un frame suelto sin deteccion no lo haga parpadear, no para que " +
+             "el reflejo sobreviva a la luz que lo alimenta.")]
     public float tiempoApagado = 0.1f;
 
     private GameObject luzInstancia;
