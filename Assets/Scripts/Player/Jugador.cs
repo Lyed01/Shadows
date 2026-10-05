@@ -286,15 +286,12 @@ public class Jugador : MonoBehaviour
 
     private void OnHabilidadDesbloqueada(AbilityType tipo)
     {
-        switch (tipo)
-        {
-            case AbilityType.ShadowBlocks:
-            case AbilityType.ReflectiveBlocks:
-            case AbilityType.AbyssFlame:
-            case AbilityType.ShadowTp:
-                RecibirHabilidad();
-                break;
-        }
+        // Todas las habilidades reales habilitan el modo habilidad. La unica
+        // excepcion es AbilityMode, que no se desbloquea: solo muestra su
+        // cartel. El switch que habia aca listaba las otras cuatro una por una
+        // para hacer lo mismo en todas.
+        if (tipo != AbilityType.AbilityMode)
+            RecibirHabilidad();
 
         Log.Info(this, $"Jugador sincronizó habilidad desbloqueada: {tipo}");
     }

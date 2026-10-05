@@ -1,69 +1,67 @@
-﻿using UnityEngine;
+using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
-/// Sistema modular de control de habilidades del jugador.
-/// Ejecuta la habilidad seleccionada cuando el jugador está en modo habilidad.
-/// No depende de GridManager ni de referencias externas.
+/// Ejecuta la habilidad que el jugador tiene elegida en el selector.
+///
+/// No sabe que hace cada habilidad ni cuantas hay: busca la que corresponde al
+/// tipo seleccionado y le pide que actue. Antes esto eran dos switch sobre
+/// AbilityType, uno para el click izquierdo y otro para el derecho, y sumar
+/// una habilidad obligaba a tocar los dos.
 /// </summary>
 [RequireComponent(typeof(Jugador))]
 public class PlayerAbilityController : MonoBehaviour
 {
     private Jugador jugador;
-    private AbilityData habilidadActual;
 
-    void Awake()
+    /// <summary>
+    /// Las habilidades que el jugador puede usar, por tipo. Cada una se
+    /// registra sola con el tipo que declara, asi que sumar una es agregarla
+    /// a esta lista y nada mas.
+    /// </summary>
+    private readonly Dictionary<AbilityType, IHabilidad> habilidades = new();
+
+    private void Awake()
     {
         jugador = GetComponent<Jugador>();
+
+        Registrar(
+            new HabilidadBloqueSombra(),
+            new HabilidadBloqueEspejo(),
+            new HabilidadLlamaAbisal(),
+            new HabilidadTeletransporte());
     }
 
-    void Update()
+    private void Registrar(params IHabilidad[] nuevas)
+    {
+        foreach (IHabilidad habilidad in nuevas)
+        {
+            if (habilidad == null) continue;
+
+            if (habilidades.ContainsKey(habilidad.Tipo))
+            {
+                Log.Aviso(this, $"Hay dos habilidades para {habilidad.Tipo}; queda la primera.");
+                continue;
+            }
+
+            habilidades[habilidad.Tipo] = habilidad;
+        }
+    }
+
+    private void Update()
     {
         // Solo activo si el jugador está en modo habilidad
         if (!Jugador.ModoHabilidadActivo) return;
 
-        habilidadActual = AbilitySelector.Instance?.GetHabilidadActual();
-        if (habilidadActual == null) return;
+        AbilityData seleccionada = AbilitySelector.Instance?.GetHabilidadActual();
+        if (seleccionada == null) return;
 
-        // Click izquierdo → acción principal
+        if (!habilidades.TryGetValue(seleccionada.tipo, out IHabilidad habilidad)) return;
+
         if (Input.GetMouseButtonDown(0))
-            UsarHabilidadPrincipal();
+            habilidad.UsarPrincipal(jugador);
 
-        // Click derecho → acción secundaria
         if (Input.GetMouseButtonDown(1))
-            UsarHabilidadSecundaria();
-    }
-
-    // === Lógica principal ===
-    private void UsarHabilidadPrincipal()
-    {
-        switch (habilidadActual.tipo)
-        {
-            case AbilityType.ShadowBlocks:
-                ShadowBlockAbility.ColocarBloque(ShadowBlock.IdSombra, jugador);
-                break;
-
-            case AbilityType.ReflectiveBlocks:
-                ShadowBlockAbility.ColocarBloque(ShadowBlock.IdEspejo, jugador);
-                break;
-
-            case AbilityType.AbyssFlame:
-                AbyssFlameAbility.Lanzar(jugador);
-                break;
-
-            case AbilityType.ShadowTp:
-                ShadowTpAbility.Teletransportar(jugador);
-                break;
-
-        }
-    }
-
-    private void UsarHabilidadSecundaria()
-    {
-        switch (habilidadActual.tipo)
-        {
-            case AbilityType.ReflectiveBlocks:
-                MirrorBlockAbility.RotarReflectivo(jugador);
-                break;
-        }
+            habilidad.UsarSecundaria(jugador);
     }
 }
