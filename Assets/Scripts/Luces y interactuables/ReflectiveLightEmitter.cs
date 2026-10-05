@@ -17,20 +17,51 @@ public class ReflectiveLightEmitter : MonoBehaviour
     private Mesh mesh;
     private Collider2D padreCol;
 
+    private MaterialPropertyBlock propiedades;
+    private static readonly int ColorID = Shader.PropertyToID("_Color");
+
     void Awake()
     {
         mf = GetComponent<MeshFilter>();
         mr = GetComponent<MeshRenderer>();
-        padreCol = transform.parent.GetComponent<Collider2D>();
 
-        mesh = new Mesh();
-        mf.mesh = mesh;
+        // El emisor cuelga del bloque espejo y necesita su collider para saber
+        // de que borde sale el rayo. Sin eso no tiene nada que hacer: antes
+        // reventaba aca mismo con una referencia nula.
+        padreCol = transform.parent != null
+            ? transform.parent.GetComponent<Collider2D>()
+            : null;
+
+        if (padreCol == null)
+        {
+            Log.Aviso(this, "El emisor necesita colgar de un objeto con Collider2D. Se desactiva.");
+            enabled = false;
+            return;
+        }
+
+        mesh = new Mesh { name = "LuzReflejada" };
+        mf.sharedMesh = mesh;
 
         if (materialLuz == null)
             materialLuz = new Material(Shader.Find("Sprites/Default"));
 
-        mr.material = materialLuz;
+        // sharedMaterial y no material: material clona el asset en cada emisor
+        // y Unity no libera esas copias.
+        mr.sharedMaterial = materialLuz;
         mr.sortingOrder = 300;
+
+        propiedades = new MaterialPropertyBlock();
+        AplicarColor();
+    }
+
+    private void OnDestroy()
+    {
+        // El mesh es nuestro, asi que lo liberamos: si no, queda colgado cada
+        // vez que se destruye un espejo.
+        if (mesh == null) return;
+
+        if (Application.isPlaying) Destroy(mesh);
+        else DestroyImmediate(mesh);
     }
 
     void Update()
@@ -173,9 +204,25 @@ public class ReflectiveLightEmitter : MonoBehaviour
     public void SetTipoLuz(TipoLuz nuevoTipo)
     {
         tipoLuz = nuevoTipo;
+        AplicarColor();
+    }
 
-        mr.material.color = tipoLuz == TipoLuz.Roja
+    /// <summary>
+    /// Tiñe el haz segun el tipo de luz. Va por MaterialPropertyBlock y no por
+    /// mr.material: tocar material clona el asset, y con un espejo prendiendose
+    /// y apagandose eso deja copias que no se liberan hasta cambiar de escena.
+    /// </summary>
+    private void AplicarColor()
+    {
+        if (mr == null) return;
+
+        if (propiedades == null)
+            propiedades = new MaterialPropertyBlock();
+
+        mr.GetPropertyBlock(propiedades);
+        propiedades.SetColor(ColorID, tipoLuz == TipoLuz.Roja
             ? new Color(1f, 0.2f, 0.2f)
-            : new Color(1f, 1f, 0.6f);
+            : new Color(1f, 1f, 0.6f));
+        mr.SetPropertyBlock(propiedades);
     }
 }
