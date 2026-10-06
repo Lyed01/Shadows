@@ -20,7 +20,11 @@ using UnityEngine;
 /// </summary>
 public class PoolDeBloques
 {
-    private readonly Dictionary<GameObject, SimpleArrayList<ShadowBlock>> reservas = new();
+    // Estatico: hay una fila por prefab de bloque (dos o tres en total), asi que
+    // buscar la fila es recorrer muy pocas claves, y se hace en cada Obtener y
+    // cada Devolver.
+    private readonly ISimpleDictionary<GameObject, SimpleArrayList<ShadowBlock>> reservas =
+        new SimpleArrayDictionary<GameObject, SimpleArrayList<ShadowBlock>>();
     private Transform contenedor;
 
     /// <summary>Cuantos bloques hay guardados, sumando todos los prefabs.</summary>
@@ -29,8 +33,8 @@ public class PoolDeBloques
         get
         {
             int total = 0;
-            foreach (var reserva in reservas.Values)
-                total += reserva.Count;
+            foreach (var par in reservas)
+                total += par.Value.Count;
 
             return total;
         }
@@ -112,8 +116,10 @@ public class PoolDeBloques
     /// <summary>Destruye de verdad lo guardado. Se llama al descargar la escena.</summary>
     public void Vaciar()
     {
-        foreach (var reserva in reservas.Values)
+        foreach (var par in reservas)
         {
+            SimpleArrayList<ShadowBlock> reserva = par.Value;
+
             for (int i = 0; i < reserva.Count; i++)
                 if (reserva[i] != null)
                     Object.Destroy(reserva[i].gameObject);

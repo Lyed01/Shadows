@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -18,8 +17,14 @@ public class PlayerAbilityController : MonoBehaviour
     /// Las habilidades que el jugador puede usar, por tipo. Cada una se
     /// registra sola con el tipo que declara, asi que sumar una es agregarla
     /// a esta lista y nada mas.
+    ///
+    /// Diccionario estatico: son cuatro entradas que se cargan una vez en
+    /// Awake y no se quitan nunca, y se consultan en cada frame del modo
+    /// habilidad. Con tan pocas claves el recorrido es corto, y un solo
+    /// arreglo evita pagar un nodo por habilidad.
     /// </summary>
-    private readonly Dictionary<AbilityType, IHabilidad> habilidades = new();
+    private readonly ISimpleDictionary<AbilityType, IHabilidad> habilidades =
+        new SimpleArrayDictionary<AbilityType, IHabilidad>();
 
     private void Awake()
     {
@@ -38,13 +43,10 @@ public class PlayerAbilityController : MonoBehaviour
         {
             if (habilidad == null) continue;
 
-            if (habilidades.ContainsKey(habilidad.Tipo))
-            {
+            // Repetir un tipo es un error de configuracion, no algo esperable:
+            // TryAdd deja la primera y avisa en vez de pisarla.
+            if (!habilidades.TryAdd(habilidad.Tipo, habilidad))
                 Log.Aviso(this, $"Hay dos habilidades para {habilidad.Tipo}; queda la primera.");
-                continue;
-            }
-
-            habilidades[habilidad.Tipo] = habilidad;
         }
     }
 
