@@ -63,6 +63,12 @@ public class GridManager : MonoBehaviour
     /// </summary>
     private readonly ISimpleStack<ShadowBlock> historialDeBloques = new SimpleArrayStack<ShadowBlock>();
 
+    /// <summary>Bloques que Z desharia, de la cima al fondo (puede incluir muertos). Solo para depuracion.</summary>
+    public ShadowBlock[] HistorialDeBloques => historialDeBloques.ToArray();
+
+    /// <summary>Bloques guardados en el pool, listos para reusarse. Solo para depuracion.</summary>
+    public int BloquesEnReserva => pool.EnReserva;
+
     private FabricaDeBloques fabrica;
 
     /// <summary>

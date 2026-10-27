@@ -26,6 +26,9 @@ public class PlayerAbilityController : MonoBehaviour
     private readonly ISimpleDictionary<AbilityType, IHabilidad> habilidades =
         new SimpleArrayDictionary<AbilityType, IHabilidad>();
 
+    /// <summary>Los tipos de habilidad registrados, en el orden en que se cargaron. Solo para depuracion.</summary>
+    public AbilityType[] TiposRegistrados => habilidades.Keys();
+
     private void Awake()
     {
         jugador = GetComponent<Jugador>();

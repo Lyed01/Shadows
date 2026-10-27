@@ -124,6 +124,26 @@ public class BST<TKey, T> where T : IComparable<T>
         Count = 0;
     }
 
+    /// <summary>
+    /// Dibuja el arbol de costado, una linea por nodo: la raiz a la izquierda y
+    /// cada nivel sangrado 4 espacios, con el hijo derecho arriba.
+    /// </summary>
+    public string Dibujar(Func<T, string> texto)
+    {
+        var sb = new System.Text.StringBuilder();
+        Dibujar(raiz, 0, texto, sb);
+        return sb.ToString();
+    }
+
+    private static void Dibujar(TreeNode<T> nodo, int nivel, Func<T, string> texto, System.Text.StringBuilder sb)
+    {
+        if (nodo == null) return;
+
+        Dibujar(nodo.Right, nivel + 1, texto, sb);
+        sb.AppendLine(new string(' ', nivel * 4) + texto(nodo.Value));
+        Dibujar(nodo.Left, nivel + 1, texto, sb);
+    }
+
     /// <summary>El menor valor: el hijo izquierdo de mas abajo.</summary>
     public T Min()
     {

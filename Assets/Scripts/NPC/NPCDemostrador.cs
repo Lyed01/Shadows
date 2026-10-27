@@ -43,6 +43,12 @@ public class NPCDemostrador : MonoBehaviour
     // === Internos ===
     private Rigidbody2D rb;
     private bool ejecutando = false;
+
+    private ISimpleQueue<DemostracionPaso> colaDePasos;
+
+    /// <summary>Los pasos que todavia no se ejecutaron, del proximo al ultimo. Solo para el panel de depuracion.</summary>
+    public DemostracionPaso[] PasosPendientes =>
+        colaDePasos == null ? new DemostracionPaso[0] : colaDePasos.ToArray();
     private Vector2 ultimaDireccion = Vector2.down;
     private string animActual = "";
     private bool estaMuriendo = false;
@@ -119,12 +125,12 @@ public class NPCDemostrador : MonoBehaviour
             // se descarta. SimpleLinkedQueue resuelve ese Dequeue en O(1),
             // mientras que sobre un arreglo cada baja obliga a correr todo lo
             // que queda.
-            ISimpleQueue<DemostracionPaso> cola = new SimpleLinkedQueue<DemostracionPaso>();
+            colaDePasos = new SimpleLinkedQueue<DemostracionPaso>();
             foreach (var paso in pasos)
-                cola.Enqueue(paso);
+                colaDePasos.Enqueue(paso);
 
-            while (!cola.IsEmpty)
-                yield return EjecutarPaso(cola.Dequeue());
+            while (!colaDePasos.IsEmpty)
+                yield return EjecutarPaso(colaDePasos.Dequeue());
 
         } while (repetir);
 

@@ -47,7 +47,11 @@ public class PopupManager : PersistentSingleton<PopupManager>
         if (popup == null || postulantes.Contains(popup)) return;
 
         postulantes.Enqueue(popup, prioridad);
+        Postulaciones++;
     }
+
+    /// <summary>Cuantas veces un popup pidio la pantalla. Solo para el panel de depuracion.</summary>
+    public int Postulaciones { get; private set; }
 
     /// <summary>
     /// Suma una notificacion de habilidad a la fila de espera. No se muestra al

@@ -94,6 +94,11 @@ public class FabricaDeBloques
         }
     }
 
+    /// <summary>El arbol del catalogo dibujado de costado, con su altura. Solo para depuracion.</summary>
+    public string DescribirCatalogo() =>
+        $"AVL: {catalogo.Count} tipos, altura {catalogo.Height}, balanceado {catalogo.EstaBalanceado()}\n" +
+        catalogo.Dibujar(e => e.Id);
+
     /// <summary>Si la fabrica sabe construir ese tipo.</summary>
     public bool Conoce(string id) => id != null && catalogo.ContainsKey(id);
 

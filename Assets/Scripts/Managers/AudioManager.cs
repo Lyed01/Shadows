@@ -127,7 +127,12 @@ public class AudioManager : PersistentSingleton<AudioManager>
     {
         if (clip == null) return;
         colaFX.Enqueue(new SolicitudSonido(clip, Random.Range(0.96f, 1.04f)), prioridad);
+        FxEncolados++;
     }
+
+    /// <summary>Pedidos de FX que entraron a la cola y los que salieron a sonar. Solo para el panel de depuracion.</summary>
+    public int FxEncolados { get; private set; }
+    public int FxReproducidos { get; private set; }
 
     public void ReproducirFX(List<AudioClip> clips, int prioridad = PrioridadMedia)
     {
@@ -156,6 +161,7 @@ public class AudioManager : PersistentSingleton<AudioManager>
             fxSource.pitch = solicitud.Pitch;
             fxSource.PlayOneShot(solicitud.Clip, volumenFX * multiplicadorGlobal);
             reproducidos++;
+            FxReproducidos++;
         }
 
         colaFX.Clear();

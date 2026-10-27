@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &734874631
+--- !u!1 &463508286
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,35 +127,34 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 734874633}
-  - component: {fileID: 734874632}
+  - component: {fileID: 463508288}
+  - component: {fileID: 463508287}
   m_Layer: 0
-  m_Name: MenuEstructuras
+  m_Name: PanelResumenPruebas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &734874632
+--- !u!114 &463508287
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 734874631}
+  m_GameObject: {fileID: 463508286}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93d835f1295c0c94d8a508f634707331, type: 3}
+  m_Script: {fileID: 11500000, guid: ea7574b6e43602646b712d83ac7d9a33, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MenuEstructuras
-  escenaDeSalida: MainMenu
---- !u!4 &734874633
+  m_EditorClassIdentifier: Assembly-CSharp::PanelResumenPruebas
+--- !u!4 &463508288
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 734874631}
+  m_GameObject: {fileID: 463508286}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -168,4 +167,4 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 734874633}
+  - {fileID: 463508288}

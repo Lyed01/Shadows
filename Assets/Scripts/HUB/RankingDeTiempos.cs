@@ -39,6 +39,18 @@ public static class RankingDeTiempos
         return $"Mejor tiempo: {Formato(tiempo)}  (marca {puesto} de {marcas.Count})";
     }
 
+    /// <summary>Todas las marcas, de la mas rapida a la mas lenta, una por linea. Solo para el panel de depuracion.</summary>
+    public static string Detalle()
+    {
+        ISimpleList<Marca> marcas = Ordenadas();
+        var sb = new System.Text.StringBuilder();
+
+        for (int i = 0; i < marcas.Count; i++)
+            sb.AppendLine($"{i + 1}. {marcas[i].NivelId}  {Formato(marcas[i].Tiempo)}");
+
+        return sb.ToString();
+    }
+
     private static ISimpleList<Marca> Ordenadas()
     {
         ISimpleList<Marca> marcas = new SimpleArrayList<Marca>();
