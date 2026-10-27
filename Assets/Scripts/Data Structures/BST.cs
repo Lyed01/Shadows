@@ -41,8 +41,11 @@ public class BST<TKey, T> where T : IComparable<T>
 
     public bool IsEmpty => Count == 0;
 
+    /// <summary>Raiz, solo para leer (por ejemplo para dibujar el arbol).</summary>
+    public TreeNode<T> Raiz => raiz;
+
     /// <summary>Cantidad de niveles. Un arbol vacio tiene altura 0.</summary>
-    public int Height => AlturaDe(raiz);
+    public virtual int Height => AlturaDe(raiz);
 
     /// <summary>Agrega el valor. Devuelve false, sin tocar nada, si ya estaba.</summary>
     public bool Add(T value)

@@ -229,6 +229,28 @@ public class SimpleLinkedList<T> : ISimpleList<T>
         return copia;
     }
 
+    /// <summary>
+    /// Copia los valores a un arreglo, lo ordena y los vuelve a escribir en
+    /// los nodos recorriendolos una sola vez. Ordenar directamente sobre la
+    /// lista obligaria a usar el indexador, que aca cuesta O(n) por acceso, y
+    /// un Bubble Sort pasaria de O(n^2) a O(n^3). Los nodos no se reenlazan:
+    /// solo cambia el valor que guarda cada uno.
+    /// </summary>
+    public void Sort(Comparison<T> comparacion,
+        SentidoDeOrden sentido = SentidoDeOrden.Ascendente,
+        AlgoritmoDeOrden algoritmo = AlgoritmoDeOrden.Quick)
+    {
+        T[] valores = ToArray();
+        CollectionSort.Ordenar(valores, cantidad, comparacion, sentido, algoritmo);
+
+        Nodo actual = cabeza;
+        for (int i = 0; i < valores.Length; i++)
+        {
+            actual.Valor = valores[i];
+            actual = actual.Siguiente;
+        }
+    }
+
     /// <summary>Saca un nodo de la cadena y mantiene cabeza, cola y cantidad al dia.</summary>
     private void Desenlazar(Nodo anterior, Nodo aQuitar)
     {

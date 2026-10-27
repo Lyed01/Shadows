@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 /// <summary>
@@ -48,4 +49,13 @@ public interface ISimpleList<T> : IEnumerable<T>
 
     /// <summary>Copia los elementos a un arreglo nuevo, en orden.</summary>
     T[] ToArray();
+
+    /// <summary>
+    /// Ordena la lista en el lugar con el criterio recibido, usando uno de los
+    /// algoritmos de CollectionSort. Para el orden natural de un IComparable
+    /// esta CollectionSort.SortList.
+    /// </summary>
+    void Sort(Comparison<T> comparacion,
+        SentidoDeOrden sentido = SentidoDeOrden.Ascendente,
+        AlgoritmoDeOrden algoritmo = AlgoritmoDeOrden.Quick);
 }

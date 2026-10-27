@@ -40,10 +40,10 @@ public class FabricaDeBloques
         public int CompareTo(Entrada otra) => string.CompareOrdinal(Id, otra.Id);
     }
 
-    // Arbol de busqueda: se carga una vez con los prefabs de bloque y despues
+    // Arbol AVL (BST que se rebalancea): se carga una vez con los prefabs de bloque y despues
     // se consulta por id cada vez que el jugador coloca uno, en O(altura).
-    private readonly BST<string, Entrada> catalogo =
-        new BST<string, Entrada>((id, entrada) => string.CompareOrdinal(id, entrada.Id));
+    private readonly AVL<string, Entrada> catalogo =
+        new AVL<string, Entrada>((id, entrada) => string.CompareOrdinal(id, entrada.Id));
     private readonly PoolDeBloques pool;
 
     public FabricaDeBloques(PoolDeBloques pool)

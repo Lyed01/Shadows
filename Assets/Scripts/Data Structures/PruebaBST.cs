@@ -36,6 +36,8 @@ public class PruebaBST : MonoBehaviour
     }
 
     private StringBuilder salida;
+    /// <summary>Texto de la ultima corrida, para mostrarlo en el panel de la escena.</summary>
+    public string UltimaSalida => salida?.ToString();
     private int pruebasCorridas;
     private int pruebasFalladas;
 

@@ -181,6 +181,17 @@ public class SimpleArrayList<T> : ISimpleList<T>
         return copia;
     }
 
+    /// <summary>
+    /// Ordena directamente el arreglo interno, sin copiarlo. Solo se toca el
+    /// tramo ocupado: las celdas libres del final quedan afuera.
+    /// </summary>
+    public void Sort(Comparison<T> comparacion,
+        SentidoDeOrden sentido = SentidoDeOrden.Ascendente,
+        AlgoritmoDeOrden algoritmo = AlgoritmoDeOrden.Quick)
+    {
+        CollectionSort.Ordenar(elementos, cantidad, comparacion, sentido, algoritmo);
+    }
+
     private void ValidarIndice(int indice)
     {
         if (indice < 0 || indice >= cantidad)

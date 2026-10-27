@@ -12,6 +12,9 @@ public class TreeNode<T>
     public TreeNode<T> Left;
     public TreeNode<T> Right;
 
+    /// <summary>Altura del subarbol que cuelga de este nodo. Solo la mantiene el AVL.</summary>
+    public int Height = 1;
+
     public TreeNode(T value)
     {
         Value = value;
