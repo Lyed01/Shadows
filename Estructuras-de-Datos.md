@@ -4,6 +4,32 @@ Materia: Estructuras de Datos. Los nueve TP están implementados en la rama `est
 
 Todo el código propio vive en `Assets/Scripts/Data Structures/`. No se usan `List<T>`, `Stack<T>`, `Queue<T>`, `HashSet<T>` ni `Dictionary<T>` de C# en las mecánicas que cubren los TP.
 
+## Cómo bajarlo
+
+Repo: https://github.com/Lyed01/Shadows. Todo lo de estructuras está en la rama `estructuras-de-datos`, no en `main`.
+
+Si todavía no tenés el proyecto:
+
+```
+git clone https://github.com/Lyed01/Shadows.git
+cd Shadows
+git switch estructuras-de-datos
+```
+
+Si ya lo tenés clonado:
+
+```
+git fetch origin
+git switch estructuras-de-datos
+git pull
+```
+
+Para volver a traer cambios más adelante alcanza con `git pull` parado en esa rama. Si tenés cambios sin commitear en archivos que la rama también modificó, git se niega a cambiar de rama: commiteá o guardá los cambios con `git stash` antes.
+
+El proyecto se abre con Unity 6000.3.17f1. La primera vez tarda en importar, porque la carpeta `Library` no se versiona. Para comprobar que anda, abrí `Assets/Scenes/Estructuras/PruebaTodo.unity` y dale Play: tiene que mostrar 9 de 9 en verde.
+
+Para pushear cambios hace falta ser colaborador del repo. Si no lo sos, hacé un fork, pusheá ahí y abrí un pull request hacia `estructuras-de-datos`.
+
 ## Qué hay y dónde se usa
 
 | TP | Estructura | Clases | Uso en el juego |
