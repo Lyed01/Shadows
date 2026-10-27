@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -11,7 +13,7 @@ using UnityEngine;
 ///     GameObject prefab = reflectante ? prefabBloqueReflectante : prefabBloque;
 ///
 /// Eso obligaba a abrir la clase y tocar codigo que ya andaba cada vez que se
-/// queria un tipo de bloque nuevo. Con el diccionario no se toca ni una linea:
+/// queria un tipo de bloque nuevo. Con el catalogo no se toca ni una linea:
 /// se arrastra un prefab mas al inspector y se le escribe su id.
 ///
 /// El catalogo se arma una sola vez, leyendo el id que cada prefab declara en
@@ -23,10 +25,25 @@ using UnityEngine;
 /// </summary>
 public class FabricaDeBloques
 {
-    // Estatico: se carga una vez con los prefabs de bloque (un punado de ids) y
-    // despues solo se consulta, cada vez que el jugador coloca un bloque.
-    private readonly ISimpleDictionary<string, GameObject> catalogo =
-        new SimpleArrayDictionary<string, GameObject>();
+    /// <summary>Un prefab y el id bajo el que se lo busca. El arbol los ordena por id.</summary>
+    private class Entrada : IComparable<Entrada>
+    {
+        public readonly string Id;
+        public readonly GameObject Prefab;
+
+        public Entrada(string id, GameObject prefab)
+        {
+            Id = id;
+            Prefab = prefab;
+        }
+
+        public int CompareTo(Entrada otra) => string.CompareOrdinal(Id, otra.Id);
+    }
+
+    // Arbol de busqueda: se carga una vez con los prefabs de bloque y despues
+    // se consulta por id cada vez que el jugador coloca uno, en O(altura).
+    private readonly BST<string, Entrada> catalogo =
+        new BST<string, Entrada>((id, entrada) => string.CompareOrdinal(id, entrada.Id));
     private readonly PoolDeBloques pool;
 
     public FabricaDeBloques(PoolDeBloques pool)
@@ -35,7 +52,7 @@ public class FabricaDeBloques
     }
 
     /// <summary>Los ids que la fabrica sabe construir.</summary>
-    public IEnumerable<string> TiposConocidos => catalogo.Keys();
+    public IEnumerable<string> TiposConocidos => catalogo.InOrder().Select(e => e.Id);
 
     /// <summary>
     /// Suma prefabs al catalogo, cada uno bajo el id que trae declarado. Un
@@ -64,16 +81,16 @@ public class FabricaDeBloques
                 continue;
             }
 
-            if (catalogo.TryGetValue(id, out GameObject yaEstaba))
+            if (catalogo.TryGet(id, out Entrada yaEstaba))
             {
-                if (yaEstaba != prefab)
+                if (yaEstaba.Prefab != prefab)
                     Log.Aviso(typeof(FabricaDeBloques),
-                        $"El id '{id}' lo declaran {yaEstaba.name} y {prefab.name}; queda el primero.");
+                        $"El id '{id}' lo declaran {yaEstaba.Prefab.name} y {prefab.name}; queda el primero.");
 
                 continue;
             }
 
-            catalogo.Add(id, prefab);
+            catalogo.Add(new Entrada(id, prefab));
         }
     }
 
@@ -86,13 +103,13 @@ public class FabricaDeBloques
     /// </summary>
     public ShadowBlock Crear(string id, Vector3 posicion)
     {
-        if (!catalogo.TryGetValue(id ?? string.Empty, out GameObject prefab))
+        if (!catalogo.TryGet(id ?? string.Empty, out Entrada entrada))
         {
             Log.Aviso(typeof(FabricaDeBloques), $"No hay ningun bloque registrado con el id '{id}'.");
             return null;
         }
 
-        return pool.Obtener(prefab, posicion);
+        return pool.Obtener(entrada.Prefab, posicion);
     }
 
     /// <summary>
@@ -102,10 +119,10 @@ public class FabricaDeBloques
     /// </summary>
     public int CostoDe(string id)
     {
-        if (!catalogo.TryGetValue(id ?? string.Empty, out GameObject prefab))
+        if (!catalogo.TryGet(id ?? string.Empty, out Entrada entrada))
             return 1;
 
-        ShadowBlock bloque = prefab.GetComponent<ShadowBlock>();
+        ShadowBlock bloque = entrada.Prefab.GetComponent<ShadowBlock>();
         return bloque != null ? Mathf.Max(1, bloque.costoCargas) : 1;
     }
 }
