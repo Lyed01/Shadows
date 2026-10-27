@@ -37,11 +37,20 @@ public static class SaveSystem
         PlayerPrefs.Save();
     }
 
+    /// <summary>Mejor tiempo del nivel en segundos, o 0 si todavia no lo termino.</summary>
+    public static float GetMejorTiempo(string nivelId) =>
+        PlayerPrefs.GetFloat(ClaveNivel(nivelId, "Tiempo"), 0f);
+
     public static void GuardarResultado(string nivelId, int estrellas, float tiempo,
                                         int muertes, int habilidades)
     {
         PlayerPrefs.SetInt(ClaveNivel(nivelId, "Estrellas"), estrellas);
-        PlayerPrefs.SetFloat(ClaveNivel(nivelId, "Tiempo"), tiempo);
+
+        // El tiempo guardado es el mejor, no el ultimo: rejugar mas lento no lo pisa
+        float mejor = GetMejorTiempo(nivelId);
+        if (mejor <= 0f || tiempo < mejor)
+            PlayerPrefs.SetFloat(ClaveNivel(nivelId, "Tiempo"), tiempo);
+
         PlayerPrefs.SetInt(ClaveNivel(nivelId, "Muertes"), muertes);
         PlayerPrefs.SetInt(ClaveNivel(nivelId, "Habilidades"), habilidades);
         PlayerPrefs.Save();

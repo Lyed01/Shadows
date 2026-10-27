@@ -116,15 +116,15 @@ public class NPCDemostrador : MonoBehaviour
         do
         {
             // Los pasos se consumen como cola: se saca el primero, se ejecuta y
-            // se descarta. SimpleLinkedList resuelve ese RemoveFirst en O(1),
+            // se descarta. SimpleLinkedQueue resuelve ese Dequeue en O(1),
             // mientras que sobre un arreglo cada baja obliga a correr todo lo
             // que queda.
-            var cola = new SimpleLinkedList<DemostracionPaso>();
+            ISimpleQueue<DemostracionPaso> cola = new SimpleLinkedQueue<DemostracionPaso>();
             foreach (var paso in pasos)
-                cola.Add(paso);
+                cola.Enqueue(paso);
 
-            while (cola.Count > 0)
-                yield return EjecutarPaso(cola.RemoveFirst());
+            while (!cola.IsEmpty)
+                yield return EjecutarPaso(cola.Dequeue());
 
         } while (repetir);
 

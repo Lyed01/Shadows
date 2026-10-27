@@ -54,6 +54,15 @@ public class GridManager : MonoBehaviour
     /// </summary>
     private readonly PoolDeBloques pool = new();
 
+    /// <summary>
+    /// Los bloques colocados, del mas viejo al mas nuevo, para deshacer de a uno
+    /// empezando por el ultimo (LIFO). Pila estatica: solo se apila al colocar y
+    /// se desapila al deshacer, ambas O(1) sobre el ultimo lugar del arreglo, y
+    /// no hace falta pagar un nodo por bloque. Puede guardar bloques que la luz
+    /// ya destruyo; DeshacerUltimoBloque los salta.
+    /// </summary>
+    private readonly ISimpleStack<ShadowBlock> historialDeBloques = new SimpleArrayStack<ShadowBlock>();
+
     private FabricaDeBloques fabrica;
 
     /// <summary>
@@ -157,8 +166,35 @@ public class GridManager : MonoBehaviour
         data.occupied = true;
         celdas[cellPos] = data;
         bloquesInstanciados.Add(sb.gameObject);
+        historialDeBloques.Push(sb);
 
         return ResultadoColocacion.Exito;
+    }
+
+    /// <summary>
+    /// Saca el ultimo bloque que el jugador coloco y siga vivo, y le devuelve lo
+    /// que costo. Devuelve false si no queda ninguno.
+    /// </summary>
+    public bool DeshacerUltimoBloque()
+    {
+        while (!historialDeBloques.IsEmpty)
+        {
+            ShadowBlock sb = historialDeBloques.Pop();
+
+            // Ya lo destruyo la luz (o se reciclo): no hay nada que deshacer.
+            if (sb == null || !bloquesInstanciados.Contains(sb.gameObject)) continue;
+
+            int costo = Fabrica.CostoDe(sb.idTipo);
+
+            // DestruirBloque libera la celda, lo devuelve al pool y recupera una
+            // carga; falta el resto si el bloque costaba mas (el espejo cuesta 2).
+            sb.DestruirBloque();
+            hudHabilidad?.RecuperarCargas(costo - 1);
+
+            return true;
+        }
+
+        return false;
     }
 
     public void EliminarShadowBlocks()
@@ -178,6 +214,7 @@ public class GridManager : MonoBehaviour
         }
 
         bloquesInstanciados.Clear();
+        historialDeBloques.Clear();
     }
 
     private void OnDestroy()

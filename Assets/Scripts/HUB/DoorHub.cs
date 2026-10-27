@@ -57,7 +57,14 @@ public class DoorHub : MonoBehaviour
 
     public float DistanciaActivacion => distanciaActivacion;
     public string TituloNivel => tituloNivel;
-    public string DescripcionNivel => descripcionNivel;
+    public string DescripcionNivel
+    {
+        get
+        {
+            string marca = RankingDeTiempos.Resumen(idNivel);
+            return marca.Length == 0 ? descripcionNivel : descripcionNivel + "\n" + marca;
+        }
+    }
 
     public int ObtenerEstrellas() => estrellas;
 

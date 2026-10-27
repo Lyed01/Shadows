@@ -55,6 +55,10 @@ public class PlayerAbilityController : MonoBehaviour
         // Solo activo si el jugador está en modo habilidad
         if (!Jugador.ModoHabilidadActivo) return;
 
+        // Z deshace el ultimo bloque colocado, sin importar que habilidad este elegida
+        if (Input.GetKeyDown(KeyCode.Z) && jugador.gridManager != null && !jugador.gridManager.DeshacerUltimoBloque())
+            jugador.hudHabilidad?.MostrarAviso("No hay bloques para deshacer.");
+
         AbilityData seleccionada = AbilitySelector.Instance?.GetHabilidadActual();
         if (seleccionada == null) return;
 
