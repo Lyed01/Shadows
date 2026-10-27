@@ -98,6 +98,36 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/FinalCutscene.unity
     guid: e3a37c90d6989014c939842ae281af6c
+  - enabled: 1
+    path: Assets/Scenes/Estructuras/MenuEstructuras.unity
+    guid: 229ce7f5f236e714391878af73d482b4
+  - enabled: 1
+    path: Assets/Scenes/Estructuras/TP01_List.unity
+    guid: fa22bc0c648f9cf46ad65b92cb804f30
+  - enabled: 1
+    path: Assets/Scenes/Estructuras/TP02_Stack.unity
+    guid: 3a9e193c7ec07c349b794d81bd99c9f9
+  - enabled: 1
+    path: Assets/Scenes/Estructuras/TP03_Queue.unity
+    guid: 733aa7df4cd79f84fa5dd0518175700d
+  - enabled: 1
+    path: Assets/Scenes/Estructuras/TP04_PriorityQueue.unity
+    guid: 5ffb5ff1f07e8e546af5535e2cf0d934
+  - enabled: 1
+    path: Assets/Scenes/Estructuras/TP05_Set.unity
+    guid: 35823632edb4b9f449de88e80a6e0dba
+  - enabled: 1
+    path: Assets/Scenes/Estructuras/TP06_Dictionary.unity
+    guid: 29cd3037b1dd76a4399300991490a2e4
+  - enabled: 1
+    path: Assets/Scenes/Estructuras/TP07_Sorting.unity
+    guid: 95ba6369a05675347b6cccb1e4a5f614
+  - enabled: 1
+    path: Assets/Scenes/Estructuras/TP08_BST.unity
+    guid: f1acd3ec0e5936144b77fa2c256bcc67
+  - enabled: 1
+    path: Assets/Scenes/Estructuras/TP09_AVL.unity
+    guid: 7bc9684694fff8b4cbcf7bd644c3c77d
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
