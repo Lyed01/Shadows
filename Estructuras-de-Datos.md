@@ -41,14 +41,31 @@ Para pushear cambios hace falta ser colaborador del repo. Si no lo sos, hacé un
 | 05 | Set | `ISimpleSet`, `SimpleArraySet`, `SimpleLinkedSet` | Habilidades desbloqueadas en `AbilityManager`. |
 | 06 | Dictionary | `ISimpleDictionary`, `SimpleArrayDictionary`, `SimpleLinkedDictionary` | Habilidades del jugador (`PlayerAbilityController`) y reservas del pool de bloques. |
 | 07 | Sorting | `CollectionSort`, `ISimpleList.Sort` (Bubble, Selection, Quick; ascendente o descendente) | `RankingDeTiempos` ordena los mejores tiempos y el popup de cada puerta del Hub muestra el puesto. |
-| 08 | BST | `BST<TKey, T>`, `TreeNode<T>` | Base del AVL. Busca por una clave distinta del valor guardado, con un `Func` que se pasa al constructor. |
-| 09 | AVL | `AVL<TKey, T>` | Catálogo de bloques de `FabricaDeBloques`, buscado por id. Hereda de `BST` y sobrescribe `Insertar` y `Quitar` para rotar. |
+| 08 | BST | `BST<TKey, T>`, `TreeNode<T>` | Es la base del AVL y el juego no lo usa solo. Guarda los valores ordenados y busca por una clave distinta del valor (por ejemplo, un id de texto), con un `Func` que se pasa al constructor. Recorridos `InOrder`, `PreOrder` y `PostOrder`, más `Min`, `Max`, `Height` y `Dibujar`. |
+| 09 | AVL | `AVL<TKey, T>` | Catálogo de bloques de `FabricaDeBloques`, buscado por id. Hereda de `BST` y sobrescribe `Insertar` y `Quitar` para rebalancear con rotaciones, así que buscar, agregar y quitar son O(log n) siempre. |
 
 Convenciones que conviene no romper:
 
 - En la cola de prioridad el número más chico sale primero y las prioridades son `int`.
 - Leer de una pila o cola vacía tira `InvalidOperationException`.
 - El BST y el AVL no admiten valores repetidos: `Add` devuelve `false` si ya estaba.
+
+## Cómo funcionan el BST y el AVL
+
+En un BST cada nodo tiene un hijo izquierdo con valores menores y uno derecho con valores mayores. Buscar es bajar por un solo camino, comparando en cada nodo, y cuesta lo que mide el árbol. Si los valores entran ya ordenados, el árbol se estira hacia un lado, queda como una lista y todo pasa a O(n).
+
+El AVL arregla eso. Después de cada alta y cada baja revisa, en cada nodo del camino que recorrió, la altura de sus dos hijos. Si difieren en más de 1, rota. Hay cuatro casos:
+
+| Desbalance | Arreglo |
+|------------|---------|
+| izquierda-izquierda | una rotación a la derecha |
+| derecha-derecha | una rotación a la izquierda |
+| izquierda-derecha | rotación izquierda del hijo y después derecha |
+| derecha-izquierda | rotación derecha del hijo y después izquierda |
+
+Cada nodo guarda su altura, así que `Height` cuesta O(1). `EstaBalanceado()` recorre el árbol y comprueba que ningún nodo se pase de 1 y que las alturas guardadas sean las reales; `PruebaAVL` lo usa después de insertar y quitar.
+
+En `FabricaDeBloques` el árbol se carga una vez con los prefabs de bloque y después solo se consulta por id con `TryGet`. El panel F1 muestra cuántos tipos hay, la altura y si está balanceado.
 
 ## Cómo se prueba
 
