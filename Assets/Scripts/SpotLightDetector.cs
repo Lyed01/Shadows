@@ -22,11 +22,6 @@ public class SpotLightDetector : LightDetectorBase
     public float alcance = 8f;
     [Range(6, 100)] public int cantidadRayos = 30;
 
-    [Header("Ajuste visual de textura")]
-    public float multiplicadorAnchoUV = 1f;
-    public bool invertirDegradado = false;
-    public float offsetU = 0f;
-
     [Header("Rotación automática")]
     public bool rotacionConstante = false;
     public float velocidadRotacion = 45f;
@@ -248,6 +243,11 @@ public class SpotLightDetector : LightDetectorBase
 
         Dictionary<ShadowBlock, float> iluminadosEsteFrame = new();
         List<Vector3> vertices = new() { Vector3.zero };
+
+        // El shader necesita saber de que rayo viene cada pixel, y un abanico
+        // comparte un solo vertice en la punta: por eso cada rayo lleva el suyo.
+        List<Vector3> verticesHaz = new();
+        List<Vector2> uvs = new();
         List<int> triangles = new();
 
         for (int i = 0; i <= cantidadRayos; i++)
@@ -300,40 +300,37 @@ public class SpotLightDetector : LightDetectorBase
                 }
             }
 
-            vertices.Add(transform.InverseTransformPoint(puntoMundo));
+            Vector3 puntoLocal = transform.InverseTransformPoint(puntoMundo);
+            vertices.Add(puntoLocal);
+
+            verticesHaz.Add(Vector3.zero);
+            verticesHaz.Add(puntoLocal);
+            uvs.Add(new Vector2(t, 0f));
+            uvs.Add(new Vector2(t, Vector2.Distance(origen, puntoMundo) / alcance));
+
+            if (i == 0) continue;
+
+            int b = (i - 1) * 2;
+            triangles.Add(b); triangles.Add(b + 1); triangles.Add(b + 2);
+            triangles.Add(b + 1); triangles.Add(b + 3); triangles.Add(b + 2);
         }
 
         foreach (var kvp in iluminadosEsteFrame)
         {
             float dist = kvp.Value;
             float intensidad = 1f - Mathf.Clamp01(dist / alcance);
-            float daño = dañoBase * intensidad * Time.deltaTime;
+
+            // La roja lo mata de una, pero por RecibirLuz para respetar la
+            // proteccion del bloque recien colocado.
+            float daño = tipoLuz == TipoLuz.Roja
+                ? kvp.Key.vidaBajoLuz
+                : dañoBase * intensidad * Time.deltaTime;
 
             kvp.Key.RecibirLuz(daño, tipoLuz);
         }
 
-        // Triángulos
-        for (int i = 1; i < vertices.Count - 1; i++)
-        {
-            triangles.Add(0);
-            triangles.Add(i);
-            triangles.Add(i + 1);
-        }
-
-        // UVs
-        List<Vector2> uvs = new();
-        for (int i = 0; i < vertices.Count; i++)
-        {
-            float u = (float)i / (vertices.Count - 1);
-            float v = i == 0 ? 0f : 1f;
-            if (invertirDegradado) v = 1f - v;
-
-            u = (u - 0.5f) / multiplicadorAnchoUV + 0.5f + offsetU;
-            uvs.Add(new Vector2(u, v));
-        }
-
         mesh.Clear();
-        mesh.SetVertices(vertices);
+        mesh.SetVertices(verticesHaz);
         mesh.SetTriangles(triangles, 0);
         mesh.SetUVs(0, uvs);
         mesh.RecalculateBounds();

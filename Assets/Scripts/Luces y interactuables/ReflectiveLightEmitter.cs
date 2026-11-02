@@ -140,9 +140,6 @@ public class ReflectiveLightEmitter : MonoBehaviour
                 float daño = dañoBase * intensidad * Time.deltaTime;
 
                 sb.RecibirLuz(daño, tipoLuz);
-
-                if (sb is MirrorBlock m)
-                    m.RecibirLuz(dir, daño, tipoLuz, hit.normal, alcance, punto);
             }
         }
 
@@ -160,12 +157,15 @@ public class ReflectiveLightEmitter : MonoBehaviour
 
         int[] tris = new int[] { 0, 2, 1, 2, 3, 1 };
 
+        // Igual que los otros haces: u cruza el ancho y v avanza con la distancia.
+        float largo = dist / alcance;
+
         Vector2[] uvs = new Vector2[]
         {
-        new Vector2(0,1),
+        new Vector2(1,0),
         new Vector2(0,0),
-        new Vector2(1,1),
-        new Vector2(1,0)
+        new Vector2(1,largo),
+        new Vector2(0,largo)
         };
 
         float ang = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;

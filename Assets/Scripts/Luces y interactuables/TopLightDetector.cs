@@ -249,9 +249,11 @@ public class TopLightDetector : LightDetectorBase
 
         List<Vector3> vertices = new() { Vector3.zero };
         List<int> triangles = new();
-        List<Vector2> uvs = new();
+        List<Vector2> uvs = new() { new Vector2(0.5f, 0f) };
 
-        HashSet<ShadowBlock> iluminadosEsteFrame = new();
+        // Distancia del impacto mas cercano a cada bloque, para aplicarle el
+        // daño una sola vez por frame y no una vez por rayo.
+        Dictionary<ShadowBlock, float> distanciaPorBloque = new();
 
         for (int i = 0; i <= resolucion; i++)
         {
@@ -260,13 +262,13 @@ public class TopLightDetector : LightDetectorBase
 
             RaycastHit2D hit = Physics2D.Raycast(origen, dir, radio, mascaraBloqueos);
             Vector2 punto = hit.collider ? hit.point : origen + dir * radio;
+            float distanciaAlCentro = Vector2.Distance(origen, punto);
 
             if (aplicarEfectos && hit.collider)
             {
                 // En el haz cenital el nucleo no es una franja sino el centro
                 // del circulo: mata cerca de la lampara y el anillo de afuera
                 // solo alumbra.
-                float distanciaAlCentro = Vector2.Distance(origen, punto);
                 bool dentroDelNucleo = distanciaAlCentro <= radio * fraccionLetal;
 
                 // --- JUGADOR ---
@@ -283,16 +285,17 @@ public class TopLightDetector : LightDetectorBase
                 // --- BLOQUES ---
                 if (hit.collider.TryGetComponent(out ShadowBlock sb))
                 {
-                    float dist = Vector2.Distance(origen, punto);
-                    float intensidad = curvaIntensidad.Evaluate(1f - dist / radio);
-                    float daño = dañoBase * intensidad * Time.deltaTime;
-
-                    sb.RecibirLuz(daño, tipoLuz);
-                    iluminadosEsteFrame.Add(sb);
+                    if (!distanciaPorBloque.TryGetValue(sb, out float previa) || distanciaAlCentro < previa)
+                        distanciaPorBloque[sb] = distanciaAlCentro;
                 }
             }
 
             vertices.Add(transform.InverseTransformPoint(punto));
+
+            // El shader lee el desvio en u y el largo en v. En un circulo los
+            // dos son la distancia al centro, asi su nucleo coincide con el letal.
+            float largo = distanciaAlCentro / radio;
+            uvs.Add(new Vector2(0.5f + 0.5f * largo, largo));
         }
 
         // Triángulos del mesh
@@ -303,18 +306,25 @@ public class TopLightDetector : LightDetectorBase
             triangles.Add(i + 1);
         }
 
-        // UVs
-        foreach (var v in vertices)
-        {
-            Vector3 nv = v.normalized * 0.5f + Vector3.one * 0.5f;
-            uvs.Add(new Vector2(nv.x, nv.y));
-        }
-
         mesh.Clear();
         mesh.SetVertices(vertices);
         mesh.SetTriangles(triangles, 0);
         mesh.SetUVs(0, uvs);
         mesh.RecalculateBounds();
+
+        HashSet<ShadowBlock> iluminadosEsteFrame = new();
+
+        foreach (var kvp in distanciaPorBloque)
+        {
+            // La roja lo mata de una, pero por RecibirLuz para respetar la
+            // proteccion del bloque recien colocado.
+            float daño = tipoLuz == TipoLuz.Roja
+                ? kvp.Key.vidaBajoLuz
+                : dañoBase * curvaIntensidad.Evaluate(kvp.Value / radio) * Time.deltaTime;
+
+            kvp.Key.RecibirLuz(daño, tipoLuz);
+            iluminadosEsteFrame.Add(kvp.Key);
+        }
 
         // Salir de la luz
         foreach (var sb in iluminadosPrev)

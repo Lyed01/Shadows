@@ -201,8 +201,8 @@ MonoBehaviour:
   mascaraBloqueos:
     serializedVersion: 2
     m_Bits: 968
-  materialAmarilla: {fileID: 2100000, guid: b6dd62502bb314140843627070279e55, type: 2}
-  materialRoja: {fileID: 2100000, guid: 80c3bd99266f97840b2c5a55fe2ab6f3, type: 2}
+  materialAmarilla: {fileID: 2100000, guid: 01c14e51fad087143b82b81d49f6c524, type: 2}
+  materialRoja: {fileID: 2100000, guid: 6f857af2f2f137e47a11d727320eb126, type: 2}
   multiplicadorAnchoUV: -1.68
   invertirDegradado: 1
   offsetU: -0.17

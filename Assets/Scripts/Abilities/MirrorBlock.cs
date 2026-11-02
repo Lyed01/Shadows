@@ -151,7 +151,7 @@ public class MirrorBlock : ShadowBlock
     }
 
 
-    // LUZ DIRECTA DEL SPOTLIGHT
+    // LUZ DIRECTA O REFLEJADA
     public override void RecibirLuz(float daño, TipoLuz tipo)
     {
         recibiendoLuz = true;
@@ -163,21 +163,6 @@ public class MirrorBlock : ShadowBlock
         // Cambia sprite según estado (si no está dañado)
         if (!EstaDaniado() && spriteActivo != null)
             sr.sprite = spriteActivo;
-
-        if (vidaActual > 0f && tipo != TipoLuz.Roja)
-            ActivarLuzReflejada(tipo);
-    }
-
-
-    // LUZ REFLEJADA DEL EMITTER
-    public void RecibirLuz(Vector2 dirLuz, float daño, TipoLuz tipo,
-                       Vector2 normal, float alcanceOriginal, Vector2 puntoImpacto)
-    {
-        recibiendoLuz = true;
-        tiempoSinLuz = 0f;
-
-        //  Usa la misma lógica de ShadowBlock (incluye protección anti-instant-kill)
-        base.RecibirLuz(daño, tipo);
 
         if (vidaActual > 0f && tipo != TipoLuz.Roja)
             ActivarLuzReflejada(tipo);
@@ -202,7 +187,8 @@ public class MirrorBlock : ShadowBlock
             // Configuración del emisor
             emisor.SetTipoLuz(tipo);
             emisor.SetDireccion(direccionActual);
-            emisor.SetParametros(alcance, 0.25f);
+            // El halo ocupa el ancho del bloque; el nucleo lo define HazReflejo.mat.
+            emisor.SetParametros(alcance, 0.94f);
             emisor.mascaraBloqueos = (mascaraBloqueos.value == 0) ? ~0 : mascaraBloqueos;
         }
         else

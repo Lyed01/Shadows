@@ -65,7 +65,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b6dd62502bb314140843627070279e55, type: 2}
+  - {fileID: 2100000, guid: 1d529b62d4f94c2c816783081088aa24, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -131,4 +131,4 @@ MonoBehaviour:
   mascaraBloqueos:
     serializedVersion: 2
     m_Bits: 968
-  materialLuz: {fileID: 2100000, guid: b6dd62502bb314140843627070279e55, type: 2}
+  materialLuz: {fileID: 2100000, guid: 1d529b62d4f94c2c816783081088aa24, type: 2}
