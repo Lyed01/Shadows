@@ -16,9 +16,26 @@ public class SpotLightDetector : LightDetectorBase
     public Transform lamparaPivot;
     public Vector2 offsetLampara = Vector2.zero;
 
+    [Tooltip("Si la luz gira, el sprite de la lampara lo hace de a estos grados. Rotado de " +
+             "a poco en baja resolucion pierde pixeles distintos en cada angulo. 0 lo desactiva.")]
+    [Min(0f)] public float pasoGiroLampara = 15f;
+
     [Header("Parámetros del haz")]
     public Vector2 direccion = Vector2.up;
     [Range(1, 180)] public float anguloCono = 90f;
+
+    [Tooltip("Ancho del que sale la luz. Con 0 nace de un punto y es un cono; con mas, " +
+             "un trapecio que anguloCono abre hacia afuera.")]
+    [Min(0f)] public float anchoBoca = 0f;
+
+    [Tooltip("Cuanto avanza el origen del haz desde el pivot, en la direccion de la luz, " +
+             "para que nazca en el foco de la lampara y no detras.")]
+    [Min(0f)] public float salidaHaz = 0f;
+
+    [Tooltip("La luz que pasa al costado de un obstaculo solo sigue si tiene este ancho. " +
+             "Las franjas mas finas se cortan y tampoco matan.")]
+    [Min(0f)] public float anchoMinimoFranja = 1f;
+
     public float alcance = 8f;
     [Range(6, 100)] public int cantidadRayos = 30;
 
@@ -41,6 +58,20 @@ public class SpotLightDetector : LightDetectorBase
     private MeshFilter meshFilter;
     private Mesh mesh;
     private Light2D luzHaz;
+
+    // Buffers del haz: se reutilizan porque se arma una vez por frame y por foco.
+    private readonly Dictionary<ShadowBlock, float> iluminadosEsteFrame = new();
+    private readonly List<Vector3> vertices = new();
+    private readonly List<Vector3> verticesHaz = new();
+    private readonly List<Vector2> uvs = new();
+    private readonly List<int> triangles = new();
+    private RaycastHit2D[] impactos;
+    private Vector2[] salidas;
+    private Vector2[] direcciones;
+    private float[] largos;
+    private float[] largosFinales;
+    private Vector3[] formaLuz;
+    private bool generandoHaz;
 
     private float anguloActual;
     private float tiempoOscilacion;
@@ -197,6 +228,10 @@ public class SpotLightDetector : LightDetectorBase
 
         float z = anguloActual - 90f;
 
+        // Una lampara quieta se queda en su angulo exacto: solo respira la que gira.
+        if ((rotacionConstante || oscilacion) && pasoGiroLampara > 0f)
+            z = Mathf.Round(z / pasoGiroLampara) * pasoGiroLampara;
+
         Transform piv = lamparaPivot != null ? lamparaPivot : pivotRotacion;
         piv.rotation = Quaternion.Euler(0, 0, z);
 
@@ -222,6 +257,17 @@ public class SpotLightDetector : LightDetectorBase
     /// </summary>
     private void GenerarLuzMesh(bool aplicarEfectos = true)
     {
+        // Un efecto puede volver a pedir el haz (Matar, un receptor) y pisaria los
+        // buffers a mitad del bucle. La llamada de afuera rehace la malla igual.
+        if (generandoHaz) return;
+
+        generandoHaz = true;
+        try { ArmarHaz(aplicarEfectos); }
+        finally { generandoHaz = false; }
+    }
+
+    private void ArmarHaz(bool aplicarEfectos)
+    {
         // 1. Apagada manualmente
         if (!luzActiva)
             return;
@@ -239,28 +285,54 @@ public class SpotLightDetector : LightDetectorBase
             : (Vector2)transform.position;
 
         Vector2 dirBase = direccion.normalized;
+        origen += dirBase * salidaHaz;
+        Vector2 perpendicular = new(-dirBase.y, dirBase.x);
         float angInicio = -anguloCono * 0.5f;
 
-        Dictionary<ShadowBlock, float> iluminadosEsteFrame = new();
-        List<Vector3> vertices = new() { Vector3.zero };
+        iluminadosEsteFrame.Clear();
+        vertices.Clear();
+        vertices.Add(Vector3.zero);
 
         // El shader necesita saber de que rayo viene cada pixel, y un abanico
         // comparte un solo vertice en la punta: por eso cada rayo lleva el suyo.
-        List<Vector3> verticesHaz = new();
-        List<Vector2> uvs = new();
-        List<int> triangles = new();
+        verticesHaz.Clear();
+        uvs.Clear();
+        triangles.Clear();
 
-        for (int i = 0; i <= cantidadRayos; i++)
+        int totalRayos = cantidadRayos + 1;
+
+        if (largos == null || largos.Length != totalRayos)
+        {
+            impactos = new RaycastHit2D[totalRayos];
+            salidas = new Vector2[totalRayos];
+            direcciones = new Vector2[totalRayos];
+            largos = new float[totalRayos];
+            largosFinales = new float[totalRayos];
+        }
+
+        for (int i = 0; i < totalRayos; i++)
         {
             float t = i / (float)cantidadRayos;
-            float angActual = angInicio + t * anguloCono;
-            Vector2 dirRay = Quaternion.Euler(0, 0, angActual) * dirBase;
+            direcciones[i] = Quaternion.Euler(0, 0, angInicio + t * anguloCono) * dirBase;
+            salidas[i] = origen + perpendicular * ((t - 0.5f) * anchoBoca);
 
-            RaycastHit2D hit =
-                Physics2D.Raycast(origen, dirRay, alcance, mascaraBloqueos);
+            impactos[i] = Physics2D.Raycast(salidas[i], direcciones[i], alcance, mascaraBloqueos);
+            largos[i] = impactos[i].collider ? impactos[i].distance : alcance;
+        }
+
+        RecortarFranjas(salidas, direcciones, largos, anchoMinimoFranja, largosFinales);
+
+        for (int i = 0; i < totalRayos; i++)
+        {
+            float t = i / (float)cantidadRayos;
+            Vector2 salida = salidas[i];
+
+            // Un rayo recortado termina antes de llegar a lo que tenia adelante.
+            bool recortado = largosFinales[i] < largos[i] - 0.001f;
+            RaycastHit2D hit = recortado ? default : impactos[i];
 
             Vector2 puntoMundo =
-                hit.collider ? hit.point : origen + dirRay * alcance;
+                hit.collider ? hit.point : salida + direcciones[i] * largosFinales[i];
 
             // Que tan al costado del eje va este rayo: 0 en el centro del haz,
             // 1 en el borde. Define si lo que toque muere o solo se ilumina.
@@ -290,7 +362,7 @@ public class SpotLightDetector : LightDetectorBase
                 // aplicarle el daño una vez por rayo.
                 if (hit.collider.TryGetComponent(out ShadowBlock sb))
                 {
-                    float distancia = Vector2.Distance(origen, puntoMundo);
+                    float distancia = Vector2.Distance(salida, puntoMundo);
 
                     if (!iluminadosEsteFrame.ContainsKey(sb) ||
                         distancia < iluminadosEsteFrame[sb])
@@ -303,10 +375,10 @@ public class SpotLightDetector : LightDetectorBase
             Vector3 puntoLocal = transform.InverseTransformPoint(puntoMundo);
             vertices.Add(puntoLocal);
 
-            verticesHaz.Add(Vector3.zero);
+            verticesHaz.Add(transform.InverseTransformPoint(salida));
             verticesHaz.Add(puntoLocal);
             uvs.Add(new Vector2(t, 0f));
-            uvs.Add(new Vector2(t, Vector2.Distance(origen, puntoMundo) / alcance));
+            uvs.Add(new Vector2(t, Vector2.Distance(salida, puntoMundo) / alcance));
 
             if (i == 0) continue;
 
@@ -339,10 +411,20 @@ public class SpotLightDetector : LightDetectorBase
         if (luzSigueHaz && luzHaz != null)
         {
             int count = vertices.Count;
-            Vector3[] forma3D = new Vector3[count];
+
+            // Con boca la luz cierra por sus dos esquinas; sin boca, por un solo punto.
+            int puntosForma = anchoBoca > 0f ? count + 1 : count;
+
+            // Light2D se queda con la referencia y detecta cambios por contenido.
+            if (formaLuz == null || formaLuz.Length != puntosForma)
+                formaLuz = new Vector3[puntosForma];
 
             Vector2 origenLuz = origen;
-            forma3D[0] = transform.InverseTransformPoint(origenLuz);
+            Vector2 mitadBoca = perpendicular * (anchoBoca * 0.5f);
+            formaLuz[0] = transform.InverseTransformPoint(origenLuz - mitadBoca);
+
+            if (anchoBoca > 0f)
+                formaLuz[count] = transform.InverseTransformPoint(origenLuz + mitadBoca);
 
             for (int i = 1; i < count; i++)
             {
@@ -351,11 +433,61 @@ public class SpotLightDetector : LightDetectorBase
                 Vector2 dir = ((Vector2)mundo - origenLuz).normalized;
                 float dist = Vector2.Distance(mundo, origenLuz);
                 Vector2 extendido = origenLuz + dir * dist * multiplicadorAlcanceLuz;
-                forma3D[i] = transform.InverseTransformPoint(extendido);
+                formaLuz[i] = transform.InverseTransformPoint(extendido);
             }
 
-            luzHaz.SetShapePath(forma3D);
+            luzHaz.SetShapePath(formaLuz);
             luzHaz.intensity = luzEncendida ? intensidadHaz : 0f;
+        }
+    }
+
+    /// <summary>
+    /// Escribe en finales el largo de cada rayo, sin las franjas de luz mas finas que
+    /// anchoMinimo que pasan al costado de un obstaculo. El ancho se mide donde la
+    /// franja deja atras al obstaculo, porque despues se abre con la distancia.
+    /// </summary>
+    public static void RecortarFranjas(Vector2[] salidas, Vector2[] direcciones,
+                                       float[] largos, float anchoMinimo, float[] finales)
+    {
+        int total = largos.Length;
+
+        for (int i = 0; i < total; i++)
+        {
+            int izq = i, der = i;
+            float alto = largos[i];
+
+            while (izq > 0 || der < total - 1)
+            {
+                float vecinoIzq = izq > 0 ? largos[izq - 1] : -1f;
+                float vecinoDer = der < total - 1 ? largos[der + 1] : -1f;
+                float baseFranja = Mathf.Max(vecinoIzq, vecinoDer);
+
+                // Un escalon chico no es un borde: contra una pared plana los rayos
+                // difieren apenas, y eso no debe frenar la busqueda ni acortar el rayo.
+                if (alto - baseFranja >= anchoMinimo)
+                {
+                    Vector2 puntoIzq = salidas[izq] + direcciones[izq] * baseFranja;
+                    Vector2 puntoDer = salidas[der] + direcciones[der] * baseFranja;
+
+                    // Un haz angosto entero no llega al minimo cerca de la lampara: lo
+                    // que ocupa la mitad del haz o mas nunca cuenta como franja.
+                    float anchoHaz = Vector2.Distance(
+                        salidas[0] + direcciones[0] * baseFranja,
+                        salidas[total - 1] + direcciones[total - 1] * baseFranja);
+
+                    if (Vector2.Distance(puntoIzq, puntoDer) >= Mathf.Min(anchoMinimo, anchoHaz * 0.5f))
+                        break;
+
+                    alto = baseFranja;
+                }
+
+                if (vecinoIzq >= vecinoDer)
+                    izq--;
+                else
+                    der++;
+            }
+
+            finales[i] = alto;
         }
     }
 
@@ -458,24 +590,29 @@ public class SpotLightDetector : LightDetectorBase
             : (Vector2)transform.position;
 
         Vector2 dirBase = direccion.sqrMagnitude < 0.0001f ? Vector2.up : direccion.normalized;
+        origen += dirBase * salidaHaz;
 
         // Borde del haz: hasta aca se ve, pero no mata
         Gizmos.color = new Color(1f, 0.95f, 0.5f, 0.35f);
-        DibujarBorde(origen, dirBase, anguloCono);
+        DibujarBorde(origen, dirBase, anguloCono, anchoBoca);
 
         // Borde del nucleo: de aca para adentro, mata
         Gizmos.color = new Color(1f, 0.3f, 0.2f, 0.9f);
-        DibujarBorde(origen, dirBase, anguloCono * fraccionLetal);
+        DibujarBorde(origen, dirBase, anguloCono * fraccionLetal, anchoBoca * fraccionLetal);
     }
 
-    private void DibujarBorde(Vector2 origen, Vector2 dirBase, float apertura)
+    private void DibujarBorde(Vector2 origen, Vector2 dirBase, float apertura, float boca)
     {
         Vector2 izq = Quaternion.Euler(0, 0, -apertura * 0.5f) * dirBase;
         Vector2 der = Quaternion.Euler(0, 0, apertura * 0.5f) * dirBase;
 
-        Gizmos.DrawLine(origen, origen + izq * alcance);
-        Gizmos.DrawLine(origen, origen + der * alcance);
-        Gizmos.DrawLine(origen + izq * alcance, origen + der * alcance);
+        Vector2 mitadBoca = new Vector2(-dirBase.y, dirBase.x) * (boca * 0.5f);
+        Vector2 salidaIzq = origen - mitadBoca;
+        Vector2 salidaDer = origen + mitadBoca;
+
+        Gizmos.DrawLine(salidaIzq, salidaIzq + izq * alcance);
+        Gizmos.DrawLine(salidaDer, salidaDer + der * alcance);
+        Gizmos.DrawLine(salidaIzq + izq * alcance, salidaDer + der * alcance);
     }
 
     // RESET TOTAL

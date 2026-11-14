@@ -49,6 +49,17 @@ public class TopLightDetector : LightDetectorBase
     private Mesh mesh;
 
     private HashSet<ShadowBlock> iluminadosPrev = new();
+
+    // Buffers del circulo: se reutilizan porque se arma una vez por frame y por luz.
+    private HashSet<ShadowBlock> iluminadosEsteFrame = new();
+    private readonly Dictionary<ShadowBlock, float> distanciaPorBloque = new();
+    private readonly List<Vector3> vertices = new();
+    private readonly List<int> triangles = new();
+    private readonly List<Vector2> uvs = new();
+    private Vector3[] formaLuz;
+    private float radioFormaLuz;
+    private bool generandoLuz;
+
     // RESET
 
     private bool resetInProgress = false;
@@ -245,15 +256,28 @@ public class TopLightDetector : LightDetectorBase
     /// </summary>
     private void GenerarLuzCircular(bool aplicarEfectos = true)
     {
+        // Un efecto puede volver a pedir la luz (Matar reinicia el nivel) y pisaria
+        // los buffers a mitad del bucle. La llamada de afuera rehace la malla igual.
+        if (generandoLuz) return;
+
+        generandoLuz = true;
+        try { ArmarCirculo(aplicarEfectos); }
+        finally { generandoLuz = false; }
+    }
+
+    private void ArmarCirculo(bool aplicarEfectos)
+    {
         Vector2 origen = transform.position;
 
-        List<Vector3> vertices = new() { Vector3.zero };
-        List<int> triangles = new();
-        List<Vector2> uvs = new() { new Vector2(0.5f, 0f) };
+        vertices.Clear();
+        vertices.Add(Vector3.zero);
+        triangles.Clear();
+        uvs.Clear();
+        uvs.Add(new Vector2(0.5f, 0f));
 
         // Distancia del impacto mas cercano a cada bloque, para aplicarle el
         // daño una sola vez por frame y no una vez por rayo.
-        Dictionary<ShadowBlock, float> distanciaPorBloque = new();
+        distanciaPorBloque.Clear();
 
         for (int i = 0; i <= resolucion; i++)
         {
@@ -312,7 +336,7 @@ public class TopLightDetector : LightDetectorBase
         mesh.SetUVs(0, uvs);
         mesh.RecalculateBounds();
 
-        HashSet<ShadowBlock> iluminadosEsteFrame = new();
+        iluminadosEsteFrame.Clear();
 
         foreach (var kvp in distanciaPorBloque)
         {
@@ -331,7 +355,7 @@ public class TopLightDetector : LightDetectorBase
             if (!iluminadosEsteFrame.Contains(sb))
                 sb.SalirDeLuz();
 
-        iluminadosPrev = new(iluminadosEsteFrame);
+        (iluminadosPrev, iluminadosEsteFrame) = (iluminadosEsteFrame, iluminadosPrev);
 
         ActualizarFormaLuz2D();
     }
@@ -357,6 +381,9 @@ public class TopLightDetector : LightDetectorBase
         luz2D.intensity = intensidadLuz2D;
 
         ActualizarColorLuz2D();
+
+        // Es una luz nueva: hay que pasarle la forma aunque no haya cambiado.
+        formaLuz = null;
         ActualizarFormaLuz2D();
     }
 
@@ -365,17 +392,22 @@ public class TopLightDetector : LightDetectorBase
         if (luz2D == null) return;
 
         int puntos = Mathf.Clamp(resolucion, 12, 256);
-        Vector3[] shape = new Vector3[puntos];
-
         float r = radio * multiplicadorRadioLuz;
+
+        // El circulo no depende de lo que tenga alrededor: solo cambia con estos valores.
+        if (formaLuz != null && formaLuz.Length == puntos && radioFormaLuz == r)
+            return;
+
+        formaLuz = new Vector3[puntos];
+        radioFormaLuz = r;
 
         for (int i = 0; i < puntos; i++)
         {
             float ang = i * Mathf.PI * 2f / puntos;
-            shape[i] = new Vector3(Mathf.Cos(ang) * r, Mathf.Sin(ang) * r, 0f);
+            formaLuz[i] = new Vector3(Mathf.Cos(ang) * r, Mathf.Sin(ang) * r, 0f);
         }
 
-        luz2D.SetShapePath(shape);
+        luz2D.SetShapePath(formaLuz);
     }
 
     private void ActualizarColorLuz2D()

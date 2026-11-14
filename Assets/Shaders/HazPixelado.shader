@@ -31,6 +31,10 @@ Shader "URP/HazPixelado"
         _DurezaBorde("Dureza del borde lateral", Range(0, 1)) = 0.8
         [Toggle]_BandasCurvas("Bandas curvas (en vez de rectas)", Float) = 1
 
+        [Header(Boca)]
+        _ColorBoca("Color del foco", Color) = (1, 0.72, 0.18, 1)
+        _LargoBoca("Largo del fundido, fraccion del alcance (0 lo apaga)", Range(0, 0.5)) = 0
+
         [Header(Animacion)]
         _Pulso("Pulso del nucleo", Range(0, 1)) = 0
         _VelocidadPulso("Velocidad del pulso", Float) = 2
@@ -74,6 +78,8 @@ Shader "URP/HazPixelado"
             float  _CaidaLargo;
             float  _DurezaBorde;
             float  _BandasCurvas;
+            float4 _ColorBoca;
+            float  _LargoBoca;
             float  _Pulso;
             float  _VelocidadPulso;
 
@@ -156,6 +162,18 @@ Shader "URP/HazPixelado"
 
                 float3 color = lerp(_ColorBorde.rgb, _Color.rgb, saturate(marcaNucleo));
                 float3 salida = color * (luz + refuerzo) * _Intensity;
+
+                // Cerca de la boca el haz toma el color del foco y pasa al suyo en
+                // escalones. Se mezcla el resultado final porque, antes de esto, el
+                // brillo del nucleo satura el color y lo vuelve blanco.
+                if (_LargoBoca > 0.0)
+                {
+                    const float pasos = 4.0;
+                    // uv.y y no largo: el corrimiento de la grilla es mayor que estos
+                    // escalones y los rompe en un patron de cuadros.
+                    float haciaElHaz = saturate(floor(uv.y / _LargoBoca * pasos) / pasos);
+                    salida = lerp(_ColorBoca.rgb * saturate(luz), salida, haciaElHaz);
+                }
 
                 return half4(salida, saturate(luz + refuerzo));
             }

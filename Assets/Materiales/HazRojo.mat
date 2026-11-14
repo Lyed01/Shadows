@@ -34,12 +34,14 @@ Material:
     - _DurezaBorde: 0.75
     - _FraccionNucleo: 0.9
     - _Intensity: 1
+    - _LargoBoca: 0.09
     - _PPU: 16
     - _Pulso: 0
     - _SnapAPixel: 1
     - _VelocidadPulso: 2
     m_Colors:
     - _Color: {r: 1, g: 0.55, b: 0.42, a: 1}
+    - _ColorBoca: {r: 1, g: 0.35, b: 0.12, a: 1}
     - _ColorBorde: {r: 0.95, g: 0.32, b: 0.25, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
