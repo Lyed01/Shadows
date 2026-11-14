@@ -55,7 +55,7 @@ public class HabilidadLlamaAbisal : IHabilidad
         componente.Inicializar(jugador);
         hud?.UsarCargas(Costo);
 
-        AbilityManager.OnUsarHabilidad?.Invoke();
+        AbilityManager.NotificarUso();
     }
 
     public void UsarSecundaria(Jugador jugador) { }

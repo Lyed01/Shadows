@@ -1,6 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// Cola de eventos de sonido. Quien pide un FX no lo reproduce: deja el pedido
+/// en la cola y sigue. En Update el AudioManager atiende los pedidos del frame
+/// por prioridad, hasta maxFXPorFrame.
+///
+/// Separar el pedido de la reproduccion permite dos cosas. Si diez sistemas
+/// piden sonidos en el mismo frame, se decide en un solo lugar cuales suenan.
+/// Y quien pide no depende de cuantas fuentes de audio hay ni de su estado.
+/// </summary>
 public class AudioManager : PersistentSingleton<AudioManager>
 {
     // === PRIORIDAD DE SONIDOS ===

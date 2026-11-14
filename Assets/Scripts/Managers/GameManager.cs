@@ -3,16 +3,20 @@ using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
 
-public class GameManager : PersistentSingleton<GameManager>
+public partial class GameManager : PersistentSingleton<GameManager>
 {
     public enum GameState { Jugando, Pausado, Muerte, Transicion }
-    public GameState EstadoActual { get; private set; } = GameState.Jugando;
+    public GameState EstadoActual => estado.Tipo;
 
-    public static Action OnPlayerDeath;
-    public static Action OnLevelRestart;
-    public static Action OnPause;
-    public static Action OnResume;
-    public static Action<Jugador> OnPlayerSpawned;
+    // Un objeto por estado, en el orden del enum. Las clases estan en GameManager.Estados.cs.
+    private EstadoJuego[] estados;
+    private EstadoJuego estado;
+
+    public static event Action OnPlayerDeath;
+    public static event Action OnLevelRestart;
+    public static event Action OnPause;
+    public static event Action OnResume;
+    public static event Action<Jugador> OnPlayerSpawned;
 
     [Header("Transición visual")]
     public ScreenFader fader;
@@ -35,6 +39,15 @@ public class GameManager : PersistentSingleton<GameManager>
     //  Inicialización persistente
     protected override void OnBoot()
     {
+        estados = new EstadoJuego[]
+        {
+            new EstadoJugando(this), new EstadoPausado(this),
+            new EstadoMuerte(this), new EstadoTransicion(this),
+        };
+        for (int i = 0; i < estados.Length; i++)
+            Debug.Assert((int)estados[i].Tipo == i, "Los estados no siguen el orden del enum GameState");
+        estado = estados[(int)GameState.Jugando];
+
         SceneManager.sceneLoaded += OnSceneLoaded;
         Log.Info(this, "GameManager persistente inicializado.");
     }
@@ -156,26 +169,18 @@ public class GameManager : PersistentSingleton<GameManager>
     // UPDATE & GAME STATE
     void Update()
     {
-        if (SceneManager.GetActiveScene().name == Escenas.MainMenu)
+        // La copia descartada del singleton no paso por OnBoot y no tiene estados.
+        if (estado == null || SceneManager.GetActiveScene().name == Escenas.MainMenu)
             return;
         if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (EstadoActual == GameState.Jugando)
-                PausarJuego();
-            else if (EstadoActual == GameState.Pausado)
-                ReanudarJuego();
-        }
+            estado.AlPresionarEscape();
     }
+
+    // EstadoMuerte avisa la muerte y programa el reinicio. Nada de popups aca.
     private void ManejarMuerteJugador()
     {
         DialogueSystemWorld.Instance?.ForzarCerrarDialogo();
-        if (EstadoActual == GameState.Muerte) return;
-        EstadoActual = GameState.Muerte;
-
-        OnPlayerDeath?.Invoke(); // LevelScoreManager escucha esto
-
-        //  Nada de popups acá
-        Invoke(nameof(ReiniciarFlujoDeJuego), tiempoReinicio);
+        CambiarEstado(GameState.Muerte);
     }
 
 
@@ -192,9 +197,7 @@ public class GameManager : PersistentSingleton<GameManager>
         if (jugadorActual != null)
             Destroy(jugadorActual.gameObject);
 
-        grid?.EliminarShadowBlocks();
-        grid?.ResetearCeldas();
-        ResetearEntornoInteractivo();
+        ReinicioDeNivel.Reiniciar(grid);
 
         //  Nuevo jugador
         SpawnJugador(SceneManager.GetActiveScene(), respawn: true);
@@ -215,26 +218,18 @@ public class GameManager : PersistentSingleton<GameManager>
         fader?.FadeOut(duracionFade);
         yield return new WaitForSeconds(duracionFade);
 
-        EstadoActual = GameState.Jugando;
+        CambiarEstado(GameState.Jugando);
     }
 
 
-    public void PausarJuego()
-    {
-        if (EstadoActual == GameState.Pausado) return;
-        EstadoActual = GameState.Pausado;
-        Time.timeScale = 0f;
-        OnPause?.Invoke();
-        UIManager.Instance?.MostrarPausa();
-    }
+    // EstadoPausado congela el tiempo y muestra la pausa al entrar, y lo
+    // deshace al salir.
+    public void PausarJuego() => CambiarEstado(GameState.Pausado);
 
     public void ReanudarJuego()
     {
         if (EstadoActual != GameState.Pausado) return;
-        EstadoActual = GameState.Jugando;
-        Time.timeScale = 1f;
-        OnResume?.Invoke();
-        UIManager.Instance?.MostrarHUD();
+        CambiarEstado(GameState.Jugando);
     }
 
     // CARGA DE ESCENAS
@@ -246,8 +241,7 @@ public class GameManager : PersistentSingleton<GameManager>
 
     private IEnumerator CargarHubAsync()
     {
-        EstadoActual = GameState.Transicion;
-        Time.timeScale = 1f;
+        CambiarEstado(GameState.Transicion);
 
         //  Cubrimos pantalla instantáneamente
         fader?.InstantBlack();
@@ -271,7 +265,7 @@ public class GameManager : PersistentSingleton<GameManager>
         fader?.FadeOut(duracionFade);
         yield return new WaitForSeconds(duracionFade);
 
-        EstadoActual = GameState.Jugando;
+        CambiarEstado(GameState.Jugando);
     }
 
 
@@ -293,8 +287,7 @@ public class GameManager : PersistentSingleton<GameManager>
 
     private IEnumerator CargarEscenaAsync(string nombreEscena)
     {
-        EstadoActual = GameState.Transicion;
-        Time.timeScale = 1f;
+        CambiarEstado(GameState.Transicion);
 
         //  Ocultamos pantalla INMEDIATO para evitar ver HUD o flashes
         fader?.InstantBlack();
@@ -310,7 +303,7 @@ public class GameManager : PersistentSingleton<GameManager>
 
         yield return new WaitForSeconds(duracionFade);
 
-        EstadoActual = GameState.Jugando;
+        CambiarEstado(GameState.Jugando);
     }
 
 
@@ -421,11 +414,15 @@ public class GameManager : PersistentSingleton<GameManager>
     public bool EstaJugando => EstadoActual == GameState.Jugando;
 
     /// <summary>
-    /// Cambia manualmente el estado del juego (usado por triggers u otros sistemas).
+    /// Sale del estado actual y entra al nuevo. Pedir el estado en el que ya se
+    /// esta no hace nada: asi morir dos veces o pausar en pausa no repiten efectos.
     /// </summary>
     public void CambiarEstado(GameState nuevoEstado)
     {
-        EstadoActual = nuevoEstado;
+        if (estado.Tipo == nuevoEstado) return;
+        estado.Salir();
+        estado = estados[(int)nuevoEstado];
+        estado.Entrar();
         Log.Info(this, $"Estado del juego cambiado a: {nuevoEstado}");
     }
     private SpawnPoint FindSpawnPointSoloDeLaEscena(Scene escenaNivel)
@@ -452,26 +449,5 @@ public class GameManager : PersistentSingleton<GameManager>
         }
 
         return null;
-    }
-    private void ResetearEntornoInteractivo()
-    {
-        //  Reiniciar TODOS los switches
-        foreach (var sw in FindObjectsByType<Switch>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            sw.ResetSwitch();
-
-        //  Reiniciar TODOS los receptores de luz
-        foreach (var rec in FindObjectsByType<LightReceptor>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            rec.ResetReceptor();
-
-        //  Reiniciar TODOS los SpotLights cónicos
-        foreach (var luz in FindObjectsByType<SpotLightDetector>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            luz.ResetToInitialState();
-
-        foreach (var top in FindObjectsByType<TopLightDetector>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            top.ResetToInitialState();
-
-        //  Reiniciar todas las puertas a su estado inicial
-        foreach (var p in FindObjectsByType<Door>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            p.ResetToInitialState();
     }
 }

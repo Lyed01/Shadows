@@ -29,7 +29,11 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     public GameObject prefabAbyssFlame;
 
     // === Eventos globales ===
-    public static Action OnUsarHabilidad;
+    // Es un event y no un Action publico: desde afuera solo se puede suscribir
+    // o desuscribir. Las habilidades avisan el uso con NotificarUso().
+    public static event Action OnUsarHabilidad;
+
+    public static void NotificarUso() => OnUsarHabilidad?.Invoke();
 
     // === Estados internos ===
     /// <summary>

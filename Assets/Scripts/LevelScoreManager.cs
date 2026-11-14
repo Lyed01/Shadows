@@ -38,8 +38,8 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
     private bool nivelEnCurso;
     private bool nivelFinalizado;
 
-    public static Action<int> OnNivelCompletado;
-    public static Action OnNivelComenzo;
+    public static event Action<int> OnNivelCompletado;
+    public static event Action OnNivelComenzo;
 
     protected override void OnBoot()
     {

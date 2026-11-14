@@ -72,7 +72,7 @@ public class HabilidadTeletransporte : IHabilidad
 
         jugador.SetInputBloqueado(false);
         hud.UsarCargas(Costo);
-        AbilityManager.OnUsarHabilidad?.Invoke();
+        AbilityManager.NotificarUso();
 
         jugador.SendMessage("DesactivarModoHabilidad", SendMessageOptions.DontRequireReceiver);
     }

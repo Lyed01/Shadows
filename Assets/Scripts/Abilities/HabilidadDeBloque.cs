@@ -39,7 +39,7 @@ public abstract class HabilidadDeBloque : IHabilidad
         {
             AudioManager.Instance?.ReproducirBloque();
             hud.UsarCargas(costo);
-            AbilityManager.OnUsarHabilidad?.Invoke();
+            AbilityManager.NotificarUso();
             return;
         }
 
@@ -133,6 +133,6 @@ public class HabilidadBloqueEspejo : HabilidadDeBloque
         }
 
         espejo.RotarHaz();
-        AbilityManager.OnUsarHabilidad?.Invoke();
+        AbilityManager.NotificarUso();
     }
 }
