@@ -24,10 +24,6 @@ public class TopLightDetector : LightDetectorBase
     public float radio = 4f;
     [Range(12, 128)] public int resolucion = 48;
 
-
-    // MATERIAL VISUAL
-    // TITILEO / APAGONES
-    [Header("Titileo")]
     // LÁMPARA VISUAL
     [Header("Sprite Lámpara")]
     public Sprite lampSprite;
@@ -66,12 +62,8 @@ public class TopLightDetector : LightDetectorBase
 
 
     // === Estado inicial ===
-    private Vector3 initPos;
-    private Quaternion initRot;
-
     private float initRadio;
     private int initResolucion;
-    private bool initTitilar;
     private bool initLuzEncendida;
 
     private int initIndiceObjetivo;
@@ -104,16 +96,12 @@ public class TopLightDetector : LightDetectorBase
 
 
         // === Guardar estado inicial del TopLight ===
-        initPos = transform.position;
-        initRot = transform.rotation;
+        GuardarEstadoBase();
         initMoverEntrePuntos = moverEntrePuntos;
         initRadio = radio;
         initResolucion = resolucion;
-        initTitilar = titilar;
         initLuzEncendida = luzEncendida;
  
-        initTipoLuz = tipoLuz;
-
         InicializarTitileo();
 
 
@@ -140,11 +128,9 @@ public class TopLightDetector : LightDetectorBase
         if (!Application.isPlaying)
             return;
 
-        // MATERIAL
-        meshRenderer.sharedMaterial =
-            tipoLuz == TipoLuz.Roja ? materialRoja : materialAmarilla;
+        meshRenderer.sharedMaterial = MaterialSegunTipo;
 
-        //  APAGADO MANUAL  luzActiva controla TODO el apagado real
+        // APAGADO MANUAL  luzActiva controla TODO el apagado real
         if (!luzActiva)
         {
             if (meshRenderer != null)
@@ -169,7 +155,7 @@ public class TopLightDetector : LightDetectorBase
         // TITILEO
         ActualizarTitileo();
 
-        //  SI EL TITILEO APAGA  SOLO APAGA EL HAZ, NO LA LÁMPARA
+        // SI EL TITILEO APAGA  SOLO APAGA EL HAZ, NO LA LÁMPARA
         if (!luzEncendida)
         {
             if (meshRenderer != null)
@@ -245,8 +231,6 @@ public class TopLightDetector : LightDetectorBase
         }
     }
 
-    // TITILEO
-
     // LÓGICA PRINCIPAL DEL HAZ CIRCULAR
 
     /// <summary>
@@ -284,7 +268,7 @@ public class TopLightDetector : LightDetectorBase
             float ang = i * Mathf.PI * 2f / resolucion;
             Vector2 dir = new(Mathf.Cos(ang), Mathf.Sin(ang));
 
-            RaycastHit2D hit = Physics2D.Raycast(origen, dir, radio, mascaraBloqueos);
+            ImpactoDeLuz hit = SombraDeBloques.Lanzar(origen, dir, radio, mascaraBloqueos);
             Vector2 punto = hit.collider ? hit.point : origen + dir * radio;
             float distanciaAlCentro = Vector2.Distance(origen, punto);
 
@@ -295,16 +279,7 @@ public class TopLightDetector : LightDetectorBase
                 // solo alumbra.
                 bool dentroDelNucleo = distanciaAlCentro <= radio * fraccionLetal;
 
-                // --- JUGADOR ---
-                if (dentroDelNucleo && hit.collider.TryGetComponent(out Jugador j))
-                    j.Matar();
-
-                //  LUZ ROJA cenital elimina AbyssFlame
-                if (tipoLuz == TipoLuz.Roja &&
-                    hit.collider.TryGetComponent(out AbyssFlame flame))
-                {
-                    flame.Extinguir();
-                }
+                EfectosDeLuz.Aplicar(hit.collider, tipoLuz, dentroDelNucleo, avisarReceptores: false);
 
                 // --- BLOQUES ---
                 if (hit.collider.TryGetComponent(out ShadowBlock sb))
@@ -343,7 +318,7 @@ public class TopLightDetector : LightDetectorBase
             // La roja lo mata de una, pero por RecibirLuz para respetar la
             // proteccion del bloque recien colocado.
             float daño = tipoLuz == TipoLuz.Roja
-                ? kvp.Key.vidaBajoLuz
+                ? kvp.Key.VidaBajoLuz
                 : dañoBase * curvaIntensidad.Evaluate(kvp.Value / radio) * Time.deltaTime;
 
             kvp.Key.RecibirLuz(daño, tipoLuz);
@@ -534,25 +509,20 @@ public class TopLightDetector : LightDetectorBase
     {
         resetInProgress = true;
 
-        // === Transform ===
-        transform.position = initPos;
-        transform.rotation = initRot;
+        RestaurarEstadoBase();
 
         // === Parámetros de luz ===
         radio = initRadio;
         resolucion = initResolucion;
-        titilar = initTitilar;
         luzEncendida = initLuzEncendida;
         InicializarTitileo();
-        tipoLuz = initTipoLuz;
 
         // === Movimiento ===
         indiceObjetivo = initIndiceObjetivo;
         retrocediendo = initRetrocediendo;
         moverEntrePuntos = initMoverEntrePuntos;
         // === Material ===
-        meshRenderer.sharedMaterial =
-            tipoLuz == TipoLuz.Roja ? materialRoja : materialAmarilla;
+        meshRenderer.sharedMaterial = MaterialSegunTipo;
 
         // === LUZ 2D ===
         usarLuz2D = initUsarLuz2D;

@@ -672,18 +672,6 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2269089428861272482, guid: 03fe6506fbe0438469636a861fee0527, type: 3}
-      propertyPath: lucesControladas.Array.data[0].luz
-      value: 
-      objectReference: {fileID: 434962950}
-    - target: {fileID: 2269089428861272482, guid: 03fe6506fbe0438469636a861fee0527, type: 3}
-      propertyPath: lucesControladas.Array.data[1].luz
-      value: 
-      objectReference: {fileID: 434962950}
-    - target: {fileID: 2269089428861272482, guid: 03fe6506fbe0438469636a861fee0527, type: 3}
-      propertyPath: lucesControladas.Array.data[0].cambiarTipoLuz
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2269089428861272482, guid: 03fe6506fbe0438469636a861fee0527, type: 3}
       propertyPath: lucesControladas.Array.data[0].spotSettings.spot
       value: 
       objectReference: {fileID: 434962950}

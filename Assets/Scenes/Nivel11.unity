@@ -3391,54 +3391,6 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[0].luz
-      value: 
-      objectReference: {fileID: 592865904}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[1].luz
-      value: 
-      objectReference: {fileID: 1102688518}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[2].luz
-      value: 
-      objectReference: {fileID: 1196928304}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[3].luz
-      value: 
-      objectReference: {fileID: 1072921618}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[4].luz
-      value: 
-      objectReference: {fileID: 1930501128}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[5].luz
-      value: 
-      objectReference: {fileID: 1072921618}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[0].encendidoON
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[1].encendidoON
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[2].encendidoON
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[3].encendidoON
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[4].encendidoON
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[5].encendidoON
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
       propertyPath: lucesConfiguradas.Array.data[0].spotSettings.spot
       value: 
       objectReference: {fileID: 592865904}
@@ -3458,30 +3410,6 @@ PrefabInstance:
       propertyPath: lucesConfiguradas.Array.data[4].spotSettings.spot
       value: 
       objectReference: {fileID: 1930501128}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[0].modificarEncendido
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[1].modificarEncendido
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[2].modificarEncendido
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[3].modificarEncendido
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[4].modificarEncendido
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
-      propertyPath: lucesConfiguradas.Array.data[5].modificarEncendido
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 3086714125570845289, guid: cefb382efd646d942a0fa248ea3d91f6, type: 3}
       propertyPath: lucesConfiguradas.Array.data[0].spotSettings.encendidoON
       value: 1

@@ -91,7 +91,7 @@ public class ReflectiveLightEmitter : MonoBehaviour
 
 
         // --- RAYCAST IDENTICO AL SPOTLIGHT ---
-        RaycastHit2D hit = new RaycastHit2D();
+        ImpactoDeLuz hit = default;
         float minDist = alcance;
         bool hayHit = false;
 
@@ -102,15 +102,25 @@ public class ReflectiveLightEmitter : MonoBehaviour
             if (h.collider == null) continue;
             if (h.collider == col) continue;  // ignorar al padre
             if (h.collider.GetComponent<ReflectiveLightEmitter>() != null) continue;
+            if (SombraDeBloques.EsBloque(h.collider)) continue; // su sombra va aparte
 
             float d = h.distance; // distancia REAL del raycast
 
             if (d < minDist)
             {
                 minDist = d;
-                hit = h;
+                hit = new ImpactoDeLuz { collider = h.collider, point = h.point, distance = d };
                 hayHit = true;
             }
+        }
+
+        // Los bloques tapan con su ancho de sombra; el espejo del que sale el haz no.
+        if (SombraDeBloques.PrimerBloque(origen, dir, minDist, mascaraBloqueos,
+                col.GetComponent<ShadowBlock>(), out ShadowBlock bloque, out float distBloque))
+        {
+            minDist = distBloque;
+            hit = new ImpactoDeLuz { collider = bloque.Colisionador, point = origen + dir * distBloque, distance = distBloque };
+            hayHit = true;
         }
 
         float dist = minDist;

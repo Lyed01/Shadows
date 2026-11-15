@@ -65,7 +65,8 @@ public class SpotLightDetector : LightDetectorBase
     private readonly List<Vector3> verticesHaz = new();
     private readonly List<Vector2> uvs = new();
     private readonly List<int> triangles = new();
-    private RaycastHit2D[] impactos;
+    private ImpactoDeLuz[] impactos;
+    private bool[] tocaBloque;
     private Vector2[] salidas;
     private Vector2[] direcciones;
     private float[] largos;
@@ -80,8 +81,6 @@ public class SpotLightDetector : LightDetectorBase
     private float offsetOscilacion = 0f;
 
     // === ESTADO INICIAL REAL ===
-    private Vector3 initPos;
-    private Quaternion initRot;
 
     private Vector2 initDireccion;
     private float initAnguloCono;
@@ -91,10 +90,8 @@ public class SpotLightDetector : LightDetectorBase
     private bool initRotacionConstante;
     private bool initOscilacion;
     private float initRangoOscilacion;
-    private bool initTitilar;
 
     private float initAnguloBase;
-    private bool initLuzActiva;
     private bool initLuzEncendida;
 
     // AWAKE
@@ -112,22 +109,17 @@ public class SpotLightDetector : LightDetectorBase
         anguloActual = Mathf.Atan2(direccion.y, direccion.x) * Mathf.Rad2Deg;
         anguloBase = anguloActual;
 
-        initPos = transform.position;
-        initRot = transform.rotation;
-
         initDireccion = direccion;
         initAnguloCono = anguloCono;
         initAlcance = alcance;
         initDañoBase = dañoBase;
-        initTipoLuz = tipoLuz;
 
         initRotacionConstante = rotacionConstante;
         initOscilacion = oscilacion;
         initRangoOscilacion = rangoOscilacion;
-        initTitilar = titilar;
 
         initAnguloBase = anguloBase;
-        initLuzActiva = luzActiva;
+        GuardarEstadoBase();
         initLuzEncendida = luzEncendida;
 
         InicializarTitileo();
@@ -135,6 +127,23 @@ public class SpotLightDetector : LightDetectorBase
         if (luzSigueHaz)
             CrearLuzHaz();
     }
+
+#if UNITY_EDITOR
+    // Sube con cada cambio que registra el editor: mover o crear algo, tocar un
+    // valor del Inspector, pintar tiles, deshacer. Los cambios que hace el
+    // propio foco por código no pasan por ahí, así que no se realimenta.
+    private static int versionEscena;
+    private int versionDibujada = -1;
+
+    [UnityEditor.InitializeOnLoadMethod]
+    private static void EscucharCambiosDelEditor()
+    {
+        UnityEditor.ObjectChangeEvents.changesPublished +=
+            (ref UnityEditor.ObjectChangeEventStream _) => versionEscena++;
+    }
+
+    private void OnValidate() => versionDibujada = -1;
+#endif
 
     // UPDATE
     void Update()
@@ -145,8 +154,13 @@ public class SpotLightDetector : LightDetectorBase
             if (meshRenderer == null)
                 meshRenderer = GetComponentInChildren<MeshRenderer>();
 
-            meshRenderer.sharedMaterial =
-                (tipoLuz == TipoLuz.Roja) ? materialRoja : materialAmarilla;
+            if (meshRenderer.sharedMaterial != MaterialSegunTipo)
+                meshRenderer.sharedMaterial = MaterialSegunTipo;
+
+            // Rearmar el haz en cada Update del editor lo dejaba trabajando sin
+            // parar con la escena abierta. Solo se rearma si hubo un cambio.
+            if (versionDibujada == versionEscena) return;
+            versionDibujada = versionEscena;
 
             // Fuera de play mode se dibuja el haz pero no se aplica nada: sin
             // esto la luz mata al jugador, activa receptores y daña bloques con
@@ -169,14 +183,11 @@ public class SpotLightDetector : LightDetectorBase
             return;
         }
 
-        // Material según tipo de luz
         if (meshRenderer == null)
             meshRenderer = GetComponentInChildren<MeshRenderer>();
 
-        meshRenderer.sharedMaterial =
-            (tipoLuz == TipoLuz.Roja) ? materialRoja : materialAmarilla;
+        meshRenderer.sharedMaterial = MaterialSegunTipo;
 
-        // Rotación y oscilación
         ActualizarRotacionConstante();
         ActualizarOscilacion();
         AplicarRotacionFinal();
@@ -243,8 +254,6 @@ public class SpotLightDetector : LightDetectorBase
         }
     }
 
-    // TITILEO
-
     // MESH + LUZ
 
     /// <summary>
@@ -301,9 +310,12 @@ public class SpotLightDetector : LightDetectorBase
 
         int totalRayos = cantidadRayos + 1;
 
-        if (largos == null || largos.Length != totalRayos)
+        // Se mira impactos y no largos: al recompilar en el editor Unity conserva
+        // los arrays de float pero no este, que no es serializable.
+        if (impactos == null || impactos.Length != totalRayos)
         {
-            impactos = new RaycastHit2D[totalRayos];
+            impactos = new ImpactoDeLuz[totalRayos];
+            tocaBloque = new bool[totalRayos];
             salidas = new Vector2[totalRayos];
             direcciones = new Vector2[totalRayos];
             largos = new float[totalRayos];
@@ -316,11 +328,12 @@ public class SpotLightDetector : LightDetectorBase
             direcciones[i] = Quaternion.Euler(0, 0, angInicio + t * anguloCono) * dirBase;
             salidas[i] = origen + perpendicular * ((t - 0.5f) * anchoBoca);
 
-            impactos[i] = Physics2D.Raycast(salidas[i], direcciones[i], alcance, mascaraBloqueos);
+            impactos[i] = SombraDeBloques.Lanzar(salidas[i], direcciones[i], alcance, mascaraBloqueos);
             largos[i] = impactos[i].collider ? impactos[i].distance : alcance;
+            tocaBloque[i] = impactos[i].collider && SombraDeBloques.EsBloque(impactos[i].collider);
         }
 
-        RecortarFranjas(salidas, direcciones, largos, anchoMinimoFranja, largosFinales);
+        RecortarFranjas(salidas, direcciones, largos, anchoMinimoFranja, largosFinales, tocaBloque);
 
         for (int i = 0; i < totalRayos; i++)
         {
@@ -329,7 +342,7 @@ public class SpotLightDetector : LightDetectorBase
 
             // Un rayo recortado termina antes de llegar a lo que tenia adelante.
             bool recortado = largosFinales[i] < largos[i] - 0.001f;
-            RaycastHit2D hit = recortado ? default : impactos[i];
+            ImpactoDeLuz hit = recortado ? default : impactos[i];
 
             Vector2 puntoMundo =
                 hit.collider ? hit.point : salida + direcciones[i] * largosFinales[i];
@@ -341,22 +354,8 @@ public class SpotLightDetector : LightDetectorBase
 
             if (aplicarEfectos && hit.collider)
             {
-                // Al jugador solo lo mata el nucleo. El borde se ve pero no hace
-                // daño: antes moria igual rozando el filo tenue que parado en el
-                // centro.
-                if (rayoLetal && hit.collider.TryGetComponent(out Jugador j))
-                    j.Matar();
-
-                // Luz roja mata AbyssFlame
-                if (tipoLuz == TipoLuz.Roja &&
-                    hit.collider.TryGetComponent(out AbyssFlame flame))
-                {
-                    flame.Extinguir();
-                }
-
-                // Enviar luz a receptores
-                if (hit.collider.TryGetComponent(out LightReceptor receptor))
-                    receptor.RecibirLuz(tipoLuz);
+                // Al jugador solo lo mata el nucleo: rozar el filo tenue no daña.
+                EfectosDeLuz.Aplicar(hit.collider, tipoLuz, rayoLetal, avisarReceptores: true);
 
                 // ShadowBlocks: se anota el mas cercano de cada uno para no
                 // aplicarle el daño una vez por rayo.
@@ -395,7 +394,7 @@ public class SpotLightDetector : LightDetectorBase
             // La roja lo mata de una, pero por RecibirLuz para respetar la
             // proteccion del bloque recien colocado.
             float daño = tipoLuz == TipoLuz.Roja
-                ? kvp.Key.vidaBajoLuz
+                ? kvp.Key.VidaBajoLuz
                 : dañoBase * intensidad * Time.deltaTime;
 
             kvp.Key.RecibirLuz(daño, tipoLuz);
@@ -437,6 +436,7 @@ public class SpotLightDetector : LightDetectorBase
             }
 
             luzHaz.SetShapePath(formaLuz);
+            luzHaz.enabled = true;
             luzHaz.intensity = luzEncendida ? intensidadHaz : 0f;
         }
     }
@@ -445,9 +445,14 @@ public class SpotLightDetector : LightDetectorBase
     /// Escribe en finales el largo de cada rayo, sin las franjas de luz mas finas que
     /// anchoMinimo que pasan al costado de un obstaculo. El ancho se mide donde la
     /// franja deja atras al obstaculo, porque despues se abre con la distancia.
+    ///
+    /// tocaBloque marca los rayos que terminan en un ShadowBlock. Una franja al
+    /// costado de un bloque no se recorta: cuanto tapa el bloque lo decide su
+    /// ancho de sombra, y el recorte lo anularia.
     /// </summary>
     public static void RecortarFranjas(Vector2[] salidas, Vector2[] direcciones,
-                                       float[] largos, float anchoMinimo, float[] finales)
+                                       float[] largos, float anchoMinimo, float[] finales,
+                                       bool[] tocaBloque = null)
     {
         int total = largos.Length;
 
@@ -466,6 +471,10 @@ public class SpotLightDetector : LightDetectorBase
                 // difieren apenas, y eso no debe frenar la busqueda ni acortar el rayo.
                 if (alto - baseFranja >= anchoMinimo)
                 {
+                    if (tocaBloque != null &&
+                        ((izq > 0 && tocaBloque[izq - 1]) || (der < total - 1 && tocaBloque[der + 1])))
+                        break;
+
                     Vector2 puntoIzq = salidas[izq] + direcciones[izq] * baseFranja;
                     Vector2 puntoDer = salidas[der] + direcciones[der] * baseFranja;
 
@@ -511,6 +520,11 @@ public class SpotLightDetector : LightDetectorBase
         luzHaz.shadowIntensity = 0.15f;
         luzHaz.falloffIntensity = 0.35f;
         luzHaz.intensity = intensidadHaz;
+
+        // Sin forma la Light2D falla en cada frame. Un foco que arranca
+        // apagado, o en la fase apagada del titileo, todavia no armo el haz:
+        // se habilita al recibir su primera forma.
+        luzHaz.enabled = false;
 
         ActualizarColorLuzHaz();
     }
@@ -619,14 +633,8 @@ public class SpotLightDetector : LightDetectorBase
     public override void ResetToInitialState()
     {
         if (noReset) return;
-        StartCoroutine(ProcesarReset());
-    }
 
-    private System.Collections.IEnumerator ProcesarReset()
-    {
-        // Transform
-        transform.position = initPos;
-        transform.rotation = initRot;
+        RestaurarEstadoBase();
 
         // Parámetros
         direccion = initDireccion;
@@ -637,19 +645,13 @@ public class SpotLightDetector : LightDetectorBase
         rotacionConstante = initRotacionConstante;
         oscilacion = initOscilacion;
         rangoOscilacion = initRangoOscilacion;
-        titilar = initTitilar;
-        InicializarTitileo();
 
         anguloBase = initAnguloBase;
         giroAcumulado = 0f;
         offsetOscilacion = 0f;
         tiempoOscilacion = 0f;
 
-        luzActiva = initLuzActiva;
         luzEncendida = initLuzEncendida;
-
-        // Tipo de luz vuelve al inicial
-        tipoLuz = initTipoLuz;
         ActualizarPorTipoDeLuz();
 
         // Luz 2D
@@ -662,9 +664,5 @@ public class SpotLightDetector : LightDetectorBase
         // Reconstrucción visual
         GenerarLuzMesh();
         ActualizarPivotVisual();
-
-        yield return null;
-
-        Log.Info(this, $"Spotlight {name} reseteado a su estado inicial.");
     }
 }

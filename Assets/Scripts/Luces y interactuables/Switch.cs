@@ -17,9 +17,9 @@ public class Switch : MonoBehaviour
     public KeyCode activationKey = KeyCode.E;
 
     private SpriteRenderer spriteRenderer;
-    private bool _activado = false; //  ahora privado
+    private bool _activado = false; // ahora privado
 
-    public bool activado => _activado; //  lectura pública
+    public bool activado => _activado; // lectura pública
 
     private bool jugadorEnContacto = false;
 

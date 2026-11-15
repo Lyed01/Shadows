@@ -1,13 +1,20 @@
 ﻿using UnityEngine;
 
-// ENUM DEL TIPO DE LUZ
 public enum LightConfigType
 {
     SpotLight,
     TopLight
 }
 
-// WRAPPER SERIALIZABLE (NECESARIO PARA UNITY)
+/// <summary>
+/// Lo que un switch o un receptor le hace a una luz cuando se activa o se
+/// desactiva. Es un wrapper porque Unity no serializa polimorfismo con campos
+/// planos: guarda las dos configuraciones y usa la que indica 'tipo'.
+///
+/// Los nombres de campo (tipo, spotSettings, topSettings y los de cada una)
+/// estan guardados en los niveles: renombrarlos o moverlos de lugar hace que
+/// las escenas pierdan lo configurado.
+/// </summary>
 [System.Serializable]
 public class LightControlSettings
 {
@@ -20,52 +27,26 @@ public class LightControlSettings
     [Header("Configuración para TopLight (si tipo = TopLight)")]
     public TopLightControlSettings topSettings;
 
-    // APLICACIÓN UNIFICADA
-    public void Aplicar(bool estadoON)
-    {
-        switch (tipo)
-        {
-            case LightConfigType.SpotLight:
-                if (spotSettings != null)
-                    spotSettings.AplicarEstado(estadoON);
-                break;
+    private LightControlSettingsBase Actual =>
+        tipo == LightConfigType.SpotLight ? spotSettings : topSettings;
 
-            case LightConfigType.TopLight:
-                if (topSettings != null)
-                    topSettings.AplicarEstado(estadoON);
-                break;
-        }
-    }
+    public void Aplicar(bool estadoON) => Actual?.AplicarEstado(estadoON);
 
-    // RESET UNIFICADO
     public void Reset()
     {
-        switch (tipo)
-        {
-            case LightConfigType.SpotLight:
-                if (spotSettings != null)
-                {
-                    spotSettings.ResetInterno();
+        var actual = Actual;
+        if (actual == null) return;
 
-                    if (spotSettings.spot != null)
-                        spotSettings.spot.ResetToInitialState();
-                }
-                break;
-
-            case LightConfigType.TopLight:
-                if (topSettings != null)
-                {
-                    topSettings.ResetInterno();
-
-                    if (topSettings.top != null)
-                        topSettings.top.ResetToInitialState();
-                }
-                break;
-        }
+        actual.ResetInterno();
+        if (actual.Luz != null)
+            actual.Luz.ResetToInitialState();
     }
 }
 
-// BASE GENÉRICA
+/// <summary>
+/// Lo comun a las dos luces: encender o apagar, cambiar el tipo y el titileo.
+/// Cada hija agrega lo suyo en AplicarEspecifico.
+/// </summary>
 [System.Serializable]
 public abstract class LightControlSettingsBase
 {
@@ -79,27 +60,67 @@ public abstract class LightControlSettingsBase
     public bool titilarON = false;
     public bool titilarOFF = false;
 
-    // Cada subclase implementa esto
-    public abstract void AplicarEstado(bool estadoON);
+    [Header("Cambio de tipo de luz")]
+    public bool cambiarTipoLuz = false;
+
+    // El cambio se hace una sola vez por activacion, aunque el switch se
+    // vuelva a evaluar: si no, alternaria el tipo en cada llamada.
+    [System.NonSerialized] private bool cambioAplicado = false;
+
+    /// <summary>La luz que controla. Null si todavia no se asigno.</summary>
+    public abstract LightDetectorBase Luz { get; }
+
+    protected abstract TipoLuz TipoAlActivar { get; }
+    protected abstract TipoLuz TipoAlDesactivar { get; }
+
+    public void AplicarEstado(bool estadoON)
+    {
+        LightDetectorBase luz = Luz;
+        if (luz == null) return;
+
+        if (modificarEncendido)
+        {
+            bool encender = estadoON ? encendidoON : encendidoOFF;
+            luz.SetLuzActiva(encender);
+            if (!encender) return;
+        }
+
+        AplicarTipo(luz, estadoON);
+
+        if (modificarTitileo)
+            luz.titilar = estadoON ? titilarON : titilarOFF;
+
+        AplicarEspecifico(estadoON);
+    }
+
+    private void AplicarTipo(LightDetectorBase luz, bool estadoON)
+    {
+        if (!cambiarTipoLuz) return;
+
+        if (estadoON)
+        {
+            if (cambioAplicado) return;
+            luz.SetTipoLuz(TipoAlActivar);
+            cambioAplicado = true;
+        }
+        else
+        {
+            luz.SetTipoLuz(TipoAlDesactivar);
+            cambioAplicado = false;
+        }
+    }
+
+    /// <summary>Lo que solo existe en este tipo de luz: giro, alcance, movimiento...</summary>
+    protected abstract void AplicarEspecifico(bool estadoON);
+
+    public virtual void ResetInterno() => cambioAplicado = false;
 }
 
-// SPOTLIGHT
 [System.Serializable]
 public class SpotLightControlSettings : LightControlSettingsBase
 {
     [Header("Referencia a SpotLight")]
     public SpotLightDetector spot;
-
-    [Header("Tipo de luz")]
-    public bool cambiarTipoLuz = false;
-
-    [System.NonSerialized]
-    private bool cambioAplicado = false;
-
-    public void ResetInterno()
-    {
-        cambioAplicado = false;
-    }
 
     [Header("Rotación constante")]
     public bool modificarRotacion = false;
@@ -117,50 +138,19 @@ public class SpotLightControlSettings : LightControlSettingsBase
     public float alcanceON = 12f;
     public float alcanceOFF = 8f;
 
-    public override void AplicarEstado(bool estadoON)
+    public override LightDetectorBase Luz => spot;
+
+    // El foco no declara un tipo: al activar invierte el que traia la escena.
+    protected override TipoLuz TipoAlActivar =>
+        spot.TipoLuzInicial == TipoLuz.Amarilla ? TipoLuz.Roja : TipoLuz.Amarilla;
+
+    protected override TipoLuz TipoAlDesactivar => spot.TipoLuzInicial;
+
+    protected override void AplicarEspecifico(bool estadoON)
     {
-        if (spot == null) return;
-
-        // ENCENDIDO / APAGADO
-        if (modificarEncendido)
-        {
-            bool encender = estadoON ? encendidoON : encendidoOFF;
-            spot.SetLuzActiva(encender);
-            if (!encender) return;
-        }
-
-        // CAMBIO DE TIPO DE LUZ (ONCE POR ACTIVACIÓN)
-        if (cambiarTipoLuz)
-        {
-            if (estadoON)
-            {
-                if (!cambioAplicado)
-                {
-                    var nuevoTipo =
-                        (spot.initTipoLuz == TipoLuz.Amarilla)
-                        ? TipoLuz.Roja
-                        : TipoLuz.Amarilla;
-
-                    spot.SetTipoLuz(nuevoTipo);
-                    cambioAplicado = true;
-                }
-            }
-            else
-            {
-                spot.SetTipoLuz(spot.initTipoLuz);
-                cambioAplicado = false;
-            }
-        }
-
-        // TITILEO
-        if (modificarTitileo)
-            spot.titilar = estadoON ? titilarON : titilarOFF;
-
-        // ROTACIÓN
         if (modificarRotacion)
             spot.rotacionConstante = estadoON ? rotacionON : rotacionOFF;
 
-        // OSCILACIÓN
         if (modificarOscilacion)
         {
             spot.oscilacion = estadoON ? oscilacionON : oscilacionOFF;
@@ -169,39 +159,21 @@ public class SpotLightControlSettings : LightControlSettingsBase
                 spot.rangoOscilacion = rangoOscilacion;
         }
 
-        // ALCANCE
         if (modificarAlcance)
             spot.alcance = estadoON ? alcanceON : alcanceOFF;
     }
 }
 
-// TOPLIGHT
 [System.Serializable]
 public class TopLightControlSettings : LightControlSettingsBase
 {
     [Header("Referencia a TopLight")]
     public TopLightDetector top;
 
-    // CAMBIO DE TIPO DE LUZ (NUEVO)
-    [Header("Cambio de tipo de luz")]
-    public bool cambiarTipoLuz = false;
-
+    [Header("Tipo de luz al activar y al desactivar")]
     public TipoLuz tipoLuzON;
     public TipoLuz tipoLuzOFF;
 
-    [System.NonSerialized]
-    private bool cambioAplicado = false;
-
-    public void ResetInterno()
-    {
-        cambioAplicado = false;
-
-        if (top != null)
-            top.SetTipoLuz(top.tipoLuz);
-    }
-
-
-    // MOVIMIENTO
     [Header("Movimiento entre puntos")]
     public bool modificarMovimiento = false;
 
@@ -209,7 +181,6 @@ public class TopLightControlSettings : LightControlSettingsBase
     public MovimientoModo movimientoON = MovimientoModo.ON;
     public MovimientoModo movimientoOFF = MovimientoModo.OFF;
 
-    // ATRIBUTOS VISUALES
     [Header("Radio del haz")]
     public bool modificarRadio = false;
     public float radioON = 4f;
@@ -220,67 +191,35 @@ public class TopLightControlSettings : LightControlSettingsBase
     public float intensidadON = 1f;
     public float intensidadOFF = 0f;
 
-    // APLICACIÓN DE ESTADO
-    public override void AplicarEstado(bool estadoON)
+    public override LightDetectorBase Luz => top;
+
+    protected override TipoLuz TipoAlActivar => tipoLuzON;
+    protected override TipoLuz TipoAlDesactivar => tipoLuzOFF;
+
+    public override void ResetInterno()
     {
-        if (top == null) return;
+        base.ResetInterno();
 
-        // ENCENDIDO / APAGADO
-        if (modificarEncendido)
-        {
-            bool encender = estadoON ? encendidoON : encendidoOFF;
-            top.SetLuzActiva(encender);
-            if (!encender) return;
-        }
+        if (top != null)
+            top.SetTipoLuz(top.tipoLuz);
+    }
 
-        // CAMBIO DE TIPO DE LUZ
-        if (cambiarTipoLuz)
-        {
-            if (estadoON)
-            {
-                if (!cambioAplicado)
-                {
-                    top.SetTipoLuz(tipoLuzON);
-                    cambioAplicado = true;
-                }
-            }
-            else
-            {
-                top.SetTipoLuz(tipoLuzOFF);
-                cambioAplicado = false;
-            }
-        }
-
-        // TITILEO
-        if (modificarTitileo)
-            top.titilar = estadoON ? titilarON : titilarOFF;
-
-        // MOVIMIENTO
+    protected override void AplicarEspecifico(bool estadoON)
+    {
         if (modificarMovimiento)
         {
-            var modo = estadoON ? movimientoON : movimientoOFF;
-
-            switch (modo)
+            MovimientoModo modo = estadoON ? movimientoON : movimientoOFF;
+            top.moverEntrePuntos = modo switch
             {
-                case MovimientoModo.ON:
-                    top.moverEntrePuntos = true;
-                    break;
-
-                case MovimientoModo.OFF:
-                    top.moverEntrePuntos = false;
-                    break;
-
-                case MovimientoModo.Toggle:
-                    top.moverEntrePuntos = !top.moverEntrePuntos;
-                    break;
-            }
+                MovimientoModo.ON => true,
+                MovimientoModo.OFF => false,
+                _ => !top.moverEntrePuntos,
+            };
         }
 
-        // RADIO
         if (modificarRadio)
             top.radio = estadoON ? radioON : radioOFF;
 
-        // INTENSIDAD
         if (modificarIntensidadLuz2D)
             top.intensidadLuz2D = estadoON ? intensidadON : intensidadOFF;
     }

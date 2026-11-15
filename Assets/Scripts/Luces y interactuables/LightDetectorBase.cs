@@ -45,8 +45,15 @@ public abstract class LightDetectorBase : MonoBehaviour
     [Range(0f, 1f)]
     public float fase = 0f;
 
-    /// <summary>Tipo de luz con el que arranco la escena, para poder restaurarlo.</summary>
-    [HideInInspector] public TipoLuz initTipoLuz;
+    // Foto del estado con el que arranco la escena, para volver a el al reiniciar.
+    // Cada luz guarda ademas lo suyo (rotacion del foco, patrulla de la cenital...).
+    private Vector3 initPos;
+    private Quaternion initRot;
+    /// <summary>Tipo de luz con el que arranco la escena.</summary>
+    public TipoLuz TipoLuzInicial => initTipoLuz;
+    private TipoLuz initTipoLuz;
+    private bool initTitilar;
+    private bool initLuzActiva;
 
     protected MeshRenderer meshRenderer;
 
@@ -138,6 +145,27 @@ public abstract class LightDetectorBase : MonoBehaviour
     }
 
     // ENCENDIDO MANUAL Y RESET
+
+    /// <summary>Guarda lo que comparten todas las luces. Se llama desde Awake, ya aplicado empezarApagada.</summary>
+    protected void GuardarEstadoBase()
+    {
+        initPos = transform.position;
+        initRot = transform.rotation;
+        initTipoLuz = tipoLuz;
+        initTitilar = titilar;
+        initLuzActiva = luzActiva;
+    }
+
+    /// <summary>Restaura lo guardado y reinicia el titileo. El resto lo restaura cada luz.</summary>
+    protected void RestaurarEstadoBase()
+    {
+        transform.position = initPos;
+        transform.rotation = initRot;
+        tipoLuz = initTipoLuz;
+        titilar = initTitilar;
+        luzActiva = initLuzActiva;
+        InicializarTitileo();
+    }
 
     /// <summary>Enciende o apaga la luz por completo. La usan switches y receptores.</summary>
     public abstract void SetLuzActiva(bool encendida);

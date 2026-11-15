@@ -38,13 +38,24 @@ public static class PruebaRecorteFranjas
         fallos += Caso("Minimo 0: no recorta",
             new[] { 2f, 2f, 8f, 2f, 2f }, 0.1f, 0f, new[] { 2f, 2f, 8f, 2f, 2f });
 
+        // Los rayos 0, 1, 3 y 4 terminan en bloques: la franja del medio la decide el
+        // ancho de sombra de los bloques, no el recorte.
+        fallos += Caso("Franja fina entre bloques: no se recorta",
+            new[] { 2f, 2f, 8f, 2f, 2f }, 0.1f, 1f, new[] { 2f, 2f, 8f, 2f, 2f },
+            new[] { true, true, false, true, true });
+
+        fallos += Caso("Franja fina junto a un bloque y una pared: no se recorta",
+            new[] { 2f, 2f, 8f, 2f, 2f }, 0.1f, 1f, new[] { 2f, 2f, 8f, 2f, 2f },
+            new[] { false, true, false, false, false });
+
         if (fallos == 0)
             Debug.Log("Recorte de franjas: todas las comprobaciones en verde");
         else
             Debug.LogError($"Recorte de franjas: {fallos} comprobaciones fallaron");
     }
 
-    private static int Caso(string nombre, float[] largos, float separacion, float minimo, float[] esperado)
+    private static int Caso(string nombre, float[] largos, float separacion, float minimo, float[] esperado,
+        bool[] tocaBloque = null)
     {
         int total = largos.Length;
         Vector2[] salidas = new Vector2[total];
@@ -57,7 +68,7 @@ public static class PruebaRecorteFranjas
         }
 
         float[] obtenido = new float[total];
-        SpotLightDetector.RecortarFranjas(salidas, direcciones, largos, minimo, obtenido);
+        SpotLightDetector.RecortarFranjas(salidas, direcciones, largos, minimo, obtenido, tocaBloque);
 
         for (int i = 0; i < total; i++)
         {
