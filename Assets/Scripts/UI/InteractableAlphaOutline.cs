@@ -59,6 +59,8 @@ public class InteractableAlphaOutline : MonoBehaviour
 
             outlineSR.sortingOrder = baseSR.sortingOrder +
                 (renderEncima ? Mathf.Abs(orderOffset) : -Mathf.Abs(orderOffset));
+            OrdenPorAltura orden = GetComponentInParent<OrdenPorAltura>();
+            if (orden != null) orden.Seguir(outlineSR);
 
             runtimeMat = new Material(outlineMaterial);
             outlineSR.material = runtimeMat;

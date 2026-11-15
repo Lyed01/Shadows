@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 3001371174497335836}
   - component: {fileID: 1187062502585321416}
   - component: {fileID: 1830462065614487782}
+  - component: {fileID: 8627068019077132119}
   m_Layer: 0
   m_Name: npc
   m_TagString: Untagged
@@ -40,6 +41,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &9189262129047413224
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -58,6 +60,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -79,9 +83,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 1886341870
+  m_SortingLayer: 5
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 3273029699345129347, guid: 85587d3859261984790d38ac2642597a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -91,7 +97,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!61 &5861491794032620761
 BoxCollider2D:
@@ -155,10 +160,13 @@ MonoBehaviour:
   rangoInteraccion: 1
   sonidoDialogo: {fileID: 8300000, guid: a1010ba5437a4b245b367e9283d926ee, type: 3}
   dialogos:
-  - idCondicion: Inicio
-    dialogo: {fileID: 11400000, guid: 083566fde43cbac498da2a2ba9df9008, type: 2}
+  - dialogo: {fileID: 11400000, guid: 083566fde43cbac498da2a2ba9df9008, type: 2}
+    flag1: 
+    negarFlag1: 0
+    flag2: 
+    negarFlag2: 0
     unaSolaVez: 1
-    yaUsado: 0
+    usado: 0
 --- !u!114 &5784004020789237614
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,9 +189,8 @@ MonoBehaviour:
   pulseStrength: 0.15
   promptPrefab: {fileID: 6418489214501038596, guid: 5a46b4ef7dd7d0f4084cd9b75df6ef4e, type: 3}
   promptOffset: {x: 0, y: 1.2, z: 0}
-  promptFadeSpeed: 6
+  teclaInteraccion: 101
   playerTag: Player
-  useTriggerDetection: 1
 --- !u!114 &3001371174497335836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -206,24 +213,40 @@ MonoBehaviour:
     dialogo: {fileID: 0}
     habilidad: 0
     direccionPersonalizada: {x: 0, y: 0}
+    rutaPuntos: []
+    velocidadLlama: 3
+    flagDeActivacion: 
+    flagAlCompletar: 
   - tipo: 2
     objetivo: {fileID: 0}
     duracion: 0
     dialogo: {fileID: 0}
     habilidad: 0
     direccionPersonalizada: {x: 0, y: 0}
+    rutaPuntos: []
+    velocidadLlama: 3
+    flagDeActivacion: 
+    flagAlCompletar: 
   - tipo: 3
     objetivo: {fileID: 0}
     duracion: 1
     dialogo: {fileID: 0}
     habilidad: 1
     direccionPersonalizada: {x: 0, y: 90}
+    rutaPuntos: []
+    velocidadLlama: 3
+    flagDeActivacion: 
+    flagAlCompletar: 
   - tipo: 4
     objetivo: {fileID: 0}
     duracion: 0
     dialogo: {fileID: 11400000, guid: b88fe195bd888904b9499695d22e09d6, type: 2}
     habilidad: 0
     direccionPersonalizada: {x: 0, y: 0}
+    rutaPuntos: []
+    velocidadLlama: 3
+    flagDeActivacion: 
+    flagAlCompletar: 
   prefabShadowBlock: {fileID: 5294039781048434302, guid: bdec4c683f4510947b2c2012a1583b79, type: 3}
   prefabAbyssFlame: {fileID: 0}
   prefabMirrorBlock: {fileID: 5294039781048434302, guid: 3468cf2f4409e8845935b65e2667fe66, type: 3}
@@ -231,9 +254,12 @@ MonoBehaviour:
   fxAbyssFlame: {fileID: 0}
   fxMirror: {fileID: 0}
   fxTeleport: {fileID: 0}
+  morir: {fileID: 0}
   pasoIntervalo: 0.35
   otorgarHabilidadAlFinal: 1
   habilidadEntregada: 1
+  requiereFlagParaIniciar: 0
+  flagRequerida: 
 --- !u!50 &1187062502585321416
 Rigidbody2D:
   serializedVersion: 5
@@ -283,3 +309,16 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &8627068019077132119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6271462445350447553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8e1a6499e1a4254299a90b4bd4fbdea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrdenPorAltura
+  estatico: 0

@@ -402,7 +402,7 @@ MonoBehaviour:
   m_Intensity: 0.8
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a9554657
+  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a95546572fbd2a4eee4a6f706f1dd865
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -885,7 +885,7 @@ MonoBehaviour:
   m_Intensity: 0.8
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa9554657
+  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa95546572fbd2a4eee4a6f706f1dd865
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -1018,7 +1018,7 @@ MonoBehaviour:
   m_Intensity: 0.8
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a9554657
+  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a95546572fbd2a4eee4a6f706f1dd865
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -1369,7 +1369,7 @@ MonoBehaviour:
   m_Intensity: 0.8
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a9554657
+  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a95546572fbd2a4eee4a6f706f1dd865
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -1453,7 +1453,7 @@ MonoBehaviour:
   m_Intensity: 0.8
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a9554657
+  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a95546572fbd2a4eee4a6f706f1dd865
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -5580,7 +5580,7 @@ MonoBehaviour:
   m_CastsShadows: 1
   m_SelfShadows: 0
   m_AlphaCutoff: 0.24
-  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa9554657
+  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa95546572fbd2a4eee4a6f706f1dd865
   m_ShapePath:
   - {x: -8.013306, y: -9.373291, z: 0}
   - {x: -8.013306, y: 7908.373, z: 0}
@@ -5901,6 +5901,7 @@ GameObject:
   - component: {fileID: 1459848062}
   - component: {fileID: 1459848061}
   - component: {fileID: 1459848060}
+  - component: {fileID: 1459848068}
   m_Layer: 0
   m_Name: Silluhette
   m_TagString: CutsceneCharacter
@@ -6230,9 +6231,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingLayerID: 1886341870
+  m_SortingLayer: 2
+  m_SortingOrder: 0
   m_Sprite: {fileID: 8285714824799393022, guid: 084d311de96da064a8d298645d9a6daf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -7259,7 +7260,7 @@ MonoBehaviour:
   m_Intensity: 0.8
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a9554657
+  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a95546572fbd2a4eee4a6f706f1dd865
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -10901,3 +10902,16 @@ SceneRoots:
   - {fileID: 1360545256}
   - {fileID: 692451016}
   - {fileID: 2031283775}
+--- !u!114 &1459848068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1459848059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8e1a6499e1a4254299a90b4bd4fbdea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrdenPorAltura
+  estatico: 0

@@ -57,6 +57,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: luces
+    uniqueID: 1311423791
+    locked: 0
+  - name: entidades
+    uniqueID: 1886341870
+    locked: 0
+  - name: efectos
+    uniqueID: 1708662127
+    locked: 0
   - name: ui
     uniqueID: 1464227241
     locked: 0

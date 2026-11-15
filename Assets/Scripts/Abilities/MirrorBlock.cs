@@ -111,7 +111,9 @@ public class MirrorBlock : ShadowBlock
 
         flechaSR = flechaGO.AddComponent<SpriteRenderer>();
         flechaSR.sprite = spriteFlecha;
+        flechaSR.sortingLayerID = sr.sortingLayerID;
         flechaSR.sortingOrder = sr.sortingOrder + 1; // se dibuja arriba del bloque
+        if (TryGetComponent(out OrdenPorAltura orden)) orden.Seguir(flechaSR);
 
         ActualizarFlecha();
     }

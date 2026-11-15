@@ -336,7 +336,7 @@ MonoBehaviour:
   m_Intensity: 0.8
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a9554657
+  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a95546572fbd2a4eee4a6f706f1dd865
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -996,7 +996,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a9554657
+  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a95546572fbd2a4eee4a6f706f1dd865
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -1125,7 +1125,7 @@ MonoBehaviour:
   m_Intensity: 0.8
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa9554657
+  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa95546572fbd2a4eee4a6f706f1dd865
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -4057,7 +4057,7 @@ MonoBehaviour:
   m_CastsShadows: 1
   m_SelfShadows: 0
   m_AlphaCutoff: 0.24
-  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa9554657
+  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa95546572fbd2a4eee4a6f706f1dd865
   m_ShapePath:
   - {x: -8.013306, y: -9.373291, z: 0}
   - {x: -8.013306, y: 7908.373, z: 0}
@@ -5281,8 +5281,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1311423791
+  m_SortingLayer: 1
   m_SortingOrder: 5
   m_Sprite: {fileID: -8466205233014190272, guid: 8b21cf8658e92c047b1b93fa6fb347b4, type: 3}
   m_Color: {r: 1, g: 1, b: 0.85, a: 1}
@@ -5347,7 +5347,7 @@ MonoBehaviour:
   m_Intensity: 0.8
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a9554657
+  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a95546572fbd2a4eee4a6f706f1dd865
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1182791421124926792}
   - component: {fileID: 5977687833617555952}
   - component: {fileID: 2030070989963698591}
+  - component: {fileID: 1503153154343529273}
   m_Layer: 6
   m_Name: AbyssFlame
   m_TagString: AbyssFlame
@@ -102,6 +103,7 @@ MonoBehaviour:
   controlNPC: 0
 --- !u!212 &5977687833617555952
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -120,6 +122,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -141,9 +145,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 1886341870
+  m_SortingLayer: 5
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: -8036296214872686845, guid: 731a07008a10c6c4b8410aa573a337d2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -153,7 +159,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!58 &2030070989963698591
 CircleCollider2D:
@@ -191,3 +196,16 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0.0012870133, y: -0.13848823}
   m_Radius: 0.21613795
+--- !u!114 &1503153154343529273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5414369406038124040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8e1a6499e1a4254299a90b4bd4fbdea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrdenPorAltura
+  estatico: 0

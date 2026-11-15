@@ -46,9 +46,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2962b386c23507e4198ebe739fc6d5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sueloTilemap: {fileID: 0}
   spriteRenderer: {fileID: 8292678218032503533}
   zOffset: 65.8
+  colorInvalida: {r: 1, g: 0.3, b: 0.3, a: 1}
+  alfaCaminando: 0.5
 --- !u!95 &6647108844326750816
 Animator:
   serializedVersion: 7
@@ -73,6 +74,7 @@ Animator:
   m_WriteDefaultValuesOnDisable: 0
 --- !u!212 &8292678218032503533
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -91,6 +93,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -112,9 +116,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 1708662127
+  m_SortingLayer: 6
   m_SortingOrder: 1
+  m_MaskInteraction: 0
   m_Sprite: {fileID: -1259782995087988778, guid: e97586f3dc1d276448aaef2ea5bf1da5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -124,5 +130,4 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0

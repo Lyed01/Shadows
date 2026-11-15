@@ -403,6 +403,7 @@ GameObject:
   - component: {fileID: 391259892}
   - component: {fileID: 391259891}
   - component: {fileID: 391259890}
+  - component: {fileID: 391259898}
   m_Layer: 0
   m_Name: Canuto
   m_TagString: CutsceneCharacter
@@ -646,9 +647,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 1604953979
-  m_SortingLayer: -2
-  m_SortingOrder: 1
+  m_SortingLayerID: 1886341870
+  m_SortingLayer: 2
+  m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -1894054799027923350, guid: 7503e9b5ebb7b81418432183f9f9259c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -784,7 +785,7 @@ MonoBehaviour:
   m_Intensity: 0.8
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa9554657
+  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa95546572fbd2a4eee4a6f706f1dd865
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -3278,7 +3279,7 @@ MonoBehaviour:
   m_CastsShadows: 1
   m_SelfShadows: 0
   m_AlphaCutoff: 0.24
-  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa9554657
+  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa95546572fbd2a4eee4a6f706f1dd865
   m_ShapePath:
   - {x: -8.013306, y: -9.373291, z: 0}
   - {x: -8.013306, y: 7908.373, z: 0}
@@ -5585,3 +5586,16 @@ SceneRoots:
   - {fileID: 887644959}
   - {fileID: 118459386}
   - {fileID: 391259897}
+--- !u!114 &391259898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 391259889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8e1a6499e1a4254299a90b4bd4fbdea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrdenPorAltura
+  estatico: 0

@@ -830,7 +830,7 @@ MonoBehaviour:
   m_Intensity: 0.6
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa9554657
+  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa95546572fbd2a4eee4a6f706f1dd865
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -2274,7 +2274,7 @@ MonoBehaviour:
   m_Intensity: 0.8
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a9554657
+  m_ApplyToSortingLayers: b9013c827ba7a95f53d50c4700000000a95546572fbd2a4eee4a6f706f1dd865
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -2705,6 +2705,7 @@ GameObject:
   - component: {fileID: 1105387509}
   - component: {fileID: 1105387508}
   - component: {fileID: 1105387510}
+  - component: {fileID: 1105387513}
   m_Layer: 0
   m_Name: Noxel
   m_TagString: Untagged
@@ -2757,8 +2758,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1886341870
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -9135211994677117792, guid: 7c7a9863772b2004498e580067ade0c0, type: 3}
@@ -3277,7 +3278,7 @@ MonoBehaviour:
   m_CastsShadows: 1
   m_SelfShadows: 0
   m_AlphaCutoff: 0.24
-  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa9554657
+  m_ApplyToSortingLayers: 00000000b9013c8253d50c477ba7a95fa95546572fbd2a4eee4a6f706f1dd865
   m_ShapePath:
   - {x: -8.013306, y: -9.373291, z: 0}
   - {x: -8.013306, y: 7908.373, z: 0}
@@ -3961,10 +3962,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 749238519529235325, guid: f1da9f9147790d64e92414580fce6ed1, type: 3}
-      propertyPath: m_SortingOrder
-      value: -1
-      objectReference: {fileID: 0}
     - target: {fileID: 1099874278513426658, guid: f1da9f9147790d64e92414580fce6ed1, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -4146,10 +4143,6 @@ PrefabInstance:
     - target: {fileID: 4615286722111912853, guid: 3f32107fd8b6ea346882e7087a4b8a57, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7704519144464346014, guid: 3f32107fd8b6ea346882e7087a4b8a57, type: 3}
-      propertyPath: Lens.OrthographicSize
-      value: 5.24
       objectReference: {fileID: 0}
     - target: {fileID: 8626260435262109708, guid: 3f32107fd8b6ea346882e7087a4b8a57, type: 3}
       propertyPath: m_Name
@@ -6106,3 +6099,16 @@ SceneRoots:
   - {fileID: 1657907750}
   - {fileID: 1365648451}
   - {fileID: 1263003825}
+--- !u!114 &1105387513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1105387503}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8e1a6499e1a4254299a90b4bd4fbdea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrdenPorAltura
+  estatico: 0

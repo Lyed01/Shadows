@@ -280,13 +280,6 @@ public class NPCDemostrador : MonoBehaviour
                     var bloque = Instantiate(prefabShadowBlock, pos, Quaternion.identity);
                     bloque.name = "ShadowBlock_NPC";
 
-                    var sr = bloque.GetComponent<SpriteRenderer>();
-                    if (sr != null)
-                    {
-                        sr.sortingLayerName = "Entidades";
-                        sr.sortingOrder = 5;
-                    }
-
                     if (fxShadowBlock)
                         AudioManager.Instance?.ReproducirFX(fxShadowBlock);
                 }

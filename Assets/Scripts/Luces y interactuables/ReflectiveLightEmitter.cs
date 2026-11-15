@@ -48,7 +48,8 @@ public class ReflectiveLightEmitter : MonoBehaviour
         // sharedMaterial y no material: material clona el asset en cada emisor
         // y Unity no libera esas copias.
         mr.sharedMaterial = materialLuz;
-        mr.sortingOrder = 300;
+        // Sobre los haces directos, que estan en el orden 0 de la misma capa.
+        CapasDeRender.Aplicar(mr, CapasDeRender.Luces, 2);
 
         propiedades = new MaterialPropertyBlock();
         AplicarColor();
