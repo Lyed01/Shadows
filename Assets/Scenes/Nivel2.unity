@@ -7248,10 +7248,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7704519144464346014, guid: 3f32107fd8b6ea346882e7087a4b8a57, type: 3}
-      propertyPath: Lens.OrthographicSize
-      value: 5.31
-      objectReference: {fileID: 0}
     - target: {fileID: 8626260435262109708, guid: 3f32107fd8b6ea346882e7087a4b8a57, type: 3}
       propertyPath: m_Name
       value: CinemachineCamera
