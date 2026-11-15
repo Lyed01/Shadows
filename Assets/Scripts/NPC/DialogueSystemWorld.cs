@@ -26,7 +26,7 @@ public class DialogueSystemWorld : PersistentSingleton<DialogueSystemWorld>
         dialogoActual = data;
         npcTransform = npc;
 
-        ultimoNPCQueHablo = npc;   // <---- ESTA LINEA ES LA CLAVE
+        ultimoNPCQueHablo = npc;   // quien hablo, para los que escuchan OnDialogueEnd
 
         npcDemostrador = npc.GetComponent<NPCDemostrador>() ??
                          npc.GetComponentInChildren<NPCDemostrador>() ??
@@ -104,13 +104,9 @@ public class DialogueSystemWorld : PersistentSingleton<DialogueSystemWorld>
             npcDemostrador = null;
         }
 
-        // AQUÍ TODAVÍA necesitamos saber quién habló
-        Transform emisorBackup = ultimoNPCQueHablo;
-
-        //  Disparamos el evento mientras ultimoNPCQueHablo tiene valor
+        // Disparamos el evento mientras ultimoNPCQueHablo tiene valor
         OnDialogueEnd?.Invoke();
 
-        // recién ahora lo limpiamos
         ultimoNPCQueHablo = null;
         npcTransform = null;
         dialogoActual = null;
@@ -147,9 +143,6 @@ public class DialogueSystemWorld : PersistentSingleton<DialogueSystemWorld>
         if (burbujaActual != null)
             Destroy(burbujaActual);
 
-        Transform emisorBackup = ultimoNPCQueHablo;
-
-        //  Disparamos el evento ANTES de limpiar
         OnDialogueEnd?.Invoke();
 
         ultimoNPCQueHablo = null;

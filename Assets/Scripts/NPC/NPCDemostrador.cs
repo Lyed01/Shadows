@@ -50,23 +50,8 @@ public class NPCDemostrador : MonoBehaviour
 
     // === AbyssFlame del NPC ===
     private AbyssFlame flameNPC;
+    private GridManager grid;
 
-    private Transform jugador;
-
-    private void OnEnable()
-    {
-        GameManager.OnPlayerSpawned += RegistrarJugador;
-    }
-
-    private void OnDisable()
-    {
-        GameManager.OnPlayerSpawned -= RegistrarJugador;
-    }
-
-    private void RegistrarJugador(Jugador j)
-    {
-        jugador = j.transform;
-    }
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -167,7 +152,8 @@ public class NPCDemostrador : MonoBehaviour
                 }
                 else
                 {
-                    EjecutarHabilidad(paso.habilidad, paso.objetivo ? paso.objetivo.position : transform.position);
+                    EjecutarHabilidad(paso.habilidad, paso.objetivo ? paso.objetivo.position : transform.position,
+                                      paso.direccionPersonalizada);
                     yield return new WaitForSeconds(1f);
                 }
                 break;
@@ -186,11 +172,11 @@ public class NPCDemostrador : MonoBehaviour
                 break;
         }
 
-        //  FLAG DESPUÉS DE COMPLETAR EL PASO
+        // FLAG DESPUÉS DE COMPLETAR EL PASO
         if (!string.IsNullOrEmpty(paso.flagAlCompletar))
         {
             SceneStateManager.Instance.SetFlag(paso.flagAlCompletar);
-            Log.Info(this, "Paso completado  Flag activada: " + paso.flagAlCompletar);
+            Log.Info(this, "Paso completado Flag activada: " + paso.flagAlCompletar);
         }
     }
 
@@ -238,7 +224,7 @@ public class NPCDemostrador : MonoBehaviour
     {
         if (anim == null) return;
 
-        //  PRIORIDAD: si está muriendo, solo reproducir Dying
+        // PRIORIDAD: si está muriendo, solo reproducir Dying
         if (estaMuriendo)
         {
             if (animActual != "Dying")
@@ -276,9 +262,9 @@ public class NPCDemostrador : MonoBehaviour
 
 
     // HABILIDADES NPC
-    private void EjecutarHabilidad(AbilityType tipo, Vector3 pos)
+    private void EjecutarHabilidad(AbilityType tipo, Vector3 pos, Vector2 direccionEspejo)
     {
-        var grid = FindFirstObjectByType<GridManager>();
+        if (grid == null) grid = FindFirstObjectByType<GridManager>();
         if (grid != null && grid.sueloTilemap != null)
         {
             Vector3Int celda = grid.sueloTilemap.WorldToCell(pos);
@@ -311,7 +297,7 @@ public class NPCDemostrador : MonoBehaviour
                 break;
 
             case AbilityType.ReflectiveBlocks:
-                CrearMirrorBlock(pos);
+                CrearMirrorBlock(pos, direccionEspejo);
                 break;
         }
     }
@@ -328,7 +314,7 @@ public class NPCDemostrador : MonoBehaviour
         if (flameNPC != null)
         {
             flameNPC.controlNPC = true;
-            flameNPC.Inicializar(null); //   clave
+            flameNPC.Inicializar(null); // clave
         }
 
         if (fxAbyssFlame)
@@ -336,29 +322,18 @@ public class NPCDemostrador : MonoBehaviour
     }
 
 
-    private void CrearMirrorBlock(Vector3 pos)
+    // La direccion viene del paso que se esta ejecutando. Antes se buscaba el
+    // primer paso de espejo, y con dos espejos el segundo salia con la del primero.
+    private void CrearMirrorBlock(Vector3 pos, Vector2 direccion)
     {
         if (prefabMirrorBlock == null) return;
 
         var mirror = Instantiate(prefabMirrorBlock, pos, Quaternion.identity);
         mirror.name = "MirrorBlock_NPC";
 
-        DemostracionPaso pasoActual = null;
-        foreach (var paso in pasos)
-        {
-            if (paso.tipo == PasoTipo.UsarHabilidad && paso.habilidad == AbilityType.ReflectiveBlocks)
-            {
-                pasoActual = paso;
-                break;
-            }
-        }
-
-        if (pasoActual != null && pasoActual.direccionPersonalizada != Vector2.zero)
-        {
-            var comp = mirror.GetComponent<MirrorBlock>();
-            if (comp != null)
-                comp.SetDireccionInicial(pasoActual.direccionPersonalizada);
-        }
+        // SetDireccionInicial ignora Vector2.zero: el espejo queda con la del prefab.
+        if (mirror.TryGetComponent(out MirrorBlock comp))
+            comp.SetDireccionInicial(direccion);
 
         if (fxMirror)
             AudioManager.Instance?.ReproducirFX(fxMirror);
@@ -396,7 +371,7 @@ public class NPCDemostrador : MonoBehaviour
     // TELETRANSPORTE NPC
     private IEnumerator TeleportNPC(Vector3 destino)
     {
-        var grid = FindFirstObjectByType<GridManager>();
+        if (grid == null) grid = FindFirstObjectByType<GridManager>();
         if (grid != null && grid.sueloTilemap != null)
         {
             Vector3Int celda = grid.sueloTilemap.WorldToCell(destino);
@@ -427,15 +402,11 @@ public class NPCDemostrador : MonoBehaviour
     private void ReproducirPaso()
     {
         if (AudioManager.Instance == null) return;
+        // Se busca una vez: antes era un FindFirstObjectByType por cada paso.
+        if (grid == null) grid = FindFirstObjectByType<GridManager>();
+        if (grid == null) return;
 
-        var grid = FindFirstObjectByType<GridManager>();
-        if (grid == null || grid.sueloTilemap == null) return;
-
-        Vector3Int cell = grid.sueloTilemap.WorldToCell(transform.position);
-        bool esCorrupto = grid.tileDesbloqueado != null &&
-                          grid.sueloTilemap.GetTile(cell) == grid.tileDesbloqueado;
-
-        AudioManager.Instance.ReproducirPaso(esCorrupto);
+        AudioManager.Instance.ReproducirPaso(grid.EsSueloCorrupto(transform.position));
     }
 
     private IEnumerator MorirNPC()
@@ -456,17 +427,17 @@ public class NPCDemostrador : MonoBehaviour
         if (morir)
             AudioManager.Instance?.ReproducirFX(morir, AudioManager.PrioridadAlta);
 
-        // ⏳ DAR TIEMPO A QUE SUENE
+        // DAR TIEMPO A QUE SUENE
         yield return new WaitForSeconds(0.3f);
 
-        //  ENTREGAR HABILIDAD JUSTO ANTES DE DESAPARECER
+        // ENTREGAR HABILIDAD JUSTO ANTES DE DESAPARECER
         if (otorgarHabilidadAlFinal && AbilityManager.Instance)
         {
             AbilityManager.Instance.Unlock(habilidadEntregada);
             Log.Info(this, $"NPC otorgó la habilidad (después de morir): {habilidadEntregada}");
         }
 
-        //  El NPC ahora puede desaparecer
+        // El NPC ahora puede desaparecer
         Destroy(gameObject);
     }
  

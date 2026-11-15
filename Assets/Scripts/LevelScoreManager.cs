@@ -17,6 +17,14 @@ public class ScoreThreshold
     public int habilidades3 = 2;
     public int habilidades2 = 4;
     public int habilidades1 = 6;
+
+    /// <summary>Toma los limites de un asset de configuracion.</summary>
+    public void CopiarDe(ScoreThresholdSO so)
+    {
+        (muertes3, muertes2, muertes1) = (so.muertes3, so.muertes2, so.muertes1);
+        (tiempo3, tiempo2, tiempo1) = (so.tiempo3, so.tiempo2, so.tiempo1);
+        (habilidades3, habilidades2, habilidades1) = (so.habilidades3, so.habilidades2, so.habilidades1);
+    }
 }
 
 public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
@@ -38,7 +46,6 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
     private bool nivelEnCurso;
     private bool nivelFinalizado;
 
-    public static event Action<int> OnNivelCompletado;
     public static event Action OnNivelComenzo;
 
     protected override void OnBoot()
@@ -94,18 +101,7 @@ public class LevelScoreManager : PersistentSingleton<LevelScoreManager>
         {
             if (so != null && so.idNivel == escena)
             {
-                configuracionNivel.muertes3 = so.muertes3;
-                configuracionNivel.muertes2 = so.muertes2;
-                configuracionNivel.muertes1 = so.muertes1;
-
-                configuracionNivel.tiempo3 = so.tiempo3;
-                configuracionNivel.tiempo2 = so.tiempo2;
-                configuracionNivel.tiempo1 = so.tiempo1;
-
-                configuracionNivel.habilidades3 = so.habilidades3;
-                configuracionNivel.habilidades2 = so.habilidades2;
-                configuracionNivel.habilidades1 = so.habilidades1;
-
+                configuracionNivel.CopiarDe(so);
                 idNivel = so.idNivel;
 
                 Log.Info(this, $"Configuracion cargada para {escena}");

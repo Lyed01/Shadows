@@ -6,6 +6,9 @@ public class LevelTimer : MonoBehaviour
     [Header("Referencias")]
     public TextMeshProUGUI textoTimer; // Asignar desde el Canvas (si está en escena)
 
+    [Tooltip("Lo que se muestra y se esconde junto con el timer. Si queda vacio, el padre del texto.")]
+    public GameObject contenedorTimer;
+
     [Header("Configuración")]
     public bool iniciarAutomaticamente = true;
 
@@ -29,6 +32,25 @@ public class LevelTimer : MonoBehaviour
         // Si el texto no está asignado (HUD persistente, por ejemplo), lo busca
         if (textoTimer == null)
             textoTimer = FindTextoTimer();
+
+        AplicarVisibilidad();
+    }
+
+    /// <summary>
+    /// El timer del HUD es persistente y solo tiene sentido dentro de un nivel:
+    /// lo muestra el LevelTimer del nivel, segun la opcion del jugador, y lo
+    /// esconde al irse. Asi no queda en 00:00 en el Hub ni en el menu.
+    /// </summary>
+    public void AplicarVisibilidad()
+    {
+        GameObject contenedor = Contenedor();
+        if (contenedor != null) contenedor.SetActive(SaveSystem.MostrarTimer);
+    }
+
+    private GameObject Contenedor()
+    {
+        if (contenedorTimer != null) return contenedorTimer;
+        return textoTimer != null ? textoTimer.transform.parent.gameObject : null;
     }
 
     private void OnEnable()
@@ -37,7 +59,6 @@ public class LevelTimer : MonoBehaviour
         GameManager.OnResume += Reanudar;
         GameManager.OnPlayerDeath += Pausar;
         GameManager.OnLevelRestart += Reanudar;
-        LevelScoreManager.OnNivelCompletado += DetenerTimer;
     }
 
     void Update()
@@ -60,14 +81,12 @@ public class LevelTimer : MonoBehaviour
     public void Reanudar() => activo = true;
     public void DetenerTimer() => activo = false;
 
-    private void DetenerTimer(int estrellas) => DetenerTimer();
-
     public float GetTiempoActual() => tiempoActual;
 
     // === UI ===
     private void ActualizarTexto()
     {
-        //  Seguridad: si no hay referencia, intenta encontrarlo y salir
+        // Seguridad: si no hay referencia, intenta encontrarlo y salir
         if (textoTimer == null)
         {
             textoTimer = FindTextoTimer();
@@ -93,8 +112,9 @@ public class LevelTimer : MonoBehaviour
 
     private TextMeshProUGUI FindTextoTimer()
     {
-        //  Busca un TMP dentro de un HUD persistente
-        var textos = FindObjectsByType<TextMeshProUGUI>(FindObjectsSortMode.None);
+        // Busca un TMP dentro de un HUD persistente
+        // Incluye inactivos: fuera de los niveles el timer queda apagado.
+        var textos = FindObjectsByType<TextMeshProUGUI>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (var t in textos)
         {
             if (t.name.ToLower().Contains("timer") || t.name.ToLower().Contains("tiempo"))
@@ -107,10 +127,12 @@ public class LevelTimer : MonoBehaviour
 
     private void OnDisable()
     {
+        GameObject contenedor = Contenedor();
+        if (contenedor != null) contenedor.SetActive(false);
+
         GameManager.OnPause -= Pausar;
         GameManager.OnResume -= Reanudar;
         GameManager.OnPlayerDeath -= Pausar;
         GameManager.OnLevelRestart -= Reanudar;
-        LevelScoreManager.OnNivelCompletado -= DetenerTimer;
     }
 }

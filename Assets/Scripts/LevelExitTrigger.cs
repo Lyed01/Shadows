@@ -35,12 +35,12 @@ public class LevelExitTrigger : MonoBehaviour
     {
         AudioManager.Instance?.ReproducirUIClick();
 
-        //  Bloquear input y detener tiempo parcialmente
+        // Bloquear input y detener tiempo parcialmente
         jugador.SetInputBloqueado(true);
         jugador.SetControlActivo(false);
         GameManager.Instance.CambiarEstado(GameManager.GameState.Transicion);
 
-        //  Recopilar estadísticas desde LevelScoreManager
+        // Recopilar estadísticas desde LevelScoreManager
         if (LevelScoreManager.Instance != null)
         {
             float tiempo = LevelScoreManager.Instance.GetTiempoNivel();
@@ -53,7 +53,7 @@ public class LevelExitTrigger : MonoBehaviour
             Log.Info(this, $"Nivel completado: {nombreNivel}  {estrellas} ({tiempo:F1}s, {muertes} muertes, {habilidades} habilidades)");
         }
 
-        //  Fade out visual
+        // Fade out visual
         if (GameManager.Instance.fader != null)
             GameManager.Instance.fader.FadeIn(GameManager.Instance.duracionFade);
 
@@ -62,7 +62,7 @@ public class LevelExitTrigger : MonoBehaviour
         if (irAEscenaFinal)
         {
             Log.Info(this, $"LevelExitTrigger: Cargando escena final '{nombreEscenaFinal}'");
-            UnityEngine.SceneManagement.SceneManager.LoadScene(nombreEscenaFinal);
+            GameManager.Instance.CargarEscena(nombreEscenaFinal);
         }
         else
         {
