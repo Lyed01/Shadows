@@ -8,7 +8,7 @@ using UnityEngine;
 ///
 /// Antes esto era un ternario dentro del GridManager:
 ///
-///     GameObject prefab = reflectante ? prefabBloqueReflectante : prefabBloque;
+/// GameObject prefab = reflectante ? prefabBloqueReflectante : prefabBloque;
 ///
 /// Eso obligaba a abrir la clase y tocar codigo que ya andaba cada vez que se
 /// queria un tipo de bloque nuevo. Con el diccionario no se toca ni una linea:

@@ -61,9 +61,6 @@ public class CursorManager : PersistentSingleton<CursorManager>
             SetCursor(newState);
             currentState = newState;
         }
-
-        if (habilidadUsada)
-            StartCoroutine(ResetHabilidadUsada());
     }
 
     // === Estados del cursor ===
@@ -115,7 +112,13 @@ public class CursorManager : PersistentSingleton<CursorManager>
     // === Eventos del jugador / habilidad ===
     private void ActivarHabilidad() => modoHabilidad = true;
     private void DesactivarHabilidad() => modoHabilidad = false;
-    private void HabilidadUsada() => habilidadUsada = true;
+    // La corrutina arranca una vez por uso; antes arrancaba una por frame
+    // mientras durara el estado.
+    private void HabilidadUsada()
+    {
+        habilidadUsada = true;
+        StartCoroutine(ResetHabilidadUsada());
+    }
 
     private System.Collections.IEnumerator ResetHabilidadUsada()
     {

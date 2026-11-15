@@ -157,7 +157,7 @@ public class MirrorBlock : ShadowBlock
         recibiendoLuz = true;
         tiempoSinLuz = 0f;
 
-        //  Daño original del ShadowBlock (incluye protección anti-nacimiento)
+        // Daño original del ShadowBlock (incluye protección anti-nacimiento)
         base.RecibirLuz(daño, tipo);
 
         // Cambia sprite según estado (si no está dañado)
@@ -216,7 +216,7 @@ public class MirrorBlock : ShadowBlock
         direccionActual = new Vector2(direccionActual.y, -direccionActual.x);
         direccionInicial = direccionActual;
 
-        ActualizarFlecha(); //  AÑADIR ESTO
+        ActualizarFlecha(); // AÑADIR ESTO
 
         if (emisor != null)
             emisor.SetDireccion(direccionActual);
@@ -248,7 +248,7 @@ public class MirrorBlock : ShadowBlock
 
     private bool EstaDaniado()
     {
-        return vidaActual < vidaBajoLuz && vidaActual > 0f;
+        return vidaActual < VidaBajoLuz && vidaActual > 0f;
     }
 
 

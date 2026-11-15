@@ -8,6 +8,8 @@ using UnityEngine;
 public class HabilidadLlamaAbisal : IHabilidad
 {
     private const int Costo = 2;
+    /// <summary>Una celda: la llama aparece en la de adelante.</summary>
+    private const float DistanciaAdelante = 1f;
 
     public AbilityType Tipo => AbilityType.AbyssFlame;
 
@@ -47,6 +49,9 @@ public class HabilidadLlamaAbisal : IHabilidad
             jugador.SetControlActivo(true);
             return;
         }
+
+        // Nace delante de Shawy, hacia donde mira, y no encima de el.
+        componente.Adelantar(jugador.DireccionMirada, DistanciaAdelante, jugador.GetComponent<Collider2D>());
 
         CinemachineCamera camara = Object.FindFirstObjectByType<CinemachineCamera>();
         if (camara != null)

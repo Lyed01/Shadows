@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// Ejecuta la habilidad que el jugador tiene elegida en el selector.
@@ -52,18 +53,30 @@ public class PlayerAbilityController : MonoBehaviour
 
     private void Update()
     {
-        // Solo activo si el jugador está en modo habilidad
-        if (!Jugador.ModoHabilidadActivo) return;
-
-        AbilityData seleccionada = AbilitySelector.Instance?.GetHabilidadActual();
+        HabilidadSO seleccionada = AbilitySelector.Instance?.GetHabilidadActual();
         if (seleccionada == null) return;
 
         if (!habilidades.TryGetValue(seleccionada.tipo, out IHabilidad habilidad)) return;
 
-        if (Input.GetMouseButtonDown(0))
+        // El clic izquierdo frena a Shawy y usa la habilidad en el mismo gesto:
+        // antes habia que apretar Espacio de nuevo cada vez que se movia.
+        bool principal = Input.GetMouseButtonDown(0);
+        if (principal && !Jugador.ModoHabilidadActivo && PuedeEntrarConClic())
+            jugador.EntrarModoHabilidad();
+
+        // Las habilidades solo se usan quieto, en el modo habilidad.
+        if (!Jugador.ModoHabilidadActivo) return;
+
+        if (principal)
             habilidad.UsarPrincipal(jugador);
 
         if (Input.GetMouseButtonDown(1))
             habilidad.UsarSecundaria(jugador);
     }
+
+    // Un clic sobre un menu o con el juego en pausa no es para la habilidad.
+    private static bool PuedeEntrarConClic() =>
+        GameManager.Instance != null
+        && GameManager.Instance.EstadoActual == GameManager.GameState.Jugando
+        && !(EventSystem.current != null && EventSystem.current.IsPointerOverGameObject());
 }

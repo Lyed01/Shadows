@@ -25,6 +25,30 @@ public class AbyssFlame : MonoBehaviour
         sprite = GetComponent<SpriteRenderer>();
     }
 
+    /// <summary>
+    /// Mueve la llama recien creada hacia adelante, sin meterla en una pared:
+    /// avanza hasta lo primero solido que encuentre en esa direccion.
+    /// </summary>
+    public void Adelantar(Vector2 direccion, float distancia, Collider2D ignorar)
+    {
+        var filtro = new ContactFilter2D { useTriggers = false };
+        var choques = new RaycastHit2D[8];
+        int cantidad = rb.Cast(direccion, filtro, choques, distancia);
+
+        float libre = distancia;
+        for (int i = 0; i < cantidad; i++)
+        {
+            Collider2D otro = choques[i].collider;
+            // Los Objetos no frenan a la llama (ver OnCollisionEnter2D).
+            if (otro == ignorar || otro.CompareTag("Objetos")) continue;
+            libre = Mathf.Min(libre, choques[i].distance);
+        }
+
+        Vector2 destino = rb.position + direccion * libre;
+        rb.position = destino;
+        transform.position = destino;
+    }
+
     public void Inicializar(Jugador owner)
     {
         jugador = owner; // puede ser null si es NPC

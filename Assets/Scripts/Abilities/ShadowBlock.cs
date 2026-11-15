@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class ShadowBlock : MonoBehaviour
 {
@@ -15,8 +16,25 @@ public class ShadowBlock : MonoBehaviour
     [Tooltip("Cuantas cargas de habilidad cuesta colocarlo.")]
     public int costoCargas = 1;
 
-    [Header("Vida")]
-    public float vidaBajoLuz = 5f;
+    [Header("Ajustes")]
+    [Tooltip("Ancho de sombra y vida. Estan en un asset para poder afinarlos en play: el cambio " +
+             "lo ven todos los bloques de este tipo y queda guardado.")]
+    public AjustesDeBloque ajustes;
+
+    // Sin asset se usan los valores de siempre, y Awake avisa del olvido.
+    public float AnchoSombra => ajustes != null ? ajustes.anchoSombra : 1f;
+    public float VidaBajoLuz => ajustes != null ? ajustes.vidaBajoLuz : 5f;
+
+    /// <summary>
+    /// Los bloques que estan en juego. Las luces los recorren para calcular su
+    /// sombra sin buscarlos en la escena cada frame. Un bloque guardado en el
+    /// pool se apaga y sale de la lista.
+    /// </summary>
+    public static IReadOnlyList<ShadowBlock> Activos => activos;
+    private static readonly List<ShadowBlock> activos = new();
+
+    public Collider2D Colisionador { get; private set; }
+
     protected float vidaActual;
     protected bool bajoLuz = false;
 
@@ -33,9 +51,16 @@ public class ShadowBlock : MonoBehaviour
     [HideInInspector] public Vector3Int cellPos;
     [HideInInspector] public HUDHabilidad hudHabilidad;
 
-    public static event System.Action<ShadowBlock> OnBloqueDestruido;
+    /// <summary>Pool que entregó este bloque, o null si se creó suelto.</summary>
+    [HideInInspector] public PoolDeBloques pool;
 
-    // Marca de tiempo para evitar liberar celdas si se destruye instantáneamente
+    /// <summary>Prefab del que salió, para saber a qué fila del pool vuelve.</summary>
+    [HideInInspector] public GameObject prefabDeOrigen;
+
+    // Recien colocado no recibe daño ni libera su celda: la luz que ya
+    // estaba ahi lo romperia en el mismo frame.
+    private const float ProteccionAlNacer = 0.1f;
+    private const float MinimoParaLiberarCelda = 0.05f;
     private float tiempoCreacion;
 
     private bool inicializado;
@@ -43,7 +68,14 @@ public class ShadowBlock : MonoBehaviour
     protected virtual void Awake()
     {
         tiempoCreacion = Time.time;
+        Colisionador = GetComponent<Collider2D>();
+
+        if (ajustes == null)
+            Debug.LogError($"[ShadowBlock] '{name}' no tiene asset de ajustes: usa ancho 1 y vida 5.", this);
     }
+
+    protected virtual void OnEnable() => activos.Add(this);
+    protected virtual void OnDisable() => activos.Remove(this);
 
     // === Ciclo de vida ===
     protected virtual void Start()
@@ -84,7 +116,7 @@ public class ShadowBlock : MonoBehaviour
         Inicializar();
 
         tiempoCreacion = Time.time;
-        vidaActual = vidaBajoLuz;
+        vidaActual = VidaBajoLuz;
         bajoLuz = false;
 
         if (spriteRenderer != null && spriteOriginal != null)
@@ -92,7 +124,7 @@ public class ShadowBlock : MonoBehaviour
 
         if (barraInstanciada != null)
         {
-            barraInstanciada.SetVida(vidaActual, vidaBajoLuz);
+            barraInstanciada.SetVida(vidaActual, VidaBajoLuz);
             barraInstanciada.gameObject.SetActive(false); // invisible hasta recibir daño
         }
     }
@@ -100,7 +132,7 @@ public class ShadowBlock : MonoBehaviour
     protected virtual void Update()
     {
         if (bajoLuz && barraInstanciada != null)
-            barraInstanciada.SetVida(vidaActual, vidaBajoLuz);
+            barraInstanciada.SetVida(vidaActual, VidaBajoLuz);
 
         ActualizarSpritePorVida();
     }
@@ -108,8 +140,7 @@ public class ShadowBlock : MonoBehaviour
     // === Recibir luz (daño normal) ===
     public virtual void RecibirLuz(float daño)
     {
-        // Protección: NO recibir daño en los primeros ms de vida
-        if (Time.time - tiempoCreacion < 0.1f)
+        if (Time.time - tiempoCreacion < ProteccionAlNacer)
             return;
 
         if (!bajoLuz && barraInstanciada != null)
@@ -146,7 +177,7 @@ public class ShadowBlock : MonoBehaviour
         if (spriteRenderer == null || spritesDaño == null || spritesDaño.Length == 0)
             return;
 
-        float porcentajeVida = vidaActual / vidaBajoLuz;
+        float porcentajeVida = vidaActual / VidaBajoLuz;
 
         int total = spritesDaño.Length;
         int index;
@@ -154,17 +185,19 @@ public class ShadowBlock : MonoBehaviour
         
         if (porcentajeVida <= 0.15f)
         {
-            // cuánta vida le queda en la zona final
-            float t = Mathf.InverseLerp(0.10f, 0f, porcentajeVida); // 1 → 0
+            // Cuanto avanzo en la zona final: 0 con un 10 % de vida, 1 al morir.
+            float t = Mathf.InverseLerp(0.10f, 0f, porcentajeVida);
 
-            // velocidad del final (entre 2x y 4x más rápido)
-            float velocidadFinal = 3f;
+            // Los ultimos sprites pasan 3 veces mas rapido, como un estallido.
+            const float velocidadFinal = 3f;
 
             int inicioExpl = Mathf.FloorToInt((total - 1) * 0.90f);  // sprites desde el 90% al 100%
 
             int cantidadFinales = total - inicioExpl;
 
-            int idxFinal = inicioExpl + Mathf.FloorToInt((1f - t) * cantidadFinales * velocidadFinal);
+            // Antes usaba (1 - t): el bloque mostraba el sprite mas roto y se
+            // "arreglaba" a medida que se moria.
+            int idxFinal = inicioExpl + Mathf.FloorToInt(t * cantidadFinales * velocidadFinal);
 
             index = Mathf.Clamp(idxFinal, inicioExpl, total - 1);
         }
@@ -189,19 +222,14 @@ public class ShadowBlock : MonoBehaviour
     // === Destrucción controlada ===
     public virtual void DestruirBloque()
     {
-        // Evita liberar la celda si el bloque se destruye en el mismo frame que se creó
-        if (Time.time - tiempoCreacion > 0.05f)
+        if (gridManager != null)
         {
-            if (gridManager != null)
+            if (Time.time - tiempoCreacion > MinimoParaLiberarCelda)
                 gridManager.LiberarCelda(cellPos);
+            gridManager.OlvidarBloque(gameObject);
         }
 
-        if (gridManager != null)
-            gridManager.OlvidarBloque(gameObject);
-
         hudHabilidad?.RecuperarCargas();
-        OnBloqueDestruido?.Invoke(this);
-
         Guardar();
     }
 
@@ -217,10 +245,4 @@ public class ShadowBlock : MonoBehaviour
         else
             Destroy(gameObject);
     }
-
-    /// <summary>Pool que entregó este bloque, o null si se creó suelto.</summary>
-    [HideInInspector] public PoolDeBloques pool;
-
-    /// <summary>Prefab del que salió, para saber a qué fila del pool vuelve.</summary>
-    [HideInInspector] public GameObject prefabDeOrigen;
 }

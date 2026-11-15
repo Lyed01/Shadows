@@ -1,27 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-[System.Serializable]
-public class AbilityData
-{
-    public string nombre;
-    public Sprite icono;
-    public AbilityType tipo;
-}
-
+/// <summary>
+/// Selector de habilidad del HUD: muestra la elegida y cambia con la rueda.
+/// Los nombres e iconos salen de los assets HabilidadSO; aca solo se guarda
+/// cuales estan desbloqueadas y cual esta elegida.
+/// </summary>
 public class AbilitySelector : SceneSingleton<AbilitySelector>
 {
-    [Header("Base de datos de habilidades posibles (todas)")]
-    public List<AbilityData> habilidadesDisponibles = new List<AbilityData>();
-
     [Header("UI del selector")]
     public Image iconoActual;
     public TextMeshProUGUI nombreActual;
+    [Tooltip("Segundos que se ve el nombre al cambiar de habilidad, antes de desvanecerse.")]
+    public float nombreVisible = 1f;
+    public float nombreFundido = 0.5f;
 
-    private List<AbilityData> habilidadesDesbloqueadas = new List<AbilityData>();
+    private List<HabilidadSO> habilidadesDesbloqueadas = new List<HabilidadSO>();
     private int indiceActual = 0;
+    private Coroutine nombreCoroutine;
 
     void OnEnable()
     {
@@ -32,7 +31,7 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
             AbilityManager.Instance.OnAbilityUnlocked.AddListener(OnAbilityUnlocked);
             AbilityManager.Instance.OnAbilityLocked.AddListener(OnAbilityLocked);
 
-            //  SINCRONIZAR habilidades ya desbloqueadas
+            // SINCRONIZAR habilidades ya desbloqueadas
             SincronizarConAbilityManager();
         }
     }
@@ -46,10 +45,16 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
             AbilityManager.Instance.OnAbilityUnlocked.RemoveListener(OnAbilityUnlocked);
             AbilityManager.Instance.OnAbilityLocked.RemoveListener(OnAbilityLocked);
         }
+
+        // Si se apaga a mitad del fundido, la corrutina muere y el nombre quedaria a medias.
+        if (nombreActual != null) nombreActual.alpha = 0f;
+        nombreCoroutine = null;
     }
 
     void Start()
     {
+        // El nombre solo aparece al cambiar de habilidad.
+        if (nombreActual != null) nombreActual.alpha = 0f;
         ActualizarUI();
     }
 
@@ -68,9 +73,33 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
 
         indiceActual = (indiceActual + direccion + habilidadesDesbloqueadas.Count) % habilidadesDesbloqueadas.Count;
         ActualizarUI();
+        MostrarNombre();
 
         var hab = habilidadesDesbloqueadas[indiceActual];
         Log.Info(this, $"Habilidad seleccionada: {hab.nombre}");
+    }
+
+    private void MostrarNombre()
+    {
+        if (nombreActual == null) return;
+        if (nombreCoroutine != null) StopCoroutine(nombreCoroutine);
+        nombreCoroutine = StartCoroutine(DesvanecerNombre());
+    }
+
+    // Tiempo real, como el aviso de cargas: con el juego en pausa igual se va.
+    private IEnumerator DesvanecerNombre()
+    {
+        nombreActual.alpha = 1f;
+        yield return new WaitForSecondsRealtime(nombreVisible);
+
+        for (float t = 0f; t < nombreFundido; t += Time.unscaledDeltaTime)
+        {
+            nombreActual.alpha = 1f - t / nombreFundido;
+            yield return null;
+        }
+
+        nombreActual.alpha = 0f;
+        nombreCoroutine = null;
     }
 
     private void ActualizarUI()
@@ -86,14 +115,14 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
         if (iconoActual != null)
         {
             iconoActual.enabled = true;
-            iconoActual.sprite = habilidad.icono;
+            iconoActual.sprite = habilidad.iconoSelector;
         }
 
         if (nombreActual != null)
             nombreActual.text = habilidad.nombre;
     }
 
-    public AbilityData GetHabilidadActual()
+    public HabilidadSO GetHabilidadActual()
     {
         if (habilidadesDesbloqueadas.Count == 0) return null;
         return habilidadesDesbloqueadas[indiceActual];
@@ -102,7 +131,7 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
     // === EVENTOS ===
     private void OnAbilityUnlocked(AbilityType tipo)
     {
-        AbilityData data = habilidadesDisponibles.Find(h => h.tipo == tipo);
+        HabilidadSO data = DelSelector(tipo);
         if (data != null && !habilidadesDesbloqueadas.Contains(data))
         {
             habilidadesDesbloqueadas.Add(data);
@@ -118,7 +147,7 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
 
     private void OnAbilityLocked(AbilityType tipo)
     {
-        AbilityData data = habilidadesDisponibles.Find(h => h.tipo == tipo);
+        HabilidadSO data = DelSelector(tipo);
         if (data != null && habilidadesDesbloqueadas.Contains(data))
         {
             habilidadesDesbloqueadas.Remove(data);
@@ -128,7 +157,13 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
         }
     }
 
-    // === NUEVO MÉTODO ===
+    // Un asset sin nombre de selector no se elige con la rueda (AbilityMode).
+    private static HabilidadSO DelSelector(AbilityType tipo)
+    {
+        HabilidadSO habilidad = HabilidadSO.De(tipo);
+        return habilidad != null && !string.IsNullOrEmpty(habilidad.nombre) ? habilidad : null;
+    }
+
     private void SincronizarConAbilityManager()
     {
         if (AbilityManager.Instance == null) return;
@@ -139,7 +174,7 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
         {
             if (AbilityManager.Instance.IsUnlocked((AbilityType)tipo))
             {
-                var data = habilidadesDisponibles.Find(h => h.tipo == (AbilityType)tipo);
+                var data = DelSelector((AbilityType)tipo);
                 if (data != null && !habilidadesDesbloqueadas.Contains(data))
                 {
                     habilidadesDesbloqueadas.Add(data);

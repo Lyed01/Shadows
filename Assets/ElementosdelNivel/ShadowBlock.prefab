@@ -207,7 +207,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idTipo: sombra
   costoCargas: 1
-  vidaBajoLuz: 10
+  ajustes: {fileID: 11400000, guid: 23bfdb6b177074c40b182206b92a8673, type: 2}
   barraPrefab: {fileID: 4951610743849140546, guid: b166a6038d419da4989dadf8b0c62e8e, type: 3}
   spriteOriginal: {fileID: -1561946731, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
   "spritesDa\xF1o":

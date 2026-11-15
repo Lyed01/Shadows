@@ -42,7 +42,7 @@ public class GridManager : MonoBehaviour
     public GameObject panelHUDHabilidad;
 
     [Header("Eventos")]
-    public UnityEvent onPlayerDeath;          //  visible en el inspector
+    public UnityEvent onPlayerDeath;          // visible en el inspector
 
     // === Datos internos ===
     private Dictionary<Vector3Int, CellData> celdas = new();
@@ -111,39 +111,47 @@ public class GridManager : MonoBehaviour
 
     // === BLOQUES Y CELDAS ===
     /// <summary>
-    /// Coloca un bloque del tipo pedido. Recibe el id y no un prefab ni un
-    /// booleano: quién coloca no tiene por qué saber cuántos tipos hay.
+    /// La celda que está debajo del mouse, sin correcciones. El preview, los
+    /// bloques y el teletransporte la piden acá para que lo que se ve y lo que
+    /// pasa sean siempre la misma celda.
     /// </summary>
-    public ResultadoColocacion IntentarColocarBloque(Vector3 worldPos, string idBloque, Vector3 jugadorPos, float rango)
+    public Vector3Int CeldaBajoMouse()
     {
-        // worldPos Viene del mouse  hay que corregirlo
-        float ppu = 16f;
-        worldPos.x = Mathf.Round(worldPos.x * ppu) / ppu;
-        worldPos.y = Mathf.Round(worldPos.y * ppu) / ppu;
+        Vector3 mundo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mundo.z = 0f;
+        return sueloTilemap.WorldToCell(mundo);
+    }
 
-        Vector3Int cellPos = sueloTilemap.WorldToCell(worldPos);
-
-        // Si la celda no existe o no tiene tile de suelo, buscar una cercana hacia abajo
-        if (!celdas.ContainsKey(cellPos) || !sueloTilemap.HasTile(cellPos))
-        {
-            Vector3Int abajo = new Vector3Int(cellPos.x, cellPos.y - 1, cellPos.z);
-            if (celdas.ContainsKey(abajo) && sueloTilemap.HasTile(abajo))
-                cellPos = abajo;
-            else
-                return ResultadoColocacion.NoExisteCelda;
-        }
-
-        CellData data = celdas[cellPos];
-        float distancia = Vector3.Distance(sueloTilemap.GetCellCenterWorld(cellPos), jugadorPos);
-
+    /// <summary>
+    /// La única regla de dónde se puede usar una habilidad. El rango se mide
+    /// de celda a celda, desde la celda del jugador, igual que el resaltado.
+    /// </summary>
+    public ResultadoColocacion EvaluarCelda(Vector3Int cellPos, Vector3 jugadorPos, float rango)
+    {
+        if (!celdas.TryGetValue(cellPos, out CellData data) || !sueloTilemap.HasTile(cellPos))
+            return ResultadoColocacion.NoExisteCelda;
         if (!data.unlocked)
             return ResultadoColocacion.CeldaBloqueada;
         if (data.occupied)
             return ResultadoColocacion.CeldaOcupada;
-        if (distancia > rango)
+        if (Vector3Int.Distance(sueloTilemap.WorldToCell(jugadorPos), cellPos) > rango)
             return ResultadoColocacion.FueraDeRango;
+        return ResultadoColocacion.Exito;
+    }
 
-        //  Colocación exitosa
+    /// <summary>
+    /// Coloca un bloque del tipo pedido. Recibe el id y no un prefab ni un
+    /// booleano: quién coloca no tiene por qué saber cuántos tipos hay.
+    /// </summary>
+    public ResultadoColocacion IntentarColocarBloque(Vector3Int cellPos, string idBloque, Vector3 jugadorPos, float rango)
+    {
+        ResultadoColocacion evaluacion = EvaluarCelda(cellPos, jugadorPos, rango);
+        if (evaluacion != ResultadoColocacion.Exito)
+            return evaluacion;
+
+        CellData data = celdas[cellPos];
+
+        // Colocación exitosa
         Vector3 spawnPos = sueloTilemap.GetCellCenterWorld(cellPos);
 
         ShadowBlock sb = Fabrica.Crear(idBloque, spawnPos);
@@ -155,7 +163,6 @@ public class GridManager : MonoBehaviour
         sb.hudHabilidad = hudHabilidad;
 
         data.occupied = true;
-        celdas[cellPos] = data;
         bloquesInstanciados.Add(sb.gameObject);
 
         return ResultadoColocacion.Exito;
@@ -212,20 +219,20 @@ public class GridManager : MonoBehaviour
         sueloTilemap.SetTile(cellPos, tileDesbloqueado);
     }
 
-    public bool EsCeldaColocable(Vector3Int cellPos, Vector3 jugadorPos, float rango)
-    {
-        if (!celdas.ContainsKey(cellPos)) return false;
-        var data = celdas[cellPos];
-        float dist = Vector3.Distance(sueloTilemap.GetCellCenterWorld(cellPos), jugadorPos);
-        return data.unlocked && !data.occupied && dist <= rango;
-    }
+    public bool EsCeldaColocable(Vector3Int cellPos, Vector3 jugadorPos, float rango) =>
+        EvaluarCelda(cellPos, jugadorPos, rango) == ResultadoColocacion.Exito;
 
     // === CORRUPCIÓN ===
+    /// <summary>Si el suelo en esa posicion ya esta corrupto. Decide que pasos suenan.</summary>
+    public bool EsSueloCorrupto(Vector3 worldPos) =>
+        tileDesbloqueado != null && sueloTilemap != null &&
+        sueloTilemap.GetTile(sueloTilemap.WorldToCell(worldPos)) == tileDesbloqueado;
+
     public void CorromperCeldas(Vector3 worldPos)
     {
         if (sueloTilemap == null) return;
 
-        //  Ajuste para compensar el pivot del jugador (mitad de una celda hacia abajo)
+        // Ajuste para compensar el pivot del jugador (mitad de una celda hacia abajo)
         Vector3 ajuste = new Vector3(0f, -sueloTilemap.cellSize.y * 0.5f, 0f);
         Vector3Int centerCell = sueloTilemap.WorldToCell(worldPos + ajuste);
 
@@ -244,25 +251,16 @@ public class GridManager : MonoBehaviour
         foreach (Vector3Int offset in offsets)
         {
             Vector3Int cellPos = centerCell + offset;
-            if (!celdas.ContainsKey(cellPos)) continue;
-
-            CellData data = celdas[cellPos];
-            data.unlocked = true;
-            celdas[cellPos] = data;
-
-            if (tileDesbloqueado != null)
-                sueloTilemap.SetTile(cellPos, tileDesbloqueado);
+            CorromperCeldaUnica(cellPos);
         }
     }
 
     public void CorromperCeldaUnica(Vector3Int cellPos)
     {
-        if (!celdas.ContainsKey(cellPos)) return;
+        // CellData es clase: modificar la que sale del diccionario alcanza.
+        if (!celdas.TryGetValue(cellPos, out CellData data)) return;
 
-        CellData data = celdas[cellPos];
         data.unlocked = true;
-        celdas[cellPos] = data;
-
         if (tileDesbloqueado != null)
             sueloTilemap.SetTile(cellPos, tileDesbloqueado);
     }
@@ -271,12 +269,10 @@ public class GridManager : MonoBehaviour
     public void MostrarCeldasDisponibles(Vector3 worldPos, float rango)
     {
         OcultarCeldasDisponibles();
-        Vector3Int centerCell = sueloTilemap.WorldToCell(worldPos);
 
         foreach (var kvp in celdas)
         {
-            float distancia = Vector3Int.Distance(centerCell, kvp.Key);
-            if (kvp.Value.unlocked && !kvp.Value.occupied && distancia <= rango)
+            if (EsCeldaColocable(kvp.Key, worldPos, rango))
             {
                 sueloTilemap.SetTile(kvp.Key, tileSeleccion);
                 celdasMostradas.Add(kvp.Key);
@@ -317,14 +313,7 @@ public class GridManager : MonoBehaviour
             if (!celdas.ContainsKey(pos))
                 continue;
 
-            // Marcar como desbloqueada
-            var data = celdas[pos];
-            data.unlocked = true;
-            celdas[pos] = data;
-
-            // Pintar tile desbloqueado en el suelo
-            if (tileDesbloqueado != null)
-                sueloTilemap.SetTile(pos, tileDesbloqueado);
+            CorromperCeldaUnica(pos);
         }
 
         Log.Info(this, "Corrupción precolocada aplicada en el nivel.");

@@ -29,11 +29,8 @@ public class HabilidadTeletransporte : IHabilidad
             return;
         }
 
-        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseWorld.z = 0;
-
         GridManager grid = jugador.gridManager;
-        Vector3Int celda = grid.sueloTilemap.WorldToCell(mouseWorld);
+        Vector3Int celda = grid.CeldaBajoMouse();
 
         if (!grid.EsCeldaColocable(celda, jugador.transform.position, jugador.rangoHabilidad))
         {

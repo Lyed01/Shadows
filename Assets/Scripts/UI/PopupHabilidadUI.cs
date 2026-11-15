@@ -32,11 +32,28 @@ public class PopupHabilidadUI : MonoBehaviour
             StopCoroutine(animCoroutine);
 
         icono.sprite = iconoSprite;
+        AjustarIcono(iconoSprite);
         titulo.text = tituloTxt;
-        descripcion.text = descripcionTxt;
+        // Los textos de los assets traen un espacio despues de cada salto de linea.
+        descripcion.text = descripcionTxt.Replace("\n ", "\n");
 
         gameObject.SetActive(true);
         animCoroutine = StartCoroutine(FadeInOut());
+    }
+
+    private const float LadoIcono = 32f;
+
+    // Agranda el icono de a pixeles enteros hasta llenar la caja; los iconos
+    // miden entre 10 y 46 px y estirarlos a mano los deformaba.
+    private void AjustarIcono(Sprite sprite)
+    {
+        if (sprite == null) return;
+        Vector2 nativo = sprite.rect.size;
+        int k = Mathf.Max(1, Mathf.FloorToInt(Mathf.Min(LadoIcono / nativo.x, LadoIcono / nativo.y)));
+        Vector2 tam = nativo * k;
+        if (tam.x > LadoIcono || tam.y > LadoIcono)
+            tam *= LadoIcono / Mathf.Max(tam.x, tam.y);
+        icono.rectTransform.sizeDelta = tam;
     }
 
     private IEnumerator FadeInOut()

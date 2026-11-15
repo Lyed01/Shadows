@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0dcc5ab8666f21489562da392e97274, type: 3}
+  m_Name: ShadowBlocks
+  m_EditorClassIdentifier: Assembly-CSharp::HabilidadSO
+  tipo: 1
+  nombre: ShadowBlock
+  iconoSelector: {fileID: -1561946731, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
+  titulo: ShadowBlocks
+  iconoPopup: {fileID: 21300000, guid: 687ab70ac7964e640b9c1c0d731ffe5b, type: 2}
+  descripcion: "Coloca bloques de sombra para bloquear la luz. \xA1Cuidado, no duran
+    para siempre!\nClic izquierdo para colocarlos."

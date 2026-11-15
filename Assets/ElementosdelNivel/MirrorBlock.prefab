@@ -153,7 +153,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idTipo: espejo
   costoCargas: 2
-  vidaBajoLuz: 35
+  ajustes: {fileID: 11400000, guid: 2743a04470c68f049bcc16594713a78b, type: 2}
   barraPrefab: {fileID: 4951610743849140546, guid: b166a6038d419da4989dadf8b0c62e8e, type: 3}
   spriteOriginal: {fileID: -985395824052470088, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
   "spritesDa\xF1o":

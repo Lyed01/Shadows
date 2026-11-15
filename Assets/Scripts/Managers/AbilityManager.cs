@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -10,13 +9,6 @@ public enum AbilityType
     ReflectiveBlocks,
     AbyssFlame,
     ShadowTp,
-}
-[System.Serializable]
-public class DatosHabilidad
-{
-    public Sprite icono;
-    public string titulo;
-    public string descripcion;
 }
 
 
@@ -91,7 +83,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     // === GESTIÓN DE HABILIDADES ===
     public void Unlock(AbilityType tipo)
     {
-        //  CASO ESPECIAL: AbilityMode NO SE DESBLOQUEA
+        // CASO ESPECIAL: AbilityMode NO SE DESBLOQUEA
         if (tipo == AbilityType.AbilityMode)
         {
             Log.Info(this, "AbilityMode no se desbloquea; solo muestra el pop-up.");
@@ -99,7 +91,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
             if (popupHabilidad != null)
                 NotificarDesbloqueo(tipo);
 
-            return; //  No continúa hacia el desbloqueo real
+            return; // No continúa hacia el desbloqueo real
         }
 
         // === DESBLOQUEO NORMAL PARA OTRAS HABILIDADES ===
@@ -128,51 +120,20 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     {
         int prioridad = tipo == AbilityType.AbilityMode ? 1 : 2;
 
-        PopupManager.Obtener().EncolarHabilidad(
-            popupHabilidad, ObtenerDatosHabilidad(tipo), prioridad);
+        HabilidadSO datos = HabilidadSO.De(tipo);
+        if (datos == null)
+        {
+            Log.Aviso(this, $"No hay asset de habilidad para {tipo}: no se muestra el popup.");
+            return;
+        }
+
+        PopupManager.Obtener().EncolarHabilidad(popupHabilidad, datos, prioridad);
     }
 
 
-    public void Lock(AbilityType tipo)
-    {
-        if (!desbloqueadas.Contains(tipo)) return;
-
-        desbloqueadas.Remove(tipo);
-        OnAbilityLocked.Invoke(tipo);
-        SaveSystem.SetHabilidad(tipo, false);
-
-        Log.Info(this, $"Habilidad bloqueada: {tipo}");
-    }
-
-    public bool IsUnlocked(AbilityType tipo)
-    {
-        return desbloqueadas.Contains(tipo);
-    }
-
-    public void ResetAll()
-    {
-        // Se copia antes de recorrer, porque Lock modifica el conjunto.
-        foreach (var tipo in desbloqueadas.ToArray())
-            Lock(tipo);
-
-        Log.Info(this, "Todas las habilidades han sido bloqueadas (reset global).");
-    }
-
-    public List<AbilityType> GetUnlockedAbilities()
-    {
-        return new List<AbilityType>(desbloqueadas.ToArray());
-    }
+    public bool IsUnlocked(AbilityType tipo) => desbloqueadas.Contains(tipo);
 
     // === PERSISTENCIA DE HABILIDADES ===
-    public void SaveProgress()
-    {
-        // Se recorre el enum y no el conjunto, porque tambien hay que dejar
-        // guardadas en false las que no estan desbloqueadas.
-        foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))
-            SaveSystem.SetHabilidad(tipo, desbloqueadas.Contains(tipo));
-        Log.Info(this, "Progreso de habilidades guardado.");
-    }
-
     public void LoadProgress()
     {
         foreach (AbilityType tipo in Enum.GetValues(typeof(AbilityType)))
@@ -198,16 +159,12 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
             hud.Reiniciar();
         }
 
-        foreach (AbilityType _ in desbloqueadas)
-            jugador.RecibirHabilidad();
-
         Log.Info(this, "Habilidades sincronizadas con jugador en nueva escena.");
     }
 
-#if UNITY_EDITOR
-    [ContextMenu(" Resetear PlayerPrefs (debug)")]
-#endif
-    public void ResetearProgresoDebug()
+    /// <summary>Bloquea todas las habilidades y borra su guardado. La usan Nueva partida y Opciones.</summary>
+    [ContextMenu("Reiniciar progreso de habilidades")]
+    public void ReiniciarProgreso()
     {
         Log.Info(this, "Reseteando TODAS las habilidades a estado bloqueado...");
 
@@ -228,60 +185,5 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
         HUDHabilidad.Instance?.Reiniciar();
 
         Log.Info(this, "TODAS las habilidades fueron bloqueadas y el estado fue limpiado.");
-        LoadProgress();
     }
-
-
-    public DatosHabilidad ObtenerDatosHabilidad(AbilityType tipo)
-    {
-        switch (tipo)
-        {
-           
-
-            case AbilityType.ShadowBlocks:
-                return new DatosHabilidad
-                {
-                    icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/ShadowBLock"),
-                    titulo = "ShadowBLocks",
-                    descripcion = "Coloca bloques de sombra para bloquear la luz. ¡Cuidado, no duran para siempre!. \n MouseButton1"
-                };
-
-            case AbilityType.ReflectiveBlocks:
-                return new DatosHabilidad
-                {
-                    icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/MirrorBLock"),
-                    titulo = "MirrorBlocks",
-                    descripcion = "Redirige la luz amarilla, cuidado donde apuntas. \n pulsa MouseButton2 en el bloque para cambiar su dirección"
-                };
-
-            case AbilityType.AbyssFlame:
-                return new DatosHabilidad
-                {
-                    icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/AbyssFlame"),
-                    titulo = "AbyssFlame",
-                    descripcion = "Proyecta una llama oscura que corrompe e interactua con el entorno.\n Muevete con WASD y extinguela con MouseButton2"
-                };
-
-            case AbilityType.ShadowTp:
-                return new DatosHabilidad
-                {
-                    icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/ShadowTp"),
-                    titulo = "ShadowTP",
-                    descripcion = "Teletransportate entre zonas corruptas en un instante. \n MouseButton1 donde quieras teletransportarte"
-                };
-
-
-             case AbilityType.AbilityMode:
-                return new DatosHabilidad
-                {
-                    icono = Resources.Load<Sprite>("Sprites/Pixel/Iconos/PulseEffect"),
-                    titulo = "AbilityMode",
-                    descripcion = "Activa el rango antes de usar cualquier habilidad. \n Tecla SPACE"
-                };
-
-            default:
-                return new DatosHabilidad();
-        }
-    }
-
 }

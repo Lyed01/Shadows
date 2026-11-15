@@ -25,18 +25,6 @@ public class HUDHabilidad : PersistentSingleton<HUDHabilidad>
 
         Log.Info(this, $"HUDHabilidad persistente inicializado en escena: {gameObject.scene.name}");
 
-        // Si está dentro de un Canvas, hacerlo persistente
-        var canvasRoot = transform.root.GetComponentInParent<Canvas>();
-        if (canvasRoot != null)
-        {
-            DontDestroyOnLoad(canvasRoot.gameObject);
-            Log.Info(this, $"Canvas raíz persistente detectado: {canvasRoot.name}");
-        }
-        else
-        {
-            DontDestroyOnLoad(gameObject);
-        }
-
         Reiniciar();
 
         if (avisoTexto != null)
@@ -108,7 +96,8 @@ public class HUDHabilidad : PersistentSingleton<HUDHabilidad>
     {
         avisoTexto.text = mensaje;
         avisoTexto.gameObject.SetActive(true);
-        yield return new WaitForSeconds(duracionAviso);
+        // Tiempo real: con el juego en pausa el aviso igual se va.
+        yield return new WaitForSecondsRealtime(duracionAviso);
         avisoTexto.gameObject.SetActive(false);
     }
 

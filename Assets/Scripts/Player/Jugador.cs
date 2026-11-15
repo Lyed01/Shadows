@@ -39,7 +39,7 @@ public class Jugador : MonoBehaviour
     private Vector2 movimiento;
     private Vector2 ultimaDireccion = Vector2.down;
     private string animActual = "";
-    private float bloqueoHabilidadTimer = 0f;   //  tiempo en el que NO se puede mover ni cancelar
+    private float bloqueoHabilidadTimer = 0f;   // tiempo en el que NO se puede mover ni cancelar
 
     // Guardamos los constraints originales para restaurarlos
     private RigidbodyConstraints2D constraintsOriginal;
@@ -59,7 +59,7 @@ public class Jugador : MonoBehaviour
         gridManager = gm;
         hudHabilidad = hud;
 
-        //  Solo deshabilitar habilidades si NO estamos en el Hub
+        // Solo deshabilitar habilidades si NO estamos en el Hub
         if (SceneManager.GetActiveScene().name != Escenas.Hub)
             DeshabilitarHabilidad();
 
@@ -67,17 +67,27 @@ public class Jugador : MonoBehaviour
         {
             AbilityManager.Instance.OnAbilityUnlocked.AddListener(OnHabilidadDesbloqueada);
 
-            //  Sincroniza TODAS las habilidades desbloqueadas actuales
+            // Con una sola habilidad desbloqueada alcanza: RecibirHabilidad
+            // solo enciende y reinicia el HUD, y repetirla no suma nada.
             foreach (AbilityType tipo in System.Enum.GetValues(typeof(AbilityType)))
             {
-                if (AbilityManager.Instance.IsUnlocked(tipo))
-                    OnHabilidadDesbloqueada(tipo);
+                if (tipo == AbilityType.AbilityMode || !AbilityManager.Instance.IsUnlocked(tipo)) continue;
+                RecibirHabilidad();
+                break;
             }
         }
 
         vivo = true;
         controlActivo = true;
         inputBloqueado = false;
+    }
+
+    // El AbilityManager sobrevive a las escenas: sin esto cada jugador muerto
+    // quedaba suscrito y un desbloqueo reiniciaba el HUD una vez por muerte.
+    void OnDestroy()
+    {
+        if (AbilityManager.Instance != null)
+            AbilityManager.Instance.OnAbilityUnlocked.RemoveListener(OnHabilidadDesbloqueada);
     }
 
     void Update()
@@ -91,55 +101,23 @@ public class Jugador : MonoBehaviour
 
         if (bloqueoHabilidadTimer > 0f)
             bloqueoHabilidadTimer -= Time.deltaTime;
-        // === PRIORIDAD: ya estoy en modo habilidad ===
-        // === PRIORIDAD: ya estoy en modo habilidad ===
+
         if (enModoHabilidad)
         {
-            // 1) Mientras dure el bloqueo, ignoramos todo:
-            if (bloqueoHabilidadTimer > 0f)
+            // Pasado el bloqueo, Espacio o moverse sacan del modo y este mismo
+            // frame ya se camina. Mientras tanto, quieto.
+            bool sale = bloqueoHabilidadTimer <= 0f && (presionoSpace || inputX != 0 || inputY != 0);
+            if (!sale)
             {
                 movimiento = Vector2.zero;
                 ActualizarAnimacion();
-                return;  //  NO salimos del modo habilidad, NO dejamos mover
+                return;
             }
-
-            // 2) Pasado el 1s, ahora sí: Space o WASD sacan del modo habilidad
-
-            // Space de nuevo  salir
-            if (presionoSpace)
-            {
-                DesactivarModoHabilidad();
-                // seguís este frame con movimiento normal
-            }
-            else
-            {
-                // WASD  salir del modo habilidad
-                if (inputX != 0 || inputY != 0)
-                {
-                    DesactivarModoHabilidad();
-                }
-                else
-                {
-                    // Quieto en habilidad
-                    movimiento = Vector2.zero;
-                    ActualizarAnimacion();
-                    return;
-                }
-            }
+            DesactivarModoHabilidad();
         }
-
-        // === Si llegamos acá, NO estamos en modo habilidad ===
-        // Toggle para ENTRAR al modo habilidad
-        if (presionoSpace && controlActivo)
-        {
-            if (!EstaUsandoAbyssFlame())
-            {
-                ActivarModoHabilidad();
-                movimiento = Vector2.zero;
-                ActualizarAnimacion();
-                return; // no procesar movimiento normal en el mismo frame que entrás
-            }
-        }
+        // El mismo Espacio que saca del modo no vuelve a entrar.
+        else if (presionoSpace && EntrarModoHabilidad())
+            return;
 
         // === Movimiento normal ===
         movimiento = new Vector2(inputX, inputY).normalized;
@@ -190,23 +168,43 @@ public class Jugador : MonoBehaviour
     private void ReproducirPaso()
     {
         if (gridManager == null || AudioManager.Instance == null) return;
-
-        Vector3Int cell = gridManager.sueloTilemap.WorldToCell(transform.position);
-
-        bool esCorrupto = false;
-        if (gridManager.tileDesbloqueado != null && gridManager.sueloTilemap.GetTile(cell) == gridManager.tileDesbloqueado)
-            esCorrupto = true;
-
-        AudioManager.Instance.ReproducirPaso(esCorrupto);
+        AudioManager.Instance.ReproducirPaso(gridManager.EsSueloCorrupto(transform.position));
     }
 
+    /// <summary>
+    /// Hacia donde mira Shawy, en una de las cuatro direcciones que muestra su
+    /// animacion: en diagonal gana arriba o abajo, como al caminar.
+    /// </summary>
+    public Vector2 DireccionMirada =>
+        ultimaDireccion.y > 0 ? Vector2.up :
+        ultimaDireccion.y < 0 ? Vector2.down :
+        transform.localScale.x < 0 ? Vector2.left : Vector2.right;
+
     // === MODO HABILIDAD ===
+
+    /// <summary>
+    /// Frena al jugador y muestra el rango. Lo usan Espacio y el clic con una
+    /// habilidad elegida. Devuelve si quedo en el modo.
+    /// </summary>
+    public bool EntrarModoHabilidad()
+    {
+        if (enModoHabilidad) return true;
+        if (!vivo || !controlActivo || SinControl) return false;
+
+        ActivarModoHabilidad();
+        movimiento = Vector2.zero;
+        ActualizarAnimacion();
+        return true;
+    }
+
     void ActivarModoHabilidad()
     {
         enModoHabilidad = true;
         ModoHabilidadActivo = true;
 
-        bloqueoHabilidadTimer = 0.2f;           // ⏱ 1 segundo quieto SÍ O SÍ
+        // Quieto un instante aunque se siga apretando WASD: el clic tambien
+        // entra al modo, y asi colocar caminando frena a Shawy en vez de ignorarlo.
+        bloqueoHabilidadTimer = 0.2f;
 
         movimiento = Vector2.zero;
         rb.linearVelocity = Vector2.zero;
@@ -231,15 +229,10 @@ public class Jugador : MonoBehaviour
     // === Desactivar modo habilidad ===
     void DesactivarModoHabilidad()
     {
-        enModoHabilidad = false;
-        ModoHabilidadActivo = false;
-
-        //  Restaurar constraints originales
-        rb.constraints = constraintsOriginal;
-
+        SoltarModoHabilidad();
         OnDesactivarHabilidad?.Invoke();
 
-        //  Desvanecer el pulso cuando se sale del modo habilidad
+        // Desvanecer el pulso cuando se sale del modo habilidad
         if (rangoVisual != null)
         {
             var pulse = rangoVisual.GetComponent<PulseEffect>();
@@ -251,6 +244,15 @@ public class Jugador : MonoBehaviour
 
         gridManager?.OcultarCeldasDisponibles();
         hudHabilidad?.OcultarAviso();
+    }
+
+    // Lo que tienen en comun todas las salidas del modo: la posicion se
+    // congela al entrar y hay que soltarla siempre.
+    private void SoltarModoHabilidad()
+    {
+        enModoHabilidad = false;
+        ModoHabilidadActivo = false;
+        rb.constraints = constraintsOriginal;
     }
 
     // === VIDA / MUERTE ===
@@ -266,7 +268,7 @@ public class Jugador : MonoBehaviour
         // Reinicia el HUD para el nuevo intento
         hudHabilidad?.Reiniciar();
 
-        //  Notifica al GridManager
+        // Notifica al GridManager
         gridManager?.CorromperCeldas(transform.position);
         gridManager?.NotificarMuerteJugador();
         Log.Info(this, "Murio, notificando a GameManager");
@@ -298,12 +300,8 @@ public class Jugador : MonoBehaviour
 
     public void DeshabilitarHabilidad()
     {
-        enModoHabilidad = false;
-        ModoHabilidadActivo = false;
+        SoltarModoHabilidad();
         hudHabilidad?.gameObject.SetActive(false);
-
-        // El modo habilidad congela la posicion: hay que soltarla siempre
-        rb.constraints = constraintsOriginal;
     }
 
     // === ANIMACIONES ===
@@ -347,12 +345,12 @@ public class Jugador : MonoBehaviour
 
         if (!estado && rangoVisual != null)
         {
-            Destroy(rangoVisual); //  Limpieza de rango visual residual
+            Destroy(rangoVisual); // Limpieza de rango visual residual
             rangoVisual = null;
         }
     }
 
-    public bool GetControlActivo() => controlActivo;
+    public bool ControlActivo => controlActivo;
 
     public void SetInputBloqueado(bool estado)
     {
@@ -361,9 +359,7 @@ public class Jugador : MonoBehaviour
         if (estado)
         {
             movimiento = Vector2.zero;
-            enModoHabilidad = false;
-            ModoHabilidadActivo = false;
-            rb.constraints = constraintsOriginal;
+            SoltarModoHabilidad();
             OnDesactivarHabilidad?.Invoke();
         }
     }
@@ -371,11 +367,8 @@ public class Jugador : MonoBehaviour
  
 
 
-    private bool EstaUsandoAbyssFlame()
-    {
-        // Si el control está desactivado o el input bloqueado, se asume que la llama está activa
-        return !controlActivo || inputBloqueado;
-    }
+    // Control o input quitados: lo hace la AbyssFlame mientras se maneja.
+    private bool SinControl => !controlActivo || inputBloqueado;
 
-    public bool GetInputBloqueado() => inputBloqueado;
+    public bool InputBloqueado => inputBloqueado;
 }

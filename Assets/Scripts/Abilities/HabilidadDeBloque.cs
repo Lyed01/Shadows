@@ -29,11 +29,8 @@ public abstract class HabilidadDeBloque : IHabilidad
             return;
         }
 
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePos.z = 0;
-
         ResultadoColocacion resultado = grid.IntentarColocarBloque(
-            mousePos, IdBloque, jugador.transform.position, jugador.rangoHabilidad);
+            grid.CeldaBajoMouse(), IdBloque, jugador.transform.position, jugador.rangoHabilidad);
 
         if (resultado == ResultadoColocacion.Exito)
         {
