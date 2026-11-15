@@ -19,32 +19,22 @@ public class Door : MonoBehaviour
 
     [HideInInspector] public bool noReset = false;
 
+    // Al cargar la escena la puerta toma su estado en silencio: si no, en el
+    // Hub sonaban todas las puertas juntas.
+    private bool silenciosa;
+
     void Start()
     {
-        
         initialIsOpen = IsOpen;
+        silenciosa = true;
         Evaluar();
-
+        silenciosa = false;
     }
 
     void Awake()
     {
-        if (IsOpen)
-        {
-            if (anim != null)
-            {
-                anim.SetBool("IsOpen", true);
-                AudioManager.Instance?.ReproducirPuertaAbrir();
-            }
-        }
-        else
-        {
-            if (anim != null)
-            {
-                anim.SetBool("IsOpen", false);
-                AudioManager.Instance?.ReproducirPuertaCerrar();
-            }
-        }
+        if (anim != null)
+            anim.SetBool("IsOpen", IsOpen);
     }
 
     public void Evaluar()
@@ -96,7 +86,7 @@ public class Door : MonoBehaviour
     {
         if (!IsOpen)
         {
-            AudioManager.Instance?.ReproducirPuertaAbrir();
+            if (!silenciosa) AudioManager.Instance?.ReproducirPuertaAbrir();
             IsOpen = true;
             if (anim != null)
                 anim.SetBool("IsOpen", true);
@@ -107,7 +97,7 @@ public class Door : MonoBehaviour
     {
         if (IsOpen)
         {
-            AudioManager.Instance?.ReproducirPuertaCerrar();
+            if (!silenciosa) AudioManager.Instance?.ReproducirPuertaCerrar();
             IsOpen = false;
             if (anim != null)
                 anim.SetBool("IsOpen", false);

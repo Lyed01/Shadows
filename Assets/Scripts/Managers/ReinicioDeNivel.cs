@@ -36,6 +36,9 @@ public static class ReinicioDeNivel
 
         foreach (var puerta in Buscar<Door>())
             puerta.ResetToInitialState();
+
+        // Todo vuelve a su lugar bajo la sombra: las puertas que cambiaron no suenan.
+        AudioManager.Instance?.DescartarFXPendientes();
     }
 
     // Incluye los inactivos: un objeto apagado durante el nivel tambien tiene

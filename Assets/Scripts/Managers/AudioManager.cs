@@ -27,13 +27,19 @@ public class AudioManager : PersistentSingleton<AudioManager>
     {
         public readonly AudioClip Clip;
         public readonly float Pitch;
+        public readonly float Volumen;
 
-        public SolicitudSonido(AudioClip clip, float pitch)
+        public SolicitudSonido(AudioClip clip, float pitch, float volumen)
         {
             Clip = clip;
             Pitch = pitch;
+            Volumen = volumen;
         }
     }
+
+    // Clips que ya sonaron en este frame: diez puertas o pasos con el mismo
+    // clip a la vez suenan como uno solo, y no apilados.
+    private readonly List<AudioClip> sonaronEsteFrame = new();
 
     [Header("Límite de sonidos simultáneos")]
     [Tooltip("Cuantos FX de la cola se reproducen como máximo en cada frame. El resto de ese frame se descarta.")]
@@ -132,11 +138,14 @@ public class AudioManager : PersistentSingleton<AudioManager>
     /// No reproduce el clip directamente: lo encola con su prioridad. La cola
     /// se procesa una vez por frame en Update, que decide cuales suenan.
     /// </summary>
-    public void ReproducirFX(AudioClip clip, int prioridad = PrioridadMedia)
+    public void ReproducirFX(AudioClip clip, int prioridad = PrioridadMedia, float volumen = 1f)
     {
         if (clip == null) return;
-        colaFX.Enqueue(new SolicitudSonido(clip, Random.Range(0.96f, 1.04f)), prioridad);
+        colaFX.Enqueue(new SolicitudSonido(clip, Random.Range(0.96f, 1.04f), volumen), prioridad);
     }
+
+    /// <summary>Descarta los FX pedidos que todavia no sonaron.</summary>
+    public void DescartarFXPendientes() => colaFX.Clear();
 
     public void ReproducirFX(List<AudioClip> clips, int prioridad = PrioridadMedia)
     {
@@ -158,12 +167,16 @@ public class AudioManager : PersistentSingleton<AudioManager>
     private void ProcesarColaDeFX()
     {
         int reproducidos = 0;
+        sonaronEsteFrame.Clear();
 
         while (reproducidos < maxFXPorFrame && colaFX.Count > 0)
         {
             SolicitudSonido solicitud = colaFX.Dequeue();
+            if (sonaronEsteFrame.Contains(solicitud.Clip)) continue;
+            sonaronEsteFrame.Add(solicitud.Clip);
+
             fxSource.pitch = solicitud.Pitch;
-            fxSource.PlayOneShot(solicitud.Clip, volumenFX * multiplicadorGlobal);
+            fxSource.PlayOneShot(solicitud.Clip, volumenFX * multiplicadorGlobal * solicitud.Volumen);
             reproducidos++;
         }
 
@@ -204,20 +217,12 @@ public class AudioManager : PersistentSingleton<AudioManager>
         ReproducirUI(sonidosHUDAdvertencia.Count > 0 ? sonidosHUDAdvertencia[Random.Range(0, sonidosHUDAdvertencia.Count)] : null);
     public void ReproducirCorromperSuelo() => ReproducirFX(sonidosCorromperSuelo);
 
-    // === PUERTAS (volumen reducido al 50 %) ===
-    public void ReproducirPuertaAbrir()
-    {
-        if (sonidoPuertaAbrir == null) return;
-        fxSource.pitch = Random.Range(0.96f, 1.04f);
-        fxSource.PlayOneShot(sonidoPuertaAbrir, (volumenFX * multiplicadorGlobal) * 0.1f);
-    }
-
-    public void ReproducirPuertaCerrar()
-    {
-        if (sonidoPuertaCerrar == null) return;
-        fxSource.pitch = Random.Range(0.96f, 1.04f);
-        fxSource.PlayOneShot(sonidoPuertaCerrar, (volumenFX * multiplicadorGlobal) * 0.1f);
-    }
+    // === PUERTAS (volumen reducido al 10 %) ===
+    // Pasan por la cola como el resto: antes sonaban directo y varias puertas
+    // a la vez se apilaban.
+    private const float VolumenPuertas = 0.1f;
+    public void ReproducirPuertaAbrir() => ReproducirFX(sonidoPuertaAbrir, PrioridadMedia, VolumenPuertas);
+    public void ReproducirPuertaCerrar() => ReproducirFX(sonidoPuertaCerrar, PrioridadMedia, VolumenPuertas);
 
     // === UI ===
     public void ReproducirUIClick() => ReproducirUI(sonidoUIClick);
@@ -264,23 +269,5 @@ public class AudioManager : PersistentSingleton<AudioManager>
         SaveSystem.VolumenInterfaz = volumenUI;
         SaveSystem.VolumenMaestro = multiplicadorGlobal;
         SaveSystem.Guardar();
-    }
-
-    public void PlaySfx(AudioClip clip)
-    {
-        if (clip == null)
-        {
-            Log.Aviso(this, "AudioManager: intento de reproducir un SFX nulo.");
-            return;
-        }
-
-        AudioSource sfxSource = GetComponent<AudioSource>();
-        if (sfxSource == null)
-        {
-            sfxSource = gameObject.AddComponent<AudioSource>();
-            sfxSource.playOnAwake = false;
-        }
-
-        sfxSource.PlayOneShot(clip);
     }
 }
