@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(SpriteRenderer), typeof(Collider2D))]
 public class InteractableAlphaOutline : MonoBehaviour
@@ -22,7 +20,8 @@ public class InteractableAlphaOutline : MonoBehaviour
     [Header("Prompt de interacción")]
     public GameObject promptPrefab;
     public Vector3 promptOffset = new Vector3(0, 1.2f, 0);
-    public float promptFadeSpeed = 6f;
+    [Tooltip("Al apretarla la tecla del prompt se hunde y se oculta.")]
+    public KeyCode teclaInteraccion = KeyCode.E;
 
     [Header("Detección")]
     public string playerTag = "Player";
@@ -34,14 +33,10 @@ public class InteractableAlphaOutline : MonoBehaviour
     private bool playerNear;
     private float currentIntensity;
 
-    // Prompt
-    private CanvasGroup promptCanvas;
-    private Transform promptTransform;
-    private Camera cam;
+    private PromptTecla prompt;
 
     void Awake()
     {
-        cam = Camera.main;
         baseSR = GetComponent<SpriteRenderer>();
 
         // OUTLINE (NO DUPLICAR)
@@ -77,24 +72,13 @@ public class InteractableAlphaOutline : MonoBehaviour
         // PROMPT (CREAR UNA SOLA VEZ)
         if (promptPrefab != null)
         {
-            Canvas canvas = FindAnyObjectByType<Canvas>(FindObjectsInactive.Include);
-
-            if (canvas == null)
+            GameObject p = Instantiate(promptPrefab);
+            prompt = p.GetComponent<PromptTecla>();
+            if (prompt == null)
             {
-                Debug.LogError(" InteractableAlphaOutline: No se encontró Canvas.");
-                return;
+                Log.Aviso(this, "El prompt de interacción no tiene PromptTecla.");
+                Destroy(p);
             }
-
-            GameObject p = Instantiate(promptPrefab, canvas.transform);
-
-            promptTransform = p.transform;
-            promptCanvas = p.GetComponent<CanvasGroup>() ?? p.AddComponent<CanvasGroup>();
-
-            promptCanvas.alpha = 0f;
-            promptCanvas.gameObject.SetActive(false);
-
-            // Evita que persista entre escenas o duplicaciones raras
-            p.hideFlags = HideFlags.DontSave;
         }
     }
 
@@ -115,28 +99,15 @@ public class InteractableAlphaOutline : MonoBehaviour
         runtimeMat.SetFloat("_Intensity", Mathf.Clamp01(currentIntensity + pulse));
 
         // PROMPT UI
-        if (promptCanvas != null && promptTransform != null)
-        {
-            Vector3 screenPos = cam.WorldToScreenPoint(transform.position + promptOffset);
-            promptTransform.position = screenPos;
+        if (prompt != null && playerNear && Input.GetKeyDown(teclaInteraccion))
+            prompt.Apretar();
+    }
 
-            if (playerNear)
-            {
-                if (!promptCanvas.gameObject.activeSelf)
-                    promptCanvas.gameObject.SetActive(true);
-
-                promptCanvas.alpha = Mathf.MoveTowards(promptCanvas.alpha, 1f,
-                    Time.deltaTime * promptFadeSpeed);
-            }
-            else
-            {
-                promptCanvas.alpha = Mathf.MoveTowards(promptCanvas.alpha, 0f,
-                    Time.deltaTime * promptFadeSpeed);
-
-                if (promptCanvas.alpha <= 0.01f)
-                    promptCanvas.gameObject.SetActive(false);
-            }
-        }
+    // Despues de que la camara siguio al jugador, para que la tecla no tiemble.
+    void LateUpdate()
+    {
+        if (prompt != null)
+            prompt.Actualizar(transform.position + promptOffset, playerNear);
     }
 
     // DETECCIÓN
@@ -155,8 +126,8 @@ public class InteractableAlphaOutline : MonoBehaviour
     // LIMPIEZA AL DESTRUIR
     void OnDestroy()
     {
-        if (promptTransform != null)
-            Destroy(promptTransform.gameObject);
+        if (prompt != null)
+            Destroy(prompt.gameObject);
     }
 
     // API pública opcional

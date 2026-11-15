@@ -25,7 +25,8 @@ public class PopupNivelUI : SceneSingleton<PopupNivelUI>, IPopupArbitrado
 
     [Header("Posicionamiento")]
     public bool posicionarCercaDeLaPuerta = true;
-    public Vector2 offsetPantalla = new Vector2(0f, 60f);
+    [Tooltip("Desplazamiento del popup sobre la puerta, en pixeles del juego.")]
+    public Vector2 offsetPantalla = new Vector2(0f, 20f);
 
     private DoorHub puertaActual;
     private DoorHub candidata;
@@ -196,7 +197,8 @@ public class PopupNivelUI : SceneSingleton<PopupNivelUI>, IPopupArbitrado
             return;
 
         Vector2 pantalla = RectTransformUtility.WorldToScreenPoint(cam, worldAnchor);
-        pantalla += offsetPantalla;
+        // En pixeles del juego: se multiplica por la escala del Canvas.
+        pantalla += offsetPantalla * canvas.scaleFactor;
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             canvas.transform as RectTransform,

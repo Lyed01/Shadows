@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using UnityEngine.SceneManagement;
 
 public class CinematicFadeSequence : MonoBehaviour
 {
@@ -31,7 +30,7 @@ public class CinematicFadeSequence : MonoBehaviour
         yield return new WaitForSeconds(delayBetween);
 
         
-        SceneManager.LoadScene(Escenas.MainMenu);
+        GameManager.Instance.CargarEscena(Escenas.MainMenu);
     }
 
     IEnumerator FadeIn(Image img)

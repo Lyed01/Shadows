@@ -1,10 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Muestra el sprite ON u OFF segun el estado del Toggle. Se compara cada
+/// frame en vez de escuchar onValueChanged porque SetIsOnWithoutNotify (al
+/// cargar las opciones guardadas) no dispara el evento y el sprite quedaba mal.
+/// </summary>
 [RequireComponent(typeof(Toggle))]
 public class PixelToggleSprite : MonoBehaviour
 {
-    public Image imagenFondo;           // Asigná la Image del toggle
+    public Image imagenFondo;
     public Sprite spriteOn;
     public Sprite spriteOff;
 
@@ -15,14 +20,12 @@ public class PixelToggleSprite : MonoBehaviour
         toggle = GetComponent<Toggle>();
         if (imagenFondo == null)
             imagenFondo = GetComponent<Image>();
-
-        toggle.onValueChanged.AddListener(ActualizarSprite);
-        ActualizarSprite(toggle.isOn);
     }
 
-    void ActualizarSprite(bool estado)
+    void LateUpdate()
     {
-        if (imagenFondo != null)
-            imagenFondo.sprite = estado ? spriteOn : spriteOff;
+        Sprite sprite = toggle.isOn ? spriteOn : spriteOff;
+        if (imagenFondo != null && imagenFondo.sprite != sprite)
+            imagenFondo.sprite = sprite;
     }
 }

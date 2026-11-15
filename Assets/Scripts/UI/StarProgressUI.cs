@@ -58,7 +58,7 @@ public class StarProgressUI : MonoBehaviour
     {
         Log.Info(this, "Inicializando StarProgressUI en Hub...");
 
-        //  Reactiva jerarquía por seguridad
+        // Reactiva jerarquía por seguridad
         Transform actual = transform;
         while (actual != null)
         {
@@ -142,7 +142,7 @@ public class StarProgressUI : MonoBehaviour
         // Esperá un pequeño instante para asegurar visibilidad y estabilidad
         yield return new WaitForSecondsRealtime(0.3f);
 
-        //  Lanza refresco periódico sin interrumpir la animación
+        // Lanza refresco periódico sin interrumpir la animación
         if (refrescoCoroutine != null)
             StopCoroutine(refrescoCoroutine);
 

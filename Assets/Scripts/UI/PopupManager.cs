@@ -53,7 +53,7 @@ public class PopupManager : PersistentSingleton<PopupManager>
     /// Suma una notificacion de habilidad a la fila de espera. No se muestra al
     /// toque: espera a que termine la que este en pantalla.
     /// </summary>
-    public void EncolarHabilidad(PopupHabilidadUI vista, DatosHabilidad datos, int prioridad)
+    public void EncolarHabilidad(PopupHabilidadUI vista, HabilidadSO datos, int prioridad)
     {
         notificador.Encolar(vista, datos, prioridad);
     }
@@ -105,8 +105,8 @@ public class PopupManager : PersistentSingleton<PopupManager>
 /// </summary>
 public class NotificadorDeHabilidades : IPopupArbitrado
 {
-    private readonly ISimplePriorityQueue<DatosHabilidad> pendientes =
-        new SimpleLinkedPriorityQueue<DatosHabilidad>();
+    private readonly ISimplePriorityQueue<HabilidadSO> pendientes =
+        new SimpleLinkedPriorityQueue<HabilidadSO>();
 
     private PopupHabilidadUI vista;
 
@@ -115,7 +115,7 @@ public class NotificadorDeHabilidades : IPopupArbitrado
 
     private bool EstaEnPantalla => vista != null && vista.gameObject.activeSelf;
 
-    public void Encolar(PopupHabilidadUI popup, DatosHabilidad datos, int prioridad)
+    public void Encolar(PopupHabilidadUI popup, HabilidadSO datos, int prioridad)
     {
         if (popup == null || datos == null) return;
 
@@ -129,8 +129,8 @@ public class NotificadorDeHabilidades : IPopupArbitrado
         // la que ya esta corriendo su animacion.
         if (EstaEnPantalla || pendientes.Count == 0) return;
 
-        DatosHabilidad datos = pendientes.Dequeue();
-        vista.Mostrar(datos.icono, datos.titulo, datos.descripcion);
+        HabilidadSO datos = pendientes.Dequeue();
+        vista.Mostrar(datos.iconoPopup, datos.titulo, datos.descripcion);
     }
 
     /// <summary>

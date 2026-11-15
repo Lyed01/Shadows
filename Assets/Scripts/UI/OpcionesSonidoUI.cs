@@ -23,7 +23,7 @@ public class OpcionesSonidoUI : MonoBehaviour
         volEfectosTemp = SaveSystem.VolumenEfectos;
         muteTemp = SaveSystem.Silenciado;
 
-        //  Permitir valores superiores a 1.0
+        // Permitir valores superiores a 1.0
         if (sliderGeneral)
         {
             sliderGeneral.minValue = 0.1f;
@@ -73,7 +73,7 @@ public class OpcionesSonidoUI : MonoBehaviour
         SaveSystem.Silenciado = muteTemp;
         SaveSystem.Guardar();
 
-        Log.Info(this, $"Volúmenes aplicados  Master={volGeneralTemp:F2} | Música={volMusicaTemp:F2} | FX={volEfectosTemp:F2} | Mute={muteTemp}");
+        Log.Info(this, $"Volúmenes aplicados Master={volGeneralTemp:F2} | Música={volMusicaTemp:F2} | FX={volEfectosTemp:F2} | Mute={muteTemp}");
     }
 
     private void ActualizarVolumenEnTiempoReal()
@@ -88,7 +88,7 @@ public class OpcionesSonidoUI : MonoBehaviour
             return;
         }
 
-        //  Aplica el volumen global (puede ser > 1)
+        // Aplica el volumen global (puede ser > 1)
         AudioManager.Instance.AjustarVolumenGlobal(volGeneralTemp);
         AudioManager.Instance.AjustarVolumenMusica(volMusicaTemp);
         AudioManager.Instance.AjustarVolumenFX(volEfectosTemp);

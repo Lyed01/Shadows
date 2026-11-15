@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using TMPro;
-using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
@@ -19,16 +18,13 @@ public class PopupFragmentosUI : SceneSingleton<PopupFragmentosUI>, IPopupArbitr
 
     [Header("Detección")]
     public float distanciaMostrar = 2.2f;
-    public LayerMask layerPuertas; // o ignoralo si no usás layers
 
     private Camera cam;
     private Door[] puertasConFragmentos = new Door[0];
     private Transform jugador;
-    private Door puertaActual;
     private Door candidata;
     private Coroutine anim;
     private bool visible = false;
-    private Vector3 worldPosObjetivo; // <-- NUEVO (posición que debe seguir)
 
     protected override void OnAwake()
     {
@@ -107,7 +103,7 @@ public class PopupFragmentosUI : SceneSingleton<PopupFragmentosUI>, IPopupArbitr
         int actuales = SaveSystem.GetFragmentos(candidata.claveFragmentos);
 
         Mostrar(ObtenerPosicionSobrePuerta(candidata), actuales,
-                candidata.fragmentosNecesarios, candidata);
+                candidata.fragmentosNecesarios);
     }
 
     public void OcultarPopup() => Ocultar();
@@ -170,15 +166,11 @@ public class PopupFragmentosUI : SceneSingleton<PopupFragmentosUI>, IPopupArbitr
 
 
     // MOSTRAR / OCULTAR
-    public void Mostrar(Vector3 pos, int actuales, int necesarios, Door puerta)
-
+    private void Mostrar(Vector3 pos, int actuales, int necesarios)
     {
-        puertaActual = puerta;           // GUARDAMOS LA PUERTA
-        worldPosObjetivo = pos;          // GUARDAMOS LA POSICIÓN A SEGUIR
-
         texto.text = $"{actuales} / {necesarios} fragmentos";
 
-        ActualizarPosicion(worldPosObjetivo);
+        ActualizarPosicion(pos);
 
         if (!visible)
         {

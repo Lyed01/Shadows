@@ -1,0 +1,21 @@
+# Consejos y frases de la pantalla de carga: uno por línea, sale uno al azar.
+# Las líneas que empiezan con # y las vacías no se muestran. <br> corta el renglón.
+
+Cada habilidad gasta cargas. Las ves abajo, junto al ícono de la habilidad.
+Los ShadowBlocks y el ShadowTP cuestan 1 carga. Los MirrorBlocks y la AbyssFlame, 2.
+Cuando un bloque se rompe, recuperas una carga.
+¿Te quedaste sin cargas? Al morir o reiniciar el nivel vuelves a tenerlas todas.
+Haz clic para usar una habilidad: Shawy se frena mientras la usa. Con Espacio ves el rango sin usarla.
+Cambia de habilidad con la rueda del ratón.
+La luz roja mata al instante, destruye los bloques y apaga la AbyssFlame.
+La luz amarilla no apaga la AbyssFlame.
+Los MirrorBlocks desvían la luz. Haz clic derecho sobre uno para girarlo.
+El ShadowTP solo te lleva a zonas corruptas.
+La AbyssFlame corrompe el suelo que toca.
+
+"Casi puedo oler la humedad del Abismo... nuestro hogar. Tan lejos... tan cerca..."
+"Ve y cumple tu destino antes de que las luces nos apaguen a todos."
+"Como ya sabrás, la luz es nuestra enemiga desde hace siglos."<br>- Umbra
+"Hemos creado los MirrorBlocks: fragmentos de sombra endurecida capaces de desviar la luz."<br>- Umbra
+"A veces, cuando estás encerrada demasiado tiempo, descubrís formas nuevas de moverte."<br>- Silhuette
+"Esta pequeña llamita puede ayudarte a resolver cualquier obstáculo que encuentres."<br>- Ignos

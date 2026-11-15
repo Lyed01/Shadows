@@ -21,7 +21,9 @@ public abstract class PersistentSingleton<T> : MonoBehaviour where T : MonoBehav
         }
 
         Instance = this as T;
-        DontDestroyOnLoad(gameObject);
+        // DontDestroyOnLoad solo acepta raices: si el singleton cuelga de otro
+        // objeto (el HUD dentro del UIManager), persiste toda su jerarquia.
+        DontDestroyOnLoad(transform.root.gameObject);
         OnBoot();
     }
 

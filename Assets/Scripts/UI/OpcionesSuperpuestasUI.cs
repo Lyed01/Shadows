@@ -7,6 +7,9 @@ public class OpcionesSuperpuestasUI : MonoBehaviour
     public GameObject panelControles;
     public GameObject panelSonido;
 
+    [Tooltip("Botones de las pestañas, en el orden General, Controles, Sonido.")]
+    public UnityEngine.UI.Button[] pestanas;
+
     private GameObject panelFrontal;
 
     void OnEnable()
@@ -32,7 +35,18 @@ public class OpcionesSuperpuestasUI : MonoBehaviour
             panelSonido.SetActive(false);
 
         panel.SetActive(true);
+        MarcarPestana(panel);
         Log.Info(this, $"OpcionesSuperpuestasUI: pestaña activa  {panel.name}");
+    }
+
+    // La pestaña abierta en color pleno; las otras, apagadas.
+    private void MarcarPestana(GameObject panel)
+    {
+        if (pestanas == null) return;
+        GameObject[] paneles = { panelGeneral, panelControles, panelSonido };
+        for (int i = 0; i < pestanas.Length && i < paneles.Length; i++)
+            if (pestanas[i] != null)
+                pestanas[i].colors = EstiloUI.Colores(paneles[i] == panel ? EstiloUI.Texto : EstiloUI.TextoSecundario);
     }
 
     public void MostrarGeneral() => TraerAlFrente(panelGeneral);

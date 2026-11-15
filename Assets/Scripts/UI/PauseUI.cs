@@ -1,28 +1,35 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using System.Collections;
+using UnityEngine.UI;
 
+/// <summary>
+/// Botones del menu de pausa. Los cambios de escena los hace el GameManager,
+/// que pone el fundido y el estado de transicion: la pausa solo los pide.
+/// </summary>
 public class PauseUI : MonoBehaviour
 {
-    [Header("Configuración del menú")]
-    [Tooltip("Nombre de la escena del menú principal")]
-    public string nombreEscenaMenuPrincipal = Escenas.MainMenu;
-    [Tooltip("Nombre de la escena del hub")]
-    public string nombreEscenaHub = Escenas.Hub;
+    [Tooltip("Recibe el foco al cerrar las opciones.")]
+    public Selectable botonOpciones;
+    [Tooltip("Muestra en que nivel se pauso.")]
+    public TMP_Text nombreNivel;
+
     private bool bloqueado;
     private bool uiActiva;
 
     void OnEnable()
     {
         uiActiva = true;
-        Log.Info(this, "<color=yellow> PauseMenuUI  ACTIVADA</color>");
+        if (nombreNivel != null) nombreNivel.text = SceneManager.GetActiveScene().name;
+        Log.Info(this, "<color=yellow> PauseMenuUI ACTIVADA</color>");
     }
 
     void OnDisable()
     {
         uiActiva = false;
         bloqueado = false;
-        Log.Info(this, "<color=gray> PauseMenuUI  DESACTIVADA</color>");
+        Log.Info(this, "<color=gray> PauseMenuUI DESACTIVADA</color>");
     }
 
     // === MÉTODOS ===
@@ -33,10 +40,9 @@ public class PauseUI : MonoBehaviour
         bloqueado = true;
         Log.Info(this, "<color=green>▶ Reanudando juego...</color>");
 
+        // Al salir de Pausado el GameManager vuelve a mostrar el HUD.
         GameManager.Instance?.ReanudarJuego();
-        UIManager.Instance?.MostrarHUD();
-
-        StartCoroutine(DesbloquearEnRealtime(0.25f));
+        // El panel se cierra al reanudar y OnDisable lo desbloquea.
     }
 
     public void ReiniciarNivel()
@@ -46,22 +52,28 @@ public class PauseUI : MonoBehaviour
         bloqueado = true;
         Log.Info(this, "<color=cyan> Reiniciando nivel...</color>");
 
-        GameManager.Instance?.ReanudarJuego();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-
-        StartCoroutine(DesbloquearEnRealtime(0.5f));
+        GameManager.Instance?.ReiniciarNivel();
+        // El panel se cierra al salir de la pausa y OnDisable lo desbloquea.
     }
 
+    // La barra sigue visible con las opciones abiertas: el mismo boton las abre y las cierra.
     public void AbrirOpciones()
     {
         if (!PuedeEjecutar("AbrirOpciones")) return;
 
-        bloqueado = true;
-        Log.Info(this, "<color=magenta> Abriendo menú de opciones...</color>");
+        var ui = UIManager.Instance;
+        if (ui == null) return;
 
-        UIManager.Instance?.MostrarOpciones();
+        if (ui.panelOpciones != null && ui.panelOpciones.activeSelf)
+            ui.CerrarOpciones();
+        else
+            ui.MostrarOpciones();
+    }
 
-        StartCoroutine(DesbloquearEnRealtime(0.3f));
+    public void EnfocarOpciones()
+    {
+        if (botonOpciones != null && EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(botonOpciones.gameObject);
     }
 
     public void VolverAlMenuPrincipal()
@@ -71,10 +83,8 @@ public class PauseUI : MonoBehaviour
         bloqueado = true;
         Log.Info(this, "<color=red> Volviendo al menú principal...</color>");
 
-        GameManager.Instance?.ReanudarJuego();
-        SceneManager.LoadScene(nombreEscenaMenuPrincipal);
-
-        StartCoroutine(DesbloquearEnRealtime(0.5f));
+        GameManager.Instance?.IrAlMenuPrincipal();
+        // El panel se cierra al salir de la pausa y OnDisable lo desbloquea.
     }
     public void VolverAlHub()
     {
@@ -83,17 +93,15 @@ public class PauseUI : MonoBehaviour
         bloqueado = true;
         
 
-        GameManager.Instance?.ReanudarJuego();
-        SceneManager.LoadScene(nombreEscenaHub);
-
-        StartCoroutine(DesbloquearEnRealtime(0.5f));
+        GameManager.Instance?.VolverAlHub();
+        // El panel se cierra al salir de la pausa y OnDisable lo desbloquea.
     }
     // === UTILS ===
     private bool PuedeEjecutar(string accion)
     {
         if (!uiActiva)
         {
-            Log.Aviso(this, $"[{accion}] cancelado  UI inactiva.");
+            Log.Aviso(this, $"[{accion}] cancelado UI inactiva.");
             return false;
         }
 
@@ -113,10 +121,4 @@ public class PauseUI : MonoBehaviour
         return true;
     }
 
-    private IEnumerator DesbloquearEnRealtime(float delay)
-    {
-        yield return new WaitForSecondsRealtime(delay);
-        bloqueado = false;
-        Log.Info(this, "<color=gray> Botones desbloqueados</color>");
-    }
 }
