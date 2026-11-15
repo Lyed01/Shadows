@@ -31155,14 +31155,6 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 1b5e5ee19345c5e4b95df6b373ba0137, type: 3}
-    - target: {fileID: 6124346009202913788, guid: 49278fbabe4b5a3438c2fbc049145dd8, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6124346009202913788, guid: 49278fbabe4b5a3438c2fbc049145dd8, type: 3}
-      propertyPath: forzarVisibilidad
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6283622390835444801, guid: 49278fbabe4b5a3438c2fbc049145dd8, type: 3}
       propertyPath: m_ScaleFactor
       value: 3

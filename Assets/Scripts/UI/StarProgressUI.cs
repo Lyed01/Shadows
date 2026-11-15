@@ -70,17 +70,6 @@ public class StarProgressUI : MonoBehaviour
             actual = actual.parent;
         }
 
-        // Si no hay referencias, intenta encontrarlas
-        if (iconoEstrella == null || textoProgreso == null)
-        {
-            var anchor = FindAnyObjectByType<StarProgressAnchor>(FindObjectsInactive.Include);
-            if (anchor != null)
-            {
-                if (iconoEstrella == null) iconoEstrella = anchor.iconoEstrella;
-                if (textoProgreso == null) textoProgreso = anchor.textoProgreso;
-            }
-        }
-
         if (iconoEstrella == null || textoProgreso == null)
         {
             Log.Aviso(this, "StarProgressUI: faltan referencias (Image/TMP).");

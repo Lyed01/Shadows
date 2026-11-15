@@ -299,6 +299,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -344,7 +345,6 @@ GameObject:
   - component: {fileID: 2002269918756049933}
   - component: {fileID: 233121887694533463}
   - component: {fileID: 8723725295940030780}
-  - component: {fileID: 6124346009202913788}
   m_Layer: 0
   m_Name: UIGlobalProgreso
   m_TagString: Untagged
@@ -426,23 +426,10 @@ MonoBehaviour:
   iconoEstrella: {fileID: 7651623765400743353}
   textoProgreso: {fileID: 6518189887783261752}
   totalEstrellasPosibles: 75
-  duracionAnimacion: 1
+  tiempoRefresco: 2
+  delayInicialAnim: 1.2
+  duracionConteo: 1.8
   escalaMax: 1.4
-  escalaTextoMax: 1.2
---- !u!114 &6124346009202913788
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3023381299477079225}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 933d442583929a245a6c739509ef1d95, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  iconoEstrella: {fileID: 7651623765400743353}
-  textoProgreso: {fileID: 6518189887783261752}
 --- !u!1 &3953978562758503643
 GameObject:
   m_ObjectHideFlags: 0
@@ -959,6 +946,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -1095,6 +1083,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -1231,6 +1220,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
