@@ -15,6 +15,7 @@ MonoBehaviour:
   tipo: 4
   nombre: ShadowTP
   iconoSelector: {fileID: -493360103005417622, guid: a7e2104af751a404ba985357f70aac33, type: 3}
+  atajo: 52
   titulo: ShadowTP
   iconoPopup: {fileID: 21300000, guid: aaa6a931998f6e9449cc82060c2532d4, type: 2}
   descripcion: "Teletransp\xF3rtate entre zonas corruptas en un instante.\nClic izquierdo

@@ -15,6 +15,7 @@ MonoBehaviour:
   tipo: 2
   nombre: UmbraMirror
   iconoSelector: {fileID: -985395824052470088, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
+  atajo: 50
   titulo: MirrorBlocks
   iconoPopup: {fileID: 21300000, guid: 6dfb9d033b7602a448349a8b532a2830, type: 2}
   descripcion: "Redirige la luz amarilla, cuidado d\xF3nde apuntas.\nClic derecho

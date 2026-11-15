@@ -15,6 +15,7 @@ MonoBehaviour:
   tipo: 1
   nombre: ShadowBlock
   iconoSelector: {fileID: -1561946731, guid: 6af49048423c2ff4bb2563acb7ec9235, type: 3}
+  atajo: 49
   titulo: ShadowBlocks
   iconoPopup: {fileID: 21300000, guid: 687ab70ac7964e640b9c1c0d731ffe5b, type: 2}
   descripcion: "Coloca bloques de sombra para bloquear la luz. \xA1Cuidado, no duran

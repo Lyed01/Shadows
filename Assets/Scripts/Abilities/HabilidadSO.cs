@@ -27,10 +27,17 @@ public class HabilidadSO : ScriptableObject
     public string nombre;
     public Sprite iconoSelector;
 
+    [Tooltip("Tecla que elige esta habilidad al instante. Fija: no depende del orden de desbloqueo.")]
+    public KeyCode atajo = KeyCode.None;
+
     [Header("Popup de desbloqueo")]
     public string titulo;
     public Sprite iconoPopup;
     [TextArea(2, 4)] public string descripcion;
+
+    /// <summary>La descripcion del popup, con la tecla que elige la habilidad si tiene una.</summary>
+    public string DescripcionConAtajo =>
+        atajo == KeyCode.None ? descripcion : $"{descripcion}\nElígela con la tecla {SlotDeHabilidad.NombreDeTecla(atajo)}.";
 
     private const string CarpetaEnResources = "Habilidades";
 

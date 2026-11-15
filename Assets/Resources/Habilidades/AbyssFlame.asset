@@ -15,6 +15,7 @@ MonoBehaviour:
   tipo: 3
   nombre: AbyssFlame
   iconoSelector: {fileID: -8036296214872686845, guid: 731a07008a10c6c4b8410aa573a337d2, type: 3}
+  atajo: 51
   titulo: AbyssFlame
   iconoPopup: {fileID: 21300000, guid: 5d2f751cd1e3d914dae1178a4f6de23e, type: 2}
   descripcion: "Proyecta una llama oscura que corrompe e interact\xFAa con el entorno.\nMu\xE9vela

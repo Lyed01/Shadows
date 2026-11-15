@@ -12,7 +12,8 @@ using TMPro;
 public class AbilitySelector : SceneSingleton<AbilitySelector>
 {
     [Header("UI del selector")]
-    public Image iconoActual;
+    [Tooltip("Los casilleros de la barra, de izquierda a derecha. Se ven solo los de las habilidades desbloqueadas.")]
+    public SlotDeHabilidad[] slots;
     public TextMeshProUGUI nombreActual;
     [Tooltip("Segundos que se ve el nombre al cambiar de habilidad, antes de desvanecerse.")]
     public float nombreVisible = 1f;
@@ -62,21 +63,37 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
     {
         if (habilidadesDesbloqueadas.Count == 0) return;
 
+        // Update corre tambien en pausa y en las transiciones, y ahi la
+        // seleccion no tiene que cambiar.
+        if (GameManager.Instance != null && !GameManager.Instance.EstaJugando) return;
+
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (scroll != 0f)
-            CambiarHabilidad(scroll > 0 ? 1 : -1);
+            Elegir((indiceActual + (scroll > 0 ? 1 : -1) + habilidadesDesbloqueadas.Count) % habilidadesDesbloqueadas.Count);
+        else
+            ElegirPorAtajo();
     }
 
-    private void CambiarHabilidad(int direccion)
+    // Cada habilidad declara su tecla: una que no esta desbloqueada no figura
+    // en la lista, asi que su tecla no hace nada.
+    private void ElegirPorAtajo()
     {
-        if (habilidadesDesbloqueadas.Count == 0) return;
+        for (int i = 0; i < habilidadesDesbloqueadas.Count; i++)
+        {
+            if (!Input.GetKeyDown(habilidadesDesbloqueadas[i].atajo)) continue;
 
-        indiceActual = (indiceActual + direccion + habilidadesDesbloqueadas.Count) % habilidadesDesbloqueadas.Count;
+            Elegir(i);
+            return;
+        }
+    }
+
+    private void Elegir(int indice)
+    {
+        indiceActual = indice;
         ActualizarUI();
         MostrarNombre();
 
-        var hab = habilidadesDesbloqueadas[indiceActual];
-        Log.Info(this, $"Habilidad seleccionada: {hab.nombre}");
+        Log.Info(this, $"Habilidad seleccionada: {habilidadesDesbloqueadas[indiceActual].nombre}");
     }
 
     private void MostrarNombre()
@@ -104,22 +121,16 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
 
     private void ActualizarUI()
     {
-        if (habilidadesDesbloqueadas.Count == 0)
+        for (int i = 0; i < slots.Length; i++)
         {
-            if (iconoActual != null) iconoActual.enabled = false;
-            if (nombreActual != null) nombreActual.text = "";
-            return;
-        }
-
-        var habilidad = habilidadesDesbloqueadas[indiceActual];
-        if (iconoActual != null)
-        {
-            iconoActual.enabled = true;
-            iconoActual.sprite = habilidad.iconoSelector;
+            if (i < habilidadesDesbloqueadas.Count)
+                slots[i].Mostrar(habilidadesDesbloqueadas[i], i == indiceActual);
+            else
+                slots[i].Ocultar();
         }
 
         if (nombreActual != null)
-            nombreActual.text = habilidad.nombre;
+            nombreActual.text = habilidadesDesbloqueadas.Count == 0 ? "" : habilidadesDesbloqueadas[indiceActual].nombre;
     }
 
     public HabilidadSO GetHabilidadActual()
@@ -134,15 +145,22 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
         HabilidadSO data = DelSelector(tipo);
         if (data != null && !habilidadesDesbloqueadas.Contains(data))
         {
-            habilidadesDesbloqueadas.Add(data);
+            Agregar(data);
             Log.Info(this, $"Habilidad desbloqueada y agregada al selector: {data.nombre}");
-
-            // Si es la primera habilidad desbloqueada  seleccionarla automáticamente
-            if (habilidadesDesbloqueadas.Count == 1)
-                indiceActual = 0;
-
             ActualizarUI();
         }
+    }
+
+    // La barra va en el orden de las teclas (1, 2, 3, 4) y no en el de
+    // desbloqueo; la elegida sigue siendo la misma aunque cambie de lugar.
+    private void Agregar(HabilidadSO nueva)
+    {
+        HabilidadSO elegida = GetHabilidadActual();
+
+        habilidadesDesbloqueadas.Add(nueva);
+        habilidadesDesbloqueadas.Sort((a, b) => ((int)a.atajo).CompareTo((int)b.atajo));
+
+        indiceActual = elegida == null ? 0 : habilidadesDesbloqueadas.IndexOf(elegida);
     }
 
     private void OnAbilityLocked(AbilityType tipo)
@@ -177,7 +195,7 @@ public class AbilitySelector : SceneSingleton<AbilitySelector>
                 var data = DelSelector((AbilityType)tipo);
                 if (data != null && !habilidadesDesbloqueadas.Contains(data))
                 {
-                    habilidadesDesbloqueadas.Add(data);
+                    Agregar(data);
                     Log.Info(this, $"Sincronizado: {data.nombre}");
                 }
             }

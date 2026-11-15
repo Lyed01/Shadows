@@ -130,7 +130,7 @@ public class NotificadorDeHabilidades : IPopupArbitrado
         if (EstaEnPantalla || pendientes.Count == 0) return;
 
         HabilidadSO datos = pendientes.Dequeue();
-        vista.Mostrar(datos.iconoPopup, datos.titulo, datos.descripcion);
+        vista.Mostrar(datos.iconoPopup, datos.titulo, datos.DescripcionConAtajo);
     }
 
     /// <summary>
