@@ -129,15 +129,67 @@ public static class SaveSystem
         set => PlayerPrefs.SetInt(ClaveSilencio, value ? 1 : 0);
     }
 
+    // INTERFAZ
+
+    private const string ClaveMostrarHUD = "MostrarHUD";
+    private const string ClaveMostrarTimer = "MostrarTimer";
+
+    public static bool MostrarHUD
+    {
+        get => PlayerPrefs.GetInt(ClaveMostrarHUD, 1) == 1;
+        set { PlayerPrefs.SetInt(ClaveMostrarHUD, value ? 1 : 0); PlayerPrefs.Save(); }
+    }
+
+    public static bool MostrarTimer
+    {
+        get => PlayerPrefs.GetInt(ClaveMostrarTimer, 1) == 1;
+        set { PlayerPrefs.SetInt(ClaveMostrarTimer, value ? 1 : 0); PlayerPrefs.Save(); }
+    }
+
+    // PARTIDA
+
+    private const string ClavePartida = "PartidaIniciada";
+
+    /// <summary>
+    /// Hay algo que continuar: se empezo una partida nueva o, en partidas
+    /// guardadas antes de que existiera la marca, se termino el Tutorial.
+    /// </summary>
+    public static bool HayPartida => PlayerPrefs.HasKey(ClavePartida) || TutorialTerminado;
+
+    // El LevelExitTrigger del Tutorial guarda con nombreNivel "Tutorial".
+    public static bool TutorialTerminado => PlayerPrefs.HasKey(ClaveNivel(Escenas.Tutorial, "Estrellas"));
+
+    public static void MarcarPartidaIniciada()
+    {
+        PlayerPrefs.SetInt(ClavePartida, 1);
+        PlayerPrefs.Save();
+    }
+
     // GENERAL
 
     /// <summary>Vuelca a disco lo escrito por las propiedades de audio.</summary>
     public static void Guardar() => PlayerPrefs.Save();
 
-    /// <summary>Borra la partida completa: progreso, habilidades y opciones.</summary>
-    public static void BorrarTodo()
+    /// <summary>
+    /// Borra el progreso (niveles, estrellas, fragmentos, habilidades) y conserva
+    /// las opciones. Se borra todo y se vuelven a escribir las opciones porque
+    /// las claves de progreso no estan todas aca: hay fragmentos con claves propias.
+    /// </summary>
+    public static void BorrarProgreso()
     {
+        float musica = VolumenMusica, efectos = VolumenEfectos;
+        float interfaz = VolumenInterfaz, maestro = VolumenMaestro;
+        bool silencio = Silenciado, hud = MostrarHUD, timer = MostrarTimer;
+
         PlayerPrefs.DeleteAll();
+
+        VolumenMusica = musica;
+        VolumenEfectos = efectos;
+        VolumenInterfaz = interfaz;
+        VolumenMaestro = maestro;
+        Silenciado = silencio;
+        MostrarHUD = hud;
+        MostrarTimer = timer;
         PlayerPrefs.Save();
     }
 }

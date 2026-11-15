@@ -21,22 +21,22 @@ public partial class GameManager : PersistentSingleton<GameManager>
     [Header("Transición visual")]
     public ScreenFader fader;
     public float duracionFade = 0.75f;
+    [Tooltip("Segundos minimos de la pantalla de carga, para alcanzar a leer el consejo.")]
+    public float minimoPantallaCarga = 2.5f;
 
     [Header("Referencias principales")]
     public GridManager grid;
     public AbilityManager ability;
     public Jugador jugadorPrefab;
-    public Transform spawnTransform;
 
     private Jugador jugadorActual;
     private Vector3 ultimaPuertaPosicion;
     private bool regresoDesdeNivel = false;
     public float tiempoReinicio = 1.0f;
-    private bool primeraVezEnHub = true;
 
     private bool EsHub => SceneManager.GetActiveScene().name == Escenas.Hub;
 
-    //  Inicialización persistente
+    // Inicialización persistente
     protected override void OnBoot()
     {
         estados = new EstadoJuego[]
@@ -60,23 +60,11 @@ public partial class GameManager : PersistentSingleton<GameManager>
 
     private void OnSceneLoaded(Scene escena, LoadSceneMode modo)
     {
-
         Log.Info(this, $"Escena cargada: {escena.name}");
 
-
-        if (escena.name == Escenas.Hub)
-        {
-            if (primeraVezEnHub)
-            {
-                primeraVezEnHub = false;
-                Log.Info(this, "Marcando primera visita REAL al Hub");
-            }
-        }
-        // CoreManagers NO debe instanciar jugador
+        // CoreManagers no lleva jugador.
         if (escena.name == Escenas.CoreManagers)
-        {
             return;
-        }
 
         grid = FindFirstObjectByType<GridManager>();
         ability = FindFirstObjectByType<AbilityManager>();
@@ -84,9 +72,16 @@ public partial class GameManager : PersistentSingleton<GameManager>
         if (grid != null)
             grid.onPlayerDeath.AddListener(ManejarMuerteJugador);
 
-        SpawnJugador(escena, respawn: false);
-        StartCoroutine(SincronizarDespuesDeFrame());
-        ActivarHUD(escena);
+        // En los menus no se juega: antes aparecia un jugador en el centro del menu.
+        bool esMenu = escena.name == Escenas.MainMenu || escena.name == Escenas.SplashScreen;
+        if (esMenu)
+            jugadorActual = null;
+        else
+        {
+            SpawnJugador(escena, respawn: false);
+            StartCoroutine(SincronizarDespuesDeFrame());
+        }
+        UIManager.Instance?.AplicarUIDeEscena(escena.name);
 
         if (jugadorActual != null)
             OnPlayerSpawned?.Invoke(jugadorActual);
@@ -107,9 +102,8 @@ public partial class GameManager : PersistentSingleton<GameManager>
     private Vector3 ResolverSpawn(Scene escena, bool respawn)
     {
         // Volver frente a la puerta solo aplica al entrar al Hub, no al renacer
-        // dentro de el.
-        if (!respawn && escena.name == Escenas.Hub
-            && ultimaPuertaPosicion != Vector3.zero && !primeraVezEnHub)
+        // dentro de el. Sin puerta guardada (partida nueva) se usa el SpawnPoint.
+        if (!respawn && escena.name == Escenas.Hub && ultimaPuertaPosicion != Vector3.zero)
         {
             Log.Info(this, "Regreso al Hub: aparece frente a la puerta");
             return ultimaPuertaPosicion;
@@ -190,31 +184,31 @@ public partial class GameManager : PersistentSingleton<GameManager>
     {
         yield return new WaitForSeconds(0.2f);
 
-        // Pantalla negra instantánea
-        fader?.InstantBlack();
-        yield return null;
+        if (fader != null)
+            yield return fader.FadeIn(duracionFade);
 
         if (jugadorActual != null)
             Destroy(jugadorActual.gameObject);
 
         ReinicioDeNivel.Reiniciar(grid);
 
-        //  Nuevo jugador
+        // Nuevo jugador
         SpawnJugador(SceneManager.GetActiveScene(), respawn: true);
 
-        //  AVISAR A TODOS LOS NPCs QUE HAY UN JUGADOR NUEVO
+        // AVISAR A TODOS LOS NPCs QUE HAY UN JUGADOR NUEVO
         if (jugadorActual != null)
             OnPlayerSpawned?.Invoke(jugadorActual);
 
         OnLevelRestart?.Invoke();
 
-        //  Si estamos en el Hub, reactivamos sistema de popups con el jugador NUEVO
+        // Si estamos en el Hub, reactivamos sistema de popups con el jugador NUEVO
         if (EsHub && jugadorActual != null)
         {
             ReactivarSistemaPopupsHub();
         }
 
-        // Fade suave de vuelta
+        // Un frame para que la camara siga al jugador nuevo: la sombra se retira desde el.
+        yield return null;
         fader?.FadeOut(duracionFade);
         yield return new WaitForSeconds(duracionFade);
 
@@ -233,39 +227,47 @@ public partial class GameManager : PersistentSingleton<GameManager>
     }
 
     // CARGA DE ESCENAS
+
+    /// <summary>Vuelve a cargar el nivel actual, con el fundido de siempre.</summary>
+    public void ReiniciarNivel() => StartCoroutine(CargarEscenaAsync(SceneManager.GetActiveScene().name));
+
+    public void IrAlMenuPrincipal() => StartCoroutine(CargarEscenaAsync(Escenas.MainMenu));
+
     public void VolverAlHub()
     {
         regresoDesdeNivel = true;
-        StartCoroutine(CargarHubAsync());
+        StartCoroutine(CargarEscenaAsync(Escenas.Hub, AlLlegarAlHub));
     }
 
-    private IEnumerator CargarHubAsync()
+    /// <summary>Retoma la partida: al Hub si ya termino el Tutorial, si no al Tutorial.</summary>
+    public void ContinuarPartida() =>
+        CargarEscena(SaveSystem.TutorialTerminado ? Escenas.Hub : Escenas.Tutorial);
+
+    /// <summary>Borra el progreso (no las opciones) y arranca desde el Tutorial.</summary>
+    public void NuevaPartida()
     {
-        CambiarEstado(GameState.Transicion);
+        SaveSystem.BorrarProgreso();
+        AbilityManager.Instance?.ReiniciarProgreso();
+        SaveSystem.MarcarPartidaIniciada();
+        // Era de la partida anterior: si no, al llegar al Hub aparece en esa puerta.
+        ultimaPuertaPosicion = Vector3.zero;
+        CargarEscena(Escenas.Tutorial);
+    }
 
-        //  Cubrimos pantalla instantáneamente
-        fader?.InstantBlack();
-        yield return null;
+    /// <summary>Carga una escena con la sombra y la pantalla de carga.</summary>
+    public void CargarEscena(string nombreEscena) => StartCoroutine(CargarEscenaAsync(nombreEscena));
 
-        SceneManager.LoadScene(Escenas.Hub);
-        yield return null;
+    // Al cargar la escena, ResolverSpawn ya dejo al jugador frente a la puerta
+    // que uso. Aca solo queda el efecto de aparicion, y tiene que correr junto
+    // con el fade: si se lanza despues, el jugador ya se veia en pantalla y
+    // volver a escalarlo desde cero parece un segundo spawn.
+    private void AlLlegarAlHub()
+    {
+        if (!regresoDesdeNivel) return;
+        regresoDesdeNivel = false;
 
-        // Al cargar la escena, ResolverSpawn ya dejo al jugador frente a la
-        // puerta que uso. Aca solo queda el efecto de aparicion, y tiene que
-        // correr junto con el fade: si se lanza despues, el jugador ya se veia
-        // en pantalla y volver a escalarlo desde cero parece un segundo spawn.
-        if (regresoDesdeNivel)
-        {
-            regresoDesdeNivel = false;
-
-            if (!primeraVezEnHub && jugadorActual != null)
-                jugadorActual.StartCoroutine(EfectoAparicion(jugadorActual.transform));
-        }
-
-        fader?.FadeOut(duracionFade);
-        yield return new WaitForSeconds(duracionFade);
-
-        CambiarEstado(GameState.Jugando);
+        if (jugadorActual != null)
+            jugadorActual.StartCoroutine(EfectoAparicion(jugadorActual.transform));
     }
 
 
@@ -285,23 +287,39 @@ public partial class GameManager : PersistentSingleton<GameManager>
         StartCoroutine(CargarEscenaAsync(puerta.nombreEscenaNivel));
     }
 
-    private IEnumerator CargarEscenaAsync(string nombreEscena)
+    private IEnumerator CargarEscenaAsync(string nombreEscena, Action alCargar = null)
     {
         CambiarEstado(GameState.Transicion);
+        // Si no, el dialogo sigue esperando a su globo, que se destruye con la escena.
+        DialogueSystemWorld.Instance?.ForzarCerrarDialogo();
 
-        //  Ocultamos pantalla INMEDIATO para evitar ver HUD o flashes
-        fader?.InstantBlack();
+        if (fader != null)
+        {
+            yield return fader.FadeIn(duracionFade);
+            fader.MostrarCarga(true);
+        }
 
-        yield return null; // esperar un frame por seguridad
-
+        // La escena se activa recien cuando paso el minimo: si no, el nivel
+        // arrancaria (y su timer) debajo de la pantalla de carga.
+        float inicio = Time.unscaledTime;
         var op = SceneManager.LoadSceneAsync(nombreEscena);
+        op.allowSceneActivation = false;
+        while (op.progress < 0.9f || Time.unscaledTime - inicio < minimoPantallaCarga)
+            yield return null;
+        op.allowSceneActivation = true;
         while (!op.isDone)
             yield return null;
 
-        //  Ahora que la escena ya cargó, limpiamos visualmente
-        fader?.FadeOut(duracionFade);
+        // Un frame para que la camara siga al jugador: la sombra se retira desde el.
+        yield return null;
+        alCargar?.Invoke();
 
-        yield return new WaitForSeconds(duracionFade);
+        if (fader != null)
+        {
+            fader.MostrarCarga(false);
+            fader.FadeOut(duracionFade);
+        }
+        yield return new WaitForSecondsRealtime(duracionFade);
 
         CambiarEstado(GameState.Jugando);
     }
@@ -319,45 +337,6 @@ public partial class GameManager : PersistentSingleton<GameManager>
             Log.Info(this, "Cámara Cinemachine reconectada al nuevo jugador.");
         }
     }
-
-    private void ActivarHUD(Scene escena)
-    {
-        string n = escena.name;
-
-        //  ESCENAS QUE NUNCA DEBEN TENER HUD
-        if (n == Escenas.MainMenu)
-        {
-            Log.Info(this, "GameManager: MainMenu  HUD apagado.");
-            UIManager.Instance?.OcultarTodo();
-            HUDHabilidad.Instance?.gameObject.SetActive(false);
-            return;
-        }
-
-        //  ESCENAS MARCADAS COMO CINEMÁTICA
-        if (UIManager.Instance != null && UIManager.Instance.EscenaSinUI(n))
-        {
-            Log.Info(this, $"GameManager: '{n}' está marcada como sin UI.");
-            UIManager.Instance.OcultarTodo();
-            HUDHabilidad.Instance?.gameObject.SetActive(false);
-            return;
-        }
-
-        //  HUB — mostrar HUD normal
-        if (escena.name == Escenas.Hub)
-        {
-            Log.Info(this, "GameManager: En Hub  mostrar HUD.");
-            HUDHabilidad.Instance?.gameObject.SetActive(true);
-            UIManager.Instance?.MostrarHUD();
-            return;
-        }
-
-
-        //  NIVELES NORMALES — mostrar HUD
-        Log.Info(this, "Nivel normal  mostrar HUD.");
-        HUDHabilidad.Instance?.gameObject.SetActive(true);
-        UIManager.Instance?.MostrarHUD();
-    }
-
 
     private IEnumerator SincronizarDespuesDeFrame()
     {
