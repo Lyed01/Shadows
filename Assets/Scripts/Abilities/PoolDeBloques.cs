@@ -20,11 +20,8 @@ using UnityEngine;
 /// </summary>
 public class PoolDeBloques
 {
-    // Estatico: hay una fila por prefab de bloque (dos o tres en total), asi que
-    // buscar la fila es recorrer muy pocas claves, y se hace en cada Obtener y
-    // cada Devolver.
-    private readonly ISimpleDictionary<GameObject, SimpleArrayList<ShadowBlock>> reservas =
-        new SimpleArrayDictionary<GameObject, SimpleArrayList<ShadowBlock>>();
+    // Una fila de reserva por prefab de bloque.
+    private readonly Dictionary<GameObject, List<ShadowBlock>> reservas = new();
     private Transform contenedor;
 
     /// <summary>Cuantos bloques hay guardados, sumando todos los prefabs.</summary>
@@ -48,9 +45,9 @@ public class PoolDeBloques
     {
         if (prefab == null) return null;
 
-        SimpleArrayList<ShadowBlock> reserva = ReservaDe(prefab);
+        List<ShadowBlock> reserva = ReservaDe(prefab);
 
-        // Se saca del final: es O(1) en el arreglo, porque no hay que correr nada.
+        // Se saca del final: es O(1), no hay que correr nada.
         while (reserva.Count > 0)
         {
             int ultimo = reserva.Count - 1;
@@ -104,7 +101,7 @@ public class PoolDeBloques
             return;
         }
 
-        SimpleArrayList<ShadowBlock> reserva = ReservaDe(bloque.prefabDeOrigen);
+        List<ShadowBlock> reserva = ReservaDe(bloque.prefabDeOrigen);
 
         if (reserva.Contains(bloque)) return; // ya estaba guardado
 
@@ -118,7 +115,7 @@ public class PoolDeBloques
     {
         foreach (var par in reservas)
         {
-            SimpleArrayList<ShadowBlock> reserva = par.Value;
+            List<ShadowBlock> reserva = par.Value;
 
             for (int i = 0; i < reserva.Count; i++)
                 if (reserva[i] != null)
@@ -133,11 +130,11 @@ public class PoolDeBloques
             Object.Destroy(contenedor.gameObject);
     }
 
-    private SimpleArrayList<ShadowBlock> ReservaDe(GameObject prefab)
+    private List<ShadowBlock> ReservaDe(GameObject prefab)
     {
         if (!reservas.TryGetValue(prefab, out var reserva))
         {
-            reserva = new SimpleArrayList<ShadowBlock>();
+            reserva = new List<ShadowBlock>();
             reservas[prefab] = reserva;
         }
 

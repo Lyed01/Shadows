@@ -23,10 +23,8 @@ using UnityEngine;
 /// </summary>
 public class FabricaDeBloques
 {
-    // Estatico: se carga una vez con los prefabs de bloque (un punado de ids) y
-    // despues solo se consulta, cada vez que el jugador coloca un bloque.
-    private readonly ISimpleDictionary<string, GameObject> catalogo =
-        new SimpleArrayDictionary<string, GameObject>();
+    // Se carga una vez con los prefabs de bloque y despues solo se consulta.
+    private readonly Dictionary<string, GameObject> catalogo = new();
     private readonly PoolDeBloques pool;
 
     public FabricaDeBloques(PoolDeBloques pool)
@@ -35,7 +33,7 @@ public class FabricaDeBloques
     }
 
     /// <summary>Los ids que la fabrica sabe construir.</summary>
-    public IEnumerable<string> TiposConocidos => catalogo.Keys();
+    public IEnumerable<string> TiposConocidos => catalogo.Keys;
 
     /// <summary>
     /// Suma prefabs al catalogo, cada uno bajo el id que trae declarado. Un

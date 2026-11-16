@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -41,8 +42,8 @@ public class HabilidadSO : ScriptableObject
 
     private const string CarpetaEnResources = "Habilidades";
 
-    // Diccionario estatico: cinco entradas que se cargan una vez y no cambian.
-    private static ISimpleDictionary<AbilityType, HabilidadSO> catalogo;
+    // Cinco entradas que se cargan una vez y no cambian.
+    private static Dictionary<AbilityType, HabilidadSO> catalogo;
 
     /// <summary>
     /// El asset de un tipo de habilidad, o null si no hay ninguno.
@@ -57,7 +58,7 @@ public class HabilidadSO : ScriptableObject
 
     private static void CargarCatalogo()
     {
-        catalogo = new SimpleArrayDictionary<AbilityType, HabilidadSO>();
+        catalogo = new Dictionary<AbilityType, HabilidadSO>();
 
         HabilidadSO[] assets = Resources.LoadAll<HabilidadSO>(CarpetaEnResources);
         if (assets.Length == 0)

@@ -1,15 +1,14 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
 public class DoorHub : MonoBehaviour
 {
     /// <summary>
     /// Todas las puertas vivas del Hub. PopupNivelUI la recorre por indice en
-    /// cada frame para elegir la mas cercana al jugador, y por eso es una
-    /// SimpleArrayList: se llena una vez al cargar la escena y despues solo se
-    /// lee por posicion, que es donde la implementacion estatica rinde.
+    /// cada frame para elegir la mas cercana al jugador.
     /// </summary>
-    public static readonly SimpleArrayList<DoorHub> Registradas = new SimpleArrayList<DoorHub>();
+    public static readonly List<DoorHub> Registradas = new();
 
     [Header("Datos del nivel")]
     public string idNivel = "Nivel1";

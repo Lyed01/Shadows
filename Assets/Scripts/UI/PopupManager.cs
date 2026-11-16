@@ -12,9 +12,6 @@ using UnityEngine;
 /// manager resuelve en LateUpdate, cuando ya se postularon todos: le da la
 /// pantalla al de mayor prioridad y manda a ocultarse al resto.
 ///
-/// Usa SimpleArrayPriorityQueue porque en cada frame entran unas pocas
-/// postulaciones y se saca una sola: conviene que Enqueue sea O(1) aunque
-/// Dequeue tenga que recorrer.
 /// </summary>
 public class PopupManager : PersistentSingleton<PopupManager>
 {
@@ -24,8 +21,7 @@ public class PopupManager : PersistentSingleton<PopupManager>
     public const int PrioridadNivel = 2;
     public const int PrioridadFragmentos = 3;
 
-    private readonly ISimplePriorityQueue<IPopupArbitrado> postulantes =
-        new SimpleArrayPriorityQueue<IPopupArbitrado>();
+    private readonly ColaPorPrioridad<IPopupArbitrado> postulantes = new();
 
     private readonly NotificadorDeHabilidades notificador = new();
 
@@ -96,17 +92,12 @@ public class PopupManager : PersistentSingleton<PopupManager>
 /// primera se perdia sin que el jugador llegara a leerla. Ahora se encolan y
 /// salen de a una.
 ///
-/// Usa SimpleLinkedPriorityQueue porque la fila vive entre frames y se consume
-/// de a un elemento por vez: conviene que Dequeue sea O(1), aunque encolar
-/// tenga que recorrer para ubicar la nueva en su lugar.
-///
 /// No es un MonoBehaviour a proposito: el Canvas del popup se apaga solo cuando
 /// termina, asi que no puede llevar la cuenta de lo que quedo pendiente.
 /// </summary>
 public class NotificadorDeHabilidades : IPopupArbitrado
 {
-    private readonly ISimplePriorityQueue<HabilidadSO> pendientes =
-        new SimpleLinkedPriorityQueue<HabilidadSO>();
+    private readonly ColaPorPrioridad<HabilidadSO> pendientes = new();
 
     private PopupHabilidadUI vista;
 

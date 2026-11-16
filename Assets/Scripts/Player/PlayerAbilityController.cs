@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -24,8 +25,7 @@ public class PlayerAbilityController : MonoBehaviour
     /// habilidad. Con tan pocas claves el recorrido es corto, y un solo
     /// arreglo evita pagar un nodo por habilidad.
     /// </summary>
-    private readonly ISimpleDictionary<AbilityType, IHabilidad> habilidades =
-        new SimpleArrayDictionary<AbilityType, IHabilidad>();
+    private readonly Dictionary<AbilityType, IHabilidad> habilidades = new();
 
     private void Awake()
     {

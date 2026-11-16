@@ -45,10 +45,7 @@ public class AudioManager : PersistentSingleton<AudioManager>
     [Tooltip("Cuantos FX de la cola se reproducen como máximo en cada frame. El resto de ese frame se descarta.")]
     public int maxFXPorFrame = 3;
 
-    // Se pide siempre encolar (Enqueue) y muy pocas veces por frame se saca el
-    // de mayor prioridad (Dequeue): por eso conviene la implementación
-    // estática, que resuelve el alta en O(1) amortizado. Ver PruebaColasDePrioridad.
-    private readonly ISimplePriorityQueue<SolicitudSonido> colaFX = new SimpleArrayPriorityQueue<SolicitudSonido>();
+    private readonly ColaPorPrioridad<SolicitudSonido> colaFX = new();
 
     [Header("Multiplicador global de volumen")]
     [Range(0.1f, 3f)] public float multiplicadorGlobal = 1f;

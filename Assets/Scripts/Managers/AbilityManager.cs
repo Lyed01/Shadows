@@ -42,7 +42,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     /// terminar un dialogo, y se lee al cargar la partida y al spawnear al
     /// jugador.
     /// </summary>
-    private readonly ISimpleSet<AbilityType> desbloqueadas = new SimpleArraySet<AbilityType>();
+    private readonly HashSet<AbilityType> desbloqueadas = new();
 
     // === Eventos locales (para UI y feedback) ===
     public AbilityEvent OnAbilityUnlocked = new();
