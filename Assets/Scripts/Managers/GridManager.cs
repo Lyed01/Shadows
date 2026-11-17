@@ -263,6 +263,30 @@ public class GridManager : MonoBehaviour
         return data.unlocked && !data.occupied && dist <= rango;
     }
 
+    // === GRAFO DE CELDAS ===
+    /// <summary>
+    /// Arma el grafo de las celdas por las que se puede caminar: las del suelo
+    /// que no tienen un bloque encima, unidas con sus cuatro vecinas a costo 1.
+    /// Se arma en el momento porque los bloques cambian la grilla; son cientos de
+    /// celdas, asi que no hace falta mantenerlo.
+    /// </summary>
+    public Graph<Vector3Int> ConstruirGrafo()
+    {
+        var grafo = new Graph<Vector3Int>();
+        foreach (var kvp in celdas)
+            if (!kvp.Value.occupied) grafo.AddNode(kvp.Key);
+
+        foreach (var kvp in celdas)
+        {
+            if (kvp.Value.occupied) continue;
+            Vector3Int derecha = kvp.Key + Vector3Int.right;
+            Vector3Int arriba = kvp.Key + Vector3Int.up;
+            if (grafo.ContainsNode(derecha)) grafo.AddEdge(kvp.Key, derecha, 1);
+            if (grafo.ContainsNode(arriba)) grafo.AddEdge(kvp.Key, arriba, 1);
+        }
+        return grafo;
+    }
+
     // === CORRUPCIÓN ===
     public void CorromperCeldas(Vector3 worldPos)
     {
