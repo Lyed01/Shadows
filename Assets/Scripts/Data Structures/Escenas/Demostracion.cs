@@ -2,75 +2,65 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>Un nivel de demostracion: que escena es, que TP muestra y que controles extra tiene.</summary>
+/// <summary>Un nivel de demostracion: escena, objetivo y habilidades con las que arranca.</summary>
 public class Demo
 {
     public string Escena;
     public string Titulo;
     public string Descripcion;
     public string Controles;
-    public int[] Tps;
-    public bool ColocaBloques;
-    public bool Habilidades;
-    public bool Ranking;
+    public AbilityType[] Habilidades;
+    public bool GuiaAutomatica;
 }
 
 /// <summary>
-/// Hace jugables las demos de la materia. Vive en DontDestroyOnLoad (se crea
-/// solo, como el panel F1): al cargar una escena de la lista la reconoce, abre el
-/// panel con los TP de ese nivel y le da los controles de demostracion. F2
-/// vuelve al indice desde cualquier demo.
+/// Niveles de demostracion de la materia: tres niveles del juego donde los diez TP
+/// actuan a la vez, con un relato en vivo al costado (Narrador). Vive en
+/// DontDestroyOnLoad (se crea solo, como el panel F1): reconoce la escena que se
+/// carga, deja al jugador con las habilidades que toca y lleva el tiempo del nivel.
+/// F2 vuelve al indice. No agrega controles propios: se juega con los del juego.
 /// </summary>
 public class Demostracion : MonoBehaviour
 {
+    private const string Controles =
+        "WASD: mover | Espacio: modo habilidad | 1-4 o rueda: elegir habilidad | clic: usar | Z: deshacer bloque | F1: ocultar relato | F2: indice";
+
     public static readonly Demo[] Todas =
     {
         new Demo
         {
-            Escena = "Demo_Bloques",
-            Titulo = "Bloques de sombra",
-            Descripcion = "Los bloques se guardan en una pila (se deshacen de a uno), se reciclan en un pool y se arman desde un catalogo ordenado.",
-            Controles = "Clic izq: poner bloque | Clic der o Z: deshacer | 1: sombra, 2: espejo",
-            Tps = new[] { 2, 6, 8, 9 }, ColocaBloques = true,
+            Escena = "Demo_Nivel1",
+            Titulo = "Nivel 1 - Aprender con Noxel",
+            Descripcion = "Habla con Noxel: te entrega la primera habilidad. Llega a la salida sin que el perseguidor te alcance.",
+            Controles = Controles,
+            Habilidades = new AbilityType[0],
         },
         new Demo
         {
-            Escena = "Nivel1",
-            Titulo = "Noxel, el NPC que demuestra",
-            Descripcion = "Noxel ejecuta su demostracion paso a paso: los pasos esperan en una cola y salen en el orden en que se cargaron.",
-            Controles = "Habla con Noxel y mira la cola en el panel",
-            Tps = new[] { 3 },
+            Escena = "Demo_Nivel2",
+            Titulo = "Nivel 2 - Bloques y espejos",
+            Descripcion = "Un guia repite su rutina solo. Usa los bloques de sombra y espejo, y encerra al perseguidor para que no encuentre camino.",
+            Controles = Controles,
+            Habilidades = new[] { AbilityType.AbilityMode, AbilityType.ShadowBlocks, AbilityType.ReflectiveBlocks },
+            GuiaAutomatica = true,
         },
         new Demo
         {
-            Escena = "Demo_Habilidades",
-            Titulo = "Habilidades, sonidos y avisos",
-            Descripcion = "Las habilidades desbloqueadas son un conjunto sin repetidos; los avisos y los sonidos esperan en colas de prioridad.",
-            Controles = "U: desbloquear la siguiente habilidad | K: rafaga de sonidos de distinta prioridad",
-            Tps = new[] { 4, 5, 6 }, Habilidades = true,
-        },
-        new Demo
-        {
-            Escena = "Demo_Ranking",
-            Titulo = "Ranking de tiempos",
-            Descripcion = "Las puertas viven en una lista y el ranking las ordena por tiempo con CollectionSort.",
-            Controles = "R: tiempos al azar en 6 niveles de prueba | C: borrarlos",
-            Tps = new[] { 1, 7 }, Ranking = true,
-        },
-        new Demo
-        {
-            Escena = "Demo_Perseguidor",
-            Titulo = "El perseguidor",
-            Descripcion = "La grilla es un grafo y Dijkstra busca el camino mas corto. El NPC te sigue y rodea los bloques que pongas.",
-            Controles = "Clic izq: poner bloque | Clic der o Z: deshacer | cian = ruta (Gizmos en Game)",
-            Tps = new[] { 10 }, ColocaBloques = true,
+            Escena = "Demo_Nivel3",
+            Titulo = "Nivel 3 - Todas las habilidades",
+            Descripcion = "Con las cuatro habilidades, llega a la salida mientras el perseguidor te sigue.",
+            Controles = Controles,
+            Habilidades = new[] { AbilityType.AbilityMode, AbilityType.ShadowBlocks, AbilityType.ReflectiveBlocks, AbilityType.AbyssFlame, AbilityType.ShadowTp },
+            GuiaAutomatica = true,
         },
     };
 
     public static Demo Actual { get; private set; }
 
     private bool[] habilidadesAlEntrar;
-    private string idBloque = ShadowBlock.IdSombra;
+    private bool cerrando;
+    private float inicioDelNivel;
+    private bool arrancaDirecto;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Crear()
@@ -80,6 +70,7 @@ public class Demostracion : MonoBehaviour
         var go = new GameObject(nameof(Demostracion));
         DontDestroyOnLoad(go);
         var demostracion = go.AddComponent<Demostracion>();
+        demostracion.CrearPuertasDelRanking(go.transform);
 
         // Play directo desde una demo (en el editor): faltan los managers de
         // CoreManagers y su BootstrapLoader saltaria al menu. Se cargan los
@@ -95,8 +86,6 @@ public class Demostracion : MonoBehaviour
             return;
         }
     }
-
-    private bool arrancaDirecto;
 
     private IEnumerator ArrancarConManagers(string demo)
     {
@@ -141,68 +130,81 @@ public class Demostracion : MonoBehaviour
         Actual = null;
         foreach (Demo d in Todas) if (d.Escena == escena.name) Actual = d;
 
+        Narrador.Limpiar();
+        Narrador.Activo = Actual != null;
         PanelEstructurasEnJuego.Mostrar(Actual);
         if (Actual == null) return;
 
-        if (Actual.ColocaBloques) StartCoroutine(DesbloquearCeldas());
-        if (Actual.Habilidades) GuardarHabilidades();
-        if (Actual.Ranking) CrearPuertasDeRanking();
+        inicioDelNivel = Time.time;
+        Narrador.Decir(1, $"Lista: SimpleArrayList<DoorHub> guarda {DoorHub.Registradas.Count} puertas (una por nivel) y se lee por indice.");
+        StartCoroutine(PrepararNivel(Actual));
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.F2) && SceneManager.GetActiveScene().name != Escenas.Indice)
-        {
             SceneManager.LoadScene(Escenas.Indice);
-            return;
-        }
-
-        if (Actual == null) return;
-        if (Actual.ColocaBloques) ControlarBloques();
-        if (Actual.Habilidades) ControlarHabilidades();
-        if (Actual.Ranking) ControlarRanking();
     }
 
-    // === BLOQUES ===
-    private IEnumerator DesbloquearCeldas()
+    // === NIVEL ===
+    private IEnumerator PrepararNivel(Demo demo)
     {
-        // GridManager arma sus celdas en su propio Start.
+        // El jugador y el AbilityManager se conectan en los primeros frames
         yield return null;
         yield return null;
 
-        var grid = FindFirstObjectByType<GridManager>();
-        if (grid == null) yield break;
+        GuardarHabilidades();
+        foreach (AbilityType tipo in demo.Habilidades) AbilityManager.Instance?.Unlock(tipo);
 
-        var suelo = grid.sueloTilemap;
-        suelo.CompressBounds();
-        foreach (var pos in suelo.cellBounds.allPositionsWithin)
-            if (suelo.HasTile(pos)) grid.CorromperCeldaUnica(pos);
+        if (!demo.GuiaAutomatica) yield break;
+
+        // Un NPC que repite su rutina solo: la cola de pasos se vacia a la vista
+        yield return new WaitForSeconds(1f);
+        foreach (var npc in FindObjectsByType<NPCDemostrador>(FindObjectsSortMode.None))
+            npc.IniciarDemostracion();
     }
 
-    private void ControlarBloques()
+    /// <summary>La llama la salida del nivel: guarda el tiempo en el ranking y vuelve al indice.</summary>
+    public static void CompletarNivel()
     {
-        var grid = FindFirstObjectByType<GridManager>();
-        var jugador = FindFirstObjectByType<Jugador>();
-        if (grid == null || jugador == null || Camera.main == null) return;
+        var instancia = FindFirstObjectByType<Demostracion>();
+        if (Actual == null || instancia == null) return;
 
-        if (Input.GetKeyDown(KeyCode.Alpha1)) idBloque = ShadowBlock.IdSombra;
-        if (Input.GetKeyDown(KeyCode.Alpha2)) idBloque = ShadowBlock.IdEspejo;
+        instancia.StartCoroutine(instancia.Terminar(Actual));
+    }
 
-        if (Input.GetMouseButtonDown(0))
+    private IEnumerator Terminar(Demo demo)
+    {
+        float tiempo = Mathf.Max(Time.time - inicioDelNivel, 0.1f);
+        SaveSystem.GuardarResultado(demo.Escena, 3, tiempo, 0, 0);
+
+        // El ranking ordena las marcas de todas las puertas con CollectionSort
+        string[] marcas = RankingDeTiempos.Detalle().TrimEnd().Split('\n');
+        Narrador.Decir(7, $"Sorting: CollectionSort ordena los tiempos de {DoorHub.Registradas.Count} niveles. Primero: {marcas[0].Trim()}");
+
+        yield return new WaitForSeconds(3f);
+        SceneManager.LoadScene(Escenas.Indice);
+    }
+
+    // === RANKING ===
+    // Una puerta por nivel de demostracion, con su id propio: el ranking real no
+    // se toca y la lista de puertas (TP01) y su orden por tiempo (TP07) funcionan
+    // igual desde cualquier nivel.
+    private void CrearPuertasDelRanking(Transform padre)
+    {
+        foreach (Demo demo in Todas)
         {
-            Vector3 mundo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mundo.z = 0f;
-            grid.IntentarColocarBloque(mundo, idBloque, jugador.transform.position, float.MaxValue);
+            var go = new GameObject("Puerta " + demo.Escena);
+            go.transform.SetParent(padre, false);
+            go.AddComponent<BoxCollider2D>().isTrigger = true;
+            go.AddComponent<DoorHub>().idNivel = demo.Escena;
         }
-
-        // Z ya lo maneja PlayerAbilityController si el jugador tiene la habilidad
-        if (Input.GetMouseButtonDown(1)) grid.DeshacerUltimoBloque();
     }
 
     // === HABILIDADES ===
-    // La demo arranca con el conjunto vacio para que se vea crecer. Bloquear y
-    // desbloquear guardan en PlayerPrefs: se recuerda lo que habia y se devuelve
-    // al salir, para no tocar el progreso del jugador.
+    // Cada nivel arranca con las habilidades que le tocan para que el conjunto
+    // se vea llenarse. Bloquear y desbloquear guardan en PlayerPrefs: se recuerda
+    // lo que habia y se devuelve al salir, para no tocar el progreso del jugador.
     private void GuardarHabilidades()
     {
         var tipos = (AbilityType[])System.Enum.GetValues(typeof(AbilityType));
@@ -212,8 +214,6 @@ public class Demostracion : MonoBehaviour
 
         if (AbilityManager.Instance != null) AbilityManager.Instance.ResetAll();
     }
-
-    private bool cerrando;
 
     // Al parar el Play dentro de la demo tambien hay que devolver el progreso
     private void OnApplicationQuit()
@@ -240,63 +240,5 @@ public class Demostracion : MonoBehaviour
             AbilityManager.Instance.LoadProgress();
         }
         habilidadesAlEntrar = null;
-    }
-
-    private void ControlarHabilidades()
-    {
-        var habilidades = AbilityManager.Instance;
-        if (habilidades == null) return;
-
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            foreach (AbilityType tipo in System.Enum.GetValues(typeof(AbilityType)))
-            {
-                // AbilityMode no se desbloquea de verdad: solo muestra el aviso
-                if (tipo == AbilityType.AbilityMode || habilidades.IsUnlocked(tipo)) continue;
-                habilidades.Unlock(tipo);
-                break;
-            }
-        }
-
-        var audio = AudioManager.Instance;
-        if (audio != null && Input.GetKeyDown(KeyCode.K))
-        {
-            // Todo en el mismo frame: la cola deja sonar primero lo de prioridad alta
-            for (int i = 0; i < 3; i++) audio.ReproducirBloque();
-            for (int i = 0; i < 2; i++) audio.ReproducirTeleport();
-            for (int i = 0; i < 2; i++) audio.ReproducirHabilidad();
-            audio.ReproducirMuerte();
-        }
-    }
-
-    // === RANKING ===
-    private const string IdPrefijoDemo = "Demo_Nivel";
-    private const int PuertasDeRanking = 6;
-
-    private void CrearPuertasDeRanking()
-    {
-        // Puertas de mentira con ids propios: el ranking real no se toca
-        for (int i = 1; i <= PuertasDeRanking; i++)
-        {
-            var go = new GameObject("PuertaDemo" + i);
-            go.AddComponent<BoxCollider2D>().isTrigger = true;
-            go.AddComponent<DoorHub>().idNivel = IdPrefijoDemo + i;
-        }
-    }
-
-    private void ControlarRanking()
-    {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            for (int i = 1; i <= PuertasDeRanking; i++)
-            {
-                string id = IdPrefijoDemo + i;
-                SaveSystem.BorrarProgresoNivel(id);
-                SaveSystem.GuardarResultado(id, 1, Random.Range(20f, 300f), 0, 0);
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.C))
-            for (int i = 1; i <= PuertasDeRanking; i++) SaveSystem.BorrarProgresoNivel(IdPrefijoDemo + i);
     }
 }

@@ -114,6 +114,7 @@ public class FabricaDeBloques
             return null;
         }
 
+        Narrador.Decir(8, $"AVL: TryGet('{id}') baja por el arbol ordenado por id y encuentra el prefab.");
         return pool.Obtener(entrada.Prefab, posicion);
     }
 

@@ -22,7 +22,7 @@ public class PanelEstructurasEnJuego : MonoBehaviour
     private static Demo demo;
     private static PanelEstructurasEnJuego instancia;
 
-    private static bool Ver(int tp) => demo == null || System.Array.IndexOf(demo.Tps, tp) >= 0;
+    private static bool Ver(int tp) => true;
 
     /// <summary>Pasa a mostrar solo los TP de la demo (o todos si es null). Con demo, abre el panel.</summary>
     public static void Mostrar(Demo nueva)
@@ -72,23 +72,34 @@ public class PanelEstructurasEnJuego : MonoBehaviour
         RectTransform raiz = UIRapida.CrearCanvas(transform, 1000, false);
         RectTransform fondo = UIRapida.Rect("Panel", raiz, new Color(0.03f, 0.04f, 0.06f, 0.82f));
         fondo.GetComponent<Image>().raycastTarget = false;
-        UIRapida.Rellenar(fondo, 0.55f, 0.01f, 0.995f, 0.99f, 0);
+        UIRapida.Rellenar(fondo, 0.62f, 0.01f, 0.995f, 0.99f, 0);
 
         texto = UIRapida.EtiquetaLlena(fondo, UIRapida.Fuente(14), "", 14, 12);
         panel = raiz.gameObject;
     }
 
+    // En un nivel de demostracion: el relato de lo que hacen las estructuras
+    private static string ArmarRelato()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine(demo.Titulo.ToUpper());
+        sb.AppendLine(demo.Descripcion);
+        sb.AppendLine();
+        sb.AppendLine("QUE ESTA PASANDO (lo ultimo arriba)");
+        sb.AppendLine();
+        string relato = Narrador.Reciente(16);
+        sb.AppendLine(relato.Length == 0 ? "Todavia nada: movete y usa las habilidades." : relato.TrimEnd());
+        sb.AppendLine();
+        sb.AppendLine(demo.Controles);
+        return sb.ToString();
+    }
+
     private static string Armar()
     {
         var sb = new StringBuilder();
-        if (demo == null)
-            sb.AppendLine("ESTRUCTURAS DE DATOS EN VIVO   (F1 cierra)");
-        else
-        {
-            sb.AppendLine(demo.Titulo.ToUpper() + "   (F1 oculta, F2 indice)");
-            sb.AppendLine(demo.Descripcion);
-            sb.AppendLine("Controles: " + demo.Controles);
-        }
+        if (demo != null) return ArmarRelato();
+
+        sb.AppendLine("ESTRUCTURAS DE DATOS EN VIVO   (F1 cierra)");
         sb.AppendLine();
         var grid = FindFirstObjectByType<GridManager>();
 

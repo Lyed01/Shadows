@@ -173,6 +173,7 @@ public class GridManager : MonoBehaviour
         celdas[cellPos] = data;
         bloquesInstanciados.Add(sb.gameObject);
         historialDeBloques.Push(sb);
+        Narrador.Decir(2, $"Pila: Push del bloque '{sb.idTipo}' en {cellPos}. Hay {historialDeBloques.Count} apilados, Z deshace el de la cima.");
 
         return ResultadoColocacion.Exito;
     }
@@ -196,10 +197,12 @@ public class GridManager : MonoBehaviour
             // carga; falta el resto si el bloque costaba mas (el espejo cuesta 2).
             sb.DestruirBloque();
             hudHabilidad?.RecuperarCargas(costo - 1);
+            Narrador.Decir(2, $"Pila: Pop, se deshace el bloque '{sb.idTipo}'. Quedan {historialDeBloques.Count}.");
 
             return true;
         }
 
+        Narrador.Decir(2, "Pila: vacia, no hay nada para deshacer.");
         return false;
     }
 

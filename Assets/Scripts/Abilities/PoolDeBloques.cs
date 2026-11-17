@@ -64,10 +64,12 @@ public class PoolDeBloques
             guardado.transform.SetParent(null);
             guardado.gameObject.SetActive(true);
             guardado.Reiniciar();
+            Narrador.Decir(1, $"Lista: el pool saca el ultimo bloque de la reserva (RemoveAt, O(1)). Quedan {reserva.Count}.");
 
             return guardado;
         }
 
+        Narrador.Decir(6, $"Diccionario: la reserva de '{prefab.name}' esta vacia, se instancia un bloque nuevo.");
         GameObject nuevo = Object.Instantiate(prefab, posicion, Quaternion.identity);
 
         ShadowBlock bloque = nuevo.GetComponent<ShadowBlock>();
@@ -111,6 +113,7 @@ public class PoolDeBloques
         bloque.gameObject.SetActive(false);
         bloque.transform.SetParent(Contenedor());
         reserva.Add(bloque);
+        Narrador.Decir(1, $"Lista: el bloque vuelve a la reserva del pool (Add). Reserva: {reserva.Count}.");
     }
 
     /// <summary>Destruye de verdad lo guardado. Se llama al descargar la escena.</summary>

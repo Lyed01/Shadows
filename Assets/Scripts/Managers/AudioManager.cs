@@ -155,14 +155,21 @@ public class AudioManager : PersistentSingleton<AudioManager>
     {
         int reproducidos = 0;
 
+        int pedidos = colaFX.Count;
         while (reproducidos < maxFXPorFrame && colaFX.Count > 0)
         {
+            int prioridad = colaFX.GetHighestPriority();
             SolicitudSonido solicitud = colaFX.Dequeue();
+            if (prioridad < PrioridadBaja)
+                Narrador.Decir(4, $"Cola de prioridad de sonidos: Dequeue de un sonido de prioridad {prioridad}.");
             fxSource.pitch = solicitud.Pitch;
             fxSource.PlayOneShot(solicitud.Clip, volumenFX * multiplicadorGlobal);
             reproducidos++;
             FxReproducidos++;
         }
+
+        if (pedidos > reproducidos)
+            Narrador.Decir(4, $"Cola de prioridad de sonidos: {pedidos} pedidos en este frame, suenan {reproducidos} y los de menor prioridad se descartan.");
 
         colaFX.Clear();
     }

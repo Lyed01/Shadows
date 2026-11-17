@@ -100,7 +100,11 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
 
         // === DESBLOQUEO NORMAL PARA OTRAS HABILIDADES ===
         // Add ya avisa si estaba: si devuelve false no hay nada nuevo que anunciar.
-        if (!desbloqueadas.Add(tipo))
+        bool nueva = desbloqueadas.Add(tipo);
+        Narrador.Decir(5, nueva
+            ? $"Set: Add({tipo}) devuelve true, la habilidad es nueva. Desbloqueadas: {desbloqueadas.Count}."
+            : $"Set: Add({tipo}) devuelve false, ya estaba (un Set no repite).");
+        if (!nueva)
             return;
 
         OnAbilityUnlocked.Invoke(tipo);
@@ -124,6 +128,7 @@ public class AbilityManager : PersistentSingleton<AbilityManager>
     {
         int prioridad = tipo == AbilityType.AbilityMode ? 1 : 2;
 
+        Narrador.Decir(4, $"Cola de prioridad: se encola el aviso de {tipo} con prioridad {prioridad} (1 sale primero).");
         PopupManager.Obtener().EncolarHabilidad(
             popupHabilidad, ObtenerDatosHabilidad(tipo), prioridad);
     }

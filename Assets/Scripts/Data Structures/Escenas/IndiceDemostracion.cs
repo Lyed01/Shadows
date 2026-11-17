@@ -15,12 +15,11 @@ public class IndiceDemostracion : MonoBehaviour
         Text titulo = UIRapida.Etiqueta(fondo, fuente, "ESTRUCTURAS DE DATOS - NIVELES DE DEMOSTRACION", 26);
         UIRapida.Rellenar(titulo.rectTransform, 0.05f, 0.88f, 0.95f, 0.98f, 0);
 
-        float alto = 0.12f, y = 0.84f;
+        float alto = 0.17f, y = 0.84f;
         foreach (Demo demo in Demostracion.Todas)
         {
-            string tps = "TP " + string.Join(", ", System.Array.ConvertAll(demo.Tps, t => t.ToString("00")));
             string escena = demo.Escena;
-            UIRapida.Boton(fondo, fuente, $"{demo.Titulo}   [{tps}]\n{demo.Descripcion}",
+            UIRapida.Boton(fondo, fuente, $"{demo.Titulo}\n{demo.Descripcion}",
                 new Color(0.12f, 0.16f, 0.24f, 1f), 16, () => SceneManager.LoadScene(escena), out Text etiqueta);
             UIRapida.Rellenar((RectTransform)etiqueta.transform.parent, 0.05f, y - alto, 0.95f, y, 0);
             y -= alto + 0.015f;
@@ -28,5 +27,19 @@ public class IndiceDemostracion : MonoBehaviour
 
         Text pie = UIRapida.Etiqueta(fondo, fuente, "En cualquier nivel: F1 muestra u oculta las estructuras en vivo - F2 vuelve a este indice", 16);
         UIRapida.Rellenar(pie.rectTransform, 0.05f, 0.01f, 0.95f, 0.06f, 0);
+
+        ranking = UIRapida.Etiqueta(fondo, fuente, "", 18);
+        UIRapida.Rellenar(ranking.rectTransform, 0.05f, 0.1f, 0.95f, 0.36f, 0);
+    }
+
+    private Text ranking;
+
+    void Update()
+    {
+        if (ranking == null) return;
+
+        // TP07: las marcas de los niveles terminados, ordenadas por CollectionSort
+        string detalle = RankingDeTiempos.Detalle();
+        ranking.text = "RANKING DE TIEMPOS (ordenado con CollectionSort)\n" + (detalle.Length == 0 ? "(todavia no terminaste ningun nivel)" : detalle);
     }
 }

@@ -70,6 +70,8 @@ public class PopupManager : PersistentSingleton<PopupManager>
         if (postulantes.Count == 0) return;
 
         bool yaHayGanador = false;
+        if (postulantes.Count > 1)
+            Narrador.Decir(4, $"Cola de prioridad de popups: {postulantes.Count} piden pantalla a la vez, gana el de prioridad {postulantes.GetHighestPriority()}.");
 
         while (postulantes.Count > 0)
         {

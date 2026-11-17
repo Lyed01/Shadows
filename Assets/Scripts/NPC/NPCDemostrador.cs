@@ -128,9 +128,14 @@ public class NPCDemostrador : MonoBehaviour
             colaDePasos = new SimpleLinkedQueue<DemostracionPaso>();
             foreach (var paso in pasos)
                 colaDePasos.Enqueue(paso);
+            Narrador.Decir(3, $"Cola: {name} carga {colaDePasos.Count} pasos con Enqueue, en el orden de la rutina.");
 
             while (!colaDePasos.IsEmpty)
-                yield return EjecutarPaso(colaDePasos.Dequeue());
+            {
+                DemostracionPaso siguiente = colaDePasos.Dequeue();
+                Narrador.Decir(3, $"Cola: {name} hace Dequeue del paso {siguiente.tipo}. Quedan {colaDePasos.Count}.");
+                yield return EjecutarPaso(siguiente);
+            }
 
         } while (repetir);
 

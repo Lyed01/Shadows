@@ -66,6 +66,8 @@ public class PlayerAbilityController : MonoBehaviour
         if (seleccionada == null) return;
 
         if (!habilidades.TryGetValue(seleccionada.tipo, out IHabilidad habilidad)) return;
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+            Narrador.Decir(6, $"Diccionario: TryGetValue({seleccionada.tipo}) encuentra la habilidad a ejecutar.");
 
         if (Input.GetMouseButtonDown(0))
             habilidad.UsarPrincipal(jugador);
