@@ -35,16 +35,42 @@
     .ficha > div { background: var(--color-surface); border-radius: 8px; padding: 9px 12px; font-size: 9.5pt; }
     .ficha h4 { margin: 0 0 4px; font-size: 9.5pt; }
     .ficha p { margin: 0; }
-    .tp-head { display: flex; align-items: baseline; gap: 10px; }
-    .tp-head .badge { font-size: 8.5pt; }
-    pre { font-size: 8.3pt; line-height: 1.35; }
-    .guion { border-left: 4px solid var(--color-accent); background: color-mix(in srgb, var(--color-accent) 10%, white); padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 0.8em 0; font-size: 9.8pt; }
+    .guion { border-left: 4px solid var(--color-accent); background: color-mix(in srgb, var(--color-accent) 10%, white); padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 0.8em 0; font-size: 9.8pt; page-break-inside: avoid; }
     .guion strong { color: var(--color-primary); }
     .small { font-size: 9pt; color: var(--color-muted); }
-    td code, li code, p code { font-size: 0.9em; }
+    figure { margin: 0.7em 0 1em; page-break-inside: avoid; }
+    figure img { display: block; max-width: 100%; border-radius: 8px; }
+    figure.juego img { box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+    figure.codigo img { max-height: 21.5cm; width: auto; margin: 0 auto; }
+    figure.codigo.chico img { max-width: 78%; }
+    figcaption { font-size: 8.8pt; color: var(--color-muted); margin-top: 5px; text-align: center; }
+    .par { display: grid; grid-template-columns: 1.45fr 1fr; gap: 10px; align-items: start; }
+    .tres { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .tres figcaption, .par figcaption { text-align: left; }
+    svg { display: block; margin: 0 auto; max-width: 100%; }
+    svg text { font-family: var(--font-body); font-size: 13px; fill: var(--color-text); }
+    svg .t-chico { font-size: 11px; fill: var(--color-muted); }
+    svg .t-titulo { font-weight: 700; fill: var(--color-primary); }
+    svg .caja { fill: var(--color-surface); stroke: var(--color-secondary); stroke-width: 1.5; }
+    svg .caja-vacia { fill: #fff; stroke: var(--color-border); stroke-width: 1.5; stroke-dasharray: 4 3; }
+    svg .caja-acento { fill: color-mix(in srgb, var(--color-accent) 35%, white); stroke: var(--color-accent); stroke-width: 1.5; }
+    svg .caja-mala { fill: #fde8e8; stroke: #d65c5c; stroke-width: 1.5; }
+    svg .flecha { stroke: var(--color-primary); stroke-width: 1.8; fill: none; marker-end: url(#punta); }
+    svg .linea { stroke: var(--color-border); stroke-width: 2; }
+    svg .ruta { stroke: var(--color-accent); stroke-width: 5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    svg .nodo { fill: var(--color-secondary); }
+    svg .nodo-claro { fill: #fff; stroke: var(--color-secondary); stroke-width: 2; }
   </style>
 </head>
 <body>
+
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <marker id="punta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#2B2148"/>
+      </marker>
+    </defs>
+  </svg>
 
   <section class="cover">
     <div class="cover-bg"></div>
@@ -52,14 +78,15 @@
     <h1>Guía de los TP de Estructuras de Datos</h1>
     <p class="subtitle">Cómo explicar cada estructura con el juego en pantalla y el código al lado</p>
     <div class="meta">
-      Shadows · Estructuras de Datos · UADE &nbsp;·&nbsp; Rama <code>estructuras-de-datos</code> &nbsp;·&nbsp; Noviembre 2026
+      Shadows · Estructuras de Datos · UADE &nbsp;·&nbsp; Rama estructuras-de-datos &nbsp;·&nbsp; Noviembre 2026
     </div>
   </section>
 
+  <!-- 1 -->
   <section>
     <h2><span class="chip-num">1</span> Para qué sirve esta guía</h2>
     <p>Shadows es un juego 2D de puzzles de luz y sombra. El jugador es una sombra: la luz lo mata, así que coloca bloques de sombra para taparla y llegar a la salida. A lo largo de la materia le fuimos sumando las diez estructuras de la consigna, cada una metida en algo que el juego ya hacía.</p>
-    <p>La guía está pensada para que cualquiera del grupo pueda defender cualquier TP, aunque no lo haya programado. Cada tema tiene la misma forma: qué es la estructura dicho en simple, dónde se ve jugando, cómo está en el código, por qué elegimos esa implementación y un guion corto para decirlo en voz alta.</p>
+    <p>La guía está pensada para que cualquiera del grupo pueda defender cualquier TP, aunque no lo haya programado. Cada tema tiene la misma forma: qué es la estructura dicho en simple, con un dibujo; dónde se ve jugando, con una captura; el código real en el que está; por qué elegimos esa implementación; y un guion corto para decirlo en voz alta.</p>
 
     <div class="stats">
       <div class="stat-card"><div class="stat-value">10</div><div class="stat-label">TP implementados con clases propias</div></div>
@@ -70,31 +97,78 @@
     <h3>Cómo abrir la demo</h3>
     <ol>
       <li>Bajar la rama <code>estructuras-de-datos</code> del repo <code>Lyed01/Shadows</code> y abrir el proyecto con Unity 6000.3.17f1.</li>
-      <li>Abrir la escena <code>MainMenu</code>, dar Play y elegir "Jugar". Aparece el índice con los tres niveles de demostración y, abajo, el ranking de tiempos.</li>
-      <li>Dentro de un nivel, a la derecha está el <strong>panel de relato</strong>: una fila por estructura con lo último que hizo y, debajo, los últimos eventos. F1 lo oculta y F2 vuelve al índice.</li>
+      <li>Abrir la escena <code>MainMenu</code>, dar Play y elegir "Jugar". Aparece el índice con los tres niveles y, abajo, el ranking de tiempos.</li>
+      <li>Dentro de un nivel, a la derecha está el <strong>panel de relato</strong>. F1 lo oculta y F2 vuelve al índice.</li>
     </ol>
     <p>Los controles son los del juego: WASD para moverse, Espacio para entrar al modo habilidad, 1 a 4 o la rueda para elegir habilidad, clic para usarla y Z para deshacer el último bloque.</p>
 
-    <table>
-      <thead><tr><th>Nivel</th><th>Qué pasa</th><th>TP que se lucen</th></tr></thead>
-      <tbody>
-        <tr><td>1 · Aprender con Noxel</td><td>Noxel hace su rutina y te da la primera habilidad. Después podés poner bloques.</td><td>01, 02, 03, 04, 05, 06, 08/09</td></tr>
-        <tr><td>2 · Bloques y espejos</td><td>Un guía repite su rutina solo. Arrancás con bloque de sombra y espejo.</td><td>01, 02, 03, 04, 05, 06, 08/09</td></tr>
-        <tr><td>3 · El perseguidor</td><td>Un NPC rojo te sigue por el camino más corto. Llegar a la salida guarda tu tiempo en el ranking.</td><td>10, 07 y todas las anteriores</td></tr>
-      </tbody>
-    </table>
+    <figure class="juego">
+      <img src="assets/g_indice_ranking.png" alt="Índice de niveles">
+      <figcaption>El índice: un botón por nivel y, abajo, el ranking de tiempos ya ordenado.</figcaption>
+    </figure>
+  </section>
+
+  <section class="section-break">
+    <h3>Los tres niveles</h3>
+    <div class="tres">
+      <figure class="juego"><img src="assets/tp03_noxel.png" alt="Nivel 1"><figcaption><strong>Nivel 1.</strong> Noxel hace su rutina y te da la primera habilidad. Después podés poner bloques.</figcaption></figure>
+      <figure class="juego"><img src="assets/tp02_bloques.png" alt="Nivel 2"><figcaption><strong>Nivel 2.</strong> Un guía repite su rutina solo. Arrancás con bloque de sombra y espejo.</figcaption></figure>
+      <figure class="juego"><img src="assets/tp10_persigue.png" alt="Nivel 3"><figcaption><strong>Nivel 3.</strong> Un perseguidor te sigue por el camino más corto. La salida guarda tu tiempo.</figcaption></figure>
+    </div>
+
+    <h3>Cómo leer el panel de relato</h3>
+    <div class="par">
+      <figure class="juego"><img src="assets/tp02_bloques_panel.png" alt="Panel de relato"></figure>
+      <div>
+        <p>Arriba, el título y el objetivo del nivel.</p>
+        <p>En <strong>Estructuras</strong> hay una fila fija por cada TP, siempre en el mismo orden y con su color. Cada fila muestra lo último que hizo esa estructura y se pone en negrita durante dos segundos cuando se acaba de usar.</p>
+        <p>En <strong>Últimos eventos</strong> están los siete más recientes, el más nuevo arriba, con el segundo del juego y el número de TP.</p>
+        <p>Los mensajes salen del código real: en cada lugar donde el juego usa una estructura hay una línea <code>Narrador.Decir(...)</code>. Por eso aparecen en las imágenes de código de esta guía.</p>
+      </div>
+    </div>
 
     <div class="callout">La escena <code>Assets/Scenes/Estructuras/PruebaTodo</code> corre las pruebas automáticas de los TP01 a TP09 y muestra una tabla OK/FALLA (9 de 9 en verde). Sirve de respaldo si el profesor quiere ver que cada estructura cumple con todas sus operaciones, más allá de lo que usa el juego.</div>
   </section>
 
+  <!-- 2 -->
   <section class="section-break">
     <h2><span class="chip-num">2</span> Tres ideas que se repiten en todos los TP</h2>
 
     <h3>Estática y dinámica</h3>
     <p>Casi todas las estructuras tienen dos versiones, y la consigna pide justificar cuál usamos.</p>
+    <figure>
+      <svg viewBox="0 0 640 210" width="600">
+        <text x="10" y="22" class="t-titulo">Estática: un arreglo de casilleros numerados</text>
+        <g>
+          <rect class="caja" x="10" y="40" width="70" height="40"/><text x="38" y="66">A</text>
+          <rect class="caja" x="80" y="40" width="70" height="40"/><text x="108" y="66">B</text>
+          <rect class="caja" x="150" y="40" width="70" height="40"/><text x="178" y="66">C</text>
+          <rect class="caja" x="220" y="40" width="70" height="40"/><text x="248" y="66">D</text>
+          <rect class="caja-vacia" x="290" y="40" width="70" height="40"/>
+          <rect class="caja-vacia" x="360" y="40" width="70" height="40"/>
+          <text x="40" y="96" class="t-chico">0</text><text x="110" y="96" class="t-chico">1</text><text x="180" y="96" class="t-chico">2</text><text x="250" y="96" class="t-chico">3</text>
+          <text x="445" y="58" class="t-chico">lugar libre: cuando se llena,</text>
+          <text x="445" y="74" class="t-chico">se crea uno del doble y se copia</text>
+        </g>
+        <text x="10" y="132" class="t-titulo">Dinámica: nodos enganchados como vagones</text>
+        <g>
+          <rect class="caja" x="10" y="150" width="60" height="40"/><text x="34" y="176">A</text>
+          <path class="flecha" d="M70,170 L108,170"/>
+          <rect class="caja" x="110" y="150" width="60" height="40"/><text x="134" y="176">B</text>
+          <path class="flecha" d="M170,170 L208,170"/>
+          <rect class="caja" x="210" y="150" width="60" height="40"/><text x="234" y="176">C</text>
+          <path class="flecha" d="M270,170 L308,170"/>
+          <rect class="caja" x="310" y="150" width="60" height="40"/><text x="334" y="176">D</text>
+          <path class="flecha" d="M370,170 L408,170"/>
+          <text x="414" y="175" class="t-chico">nada</text>
+          <text x="470" y="166" class="t-chico">cada nodo sabe cuál</text>
+          <text x="470" y="182" class="t-chico">es el siguiente</text>
+        </g>
+      </svg>
+    </figure>
     <ul>
-      <li><strong>Estática (las clases <code>SimpleArray…</code>).</strong> Guarda los elementos en un arreglo, uno al lado del otro, como casilleros numerados. Ir al casillero 7 es inmediato. Cuando se llena, se crea un arreglo del doble de tamaño y se copian los datos. Meter o sacar algo en el medio obliga a correr todo lo que está después.</li>
-      <li><strong>Dinámica (las clases <code>SimpleLinked…</code>).</strong> Cada elemento vive en un nodo que apunta al siguiente, como los vagones de un tren. Agregar o sacar en una punta es enganchar o soltar un vagón, sin mover nada. Para llegar al vagón 7 hay que recorrer los seis anteriores, y cada nodo gasta un poco más de memoria.</li>
+      <li><strong>Estática (las clases <code>SimpleArray…</code>).</strong> Ir al casillero 3 es inmediato. Meter o sacar algo en el medio obliga a correr todo lo que está después.</li>
+      <li><strong>Dinámica (las clases <code>SimpleLinked…</code>).</strong> Agregar o sacar en una punta es enganchar o soltar un vagón, sin mover nada. Para llegar al vagón 3 hay que recorrer los anteriores, y cada nodo gasta un poco más de memoria.</li>
     </ul>
 
     <h3>Cuánto cuesta una operación</h3>
@@ -108,9 +182,7 @@
     </table>
 
     <h3>Contrato e implementación</h3>
-    <p>Cada TP tiene una interfaz (<code>ISimpleList</code>, <code>ISimpleStack</code>, etc.) que dice qué operaciones existen, y dos clases que la cumplen. El juego guarda la variable con el tipo de la interfaz y elige la clase concreta en una sola línea. Por eso cambiar de estática a dinámica es cambiar esa línea y nada más:</p>
-<pre><code>private readonly ISimpleStack&lt;ShadowBlock&gt; historialDeBloques = new SimpleArrayStack&lt;ShadowBlock&gt;();</code></pre>
-    <p>Todo el código propio está en <code>Assets/Scripts/Data Structures/</code>. En las mecánicas que cubren los TP no se usan <code>List</code>, <code>Stack</code>, <code>Queue</code>, <code>HashSet</code> ni <code>Dictionary</code> de C#.</p>
+    <p>Cada TP tiene una interfaz (<code>ISimpleList</code>, <code>ISimpleStack</code>, etc.) que dice qué operaciones existen, y dos clases que la cumplen. El juego guarda la variable con el tipo de la interfaz y elige la clase concreta en una sola línea, el <code>new</code>. Cambiar de estática a dinámica es cambiar esa línea y nada más. Todo el código propio está en <code>Assets/Scripts/Data Structures/</code>, y en las mecánicas que cubren los TP no se usan <code>List</code>, <code>Stack</code>, <code>Queue</code>, <code>HashSet</code> ni <code>Dictionary</code> de C#.</p>
   </section>
 
   <!-- TP01 -->
@@ -123,12 +195,14 @@
       <div><h4>Qué dice el panel</h4><p>Fila <strong>Lista</strong>: "el pool saca el último bloque de la reserva (RemoveAt, O(1))" o "el bloque vuelve a la reserva del pool (Add)". Al entrar al nivel: cuántas puertas hay en la lista.</p></div>
     </div>
 
+    <div class="par">
+      <figure class="juego"><img src="assets/tp01_pool_juego.png" alt="Pool de bloques"><figcaption>Nivel 2: se deshicieron dos bloques (vuelven a la reserva) y se volvió a poner uno, que salió reciclado.</figcaption></figure>
+      <figure class="juego"><img src="assets/tp01_pool_juego_panel.png" alt="Panel"><figcaption>La fila Lista cuenta que el bloque salió de la reserva.</figcaption></figure>
+    </div>
+
     <h3>En el código</h3>
     <p>Clases: <code>ISimpleList</code>, <code>SimpleArrayList</code>, <code>SimpleLinkedList</code>. El juego usa la estática en dos lugares: <code>DoorHub.Registradas</code> (las puertas) y las reservas de <code>PoolDeBloques</code>.</p>
-<pre><code>// PoolDeBloques.Obtener: se saca del final, que en un arreglo no obliga a correr nada
-int ultimo = reserva.Count - 1;
-ShadowBlock guardado = reserva[ultimo];
-reserva.RemoveAt(ultimo);</code></pre>
+    <figure class="codigo"><img src="assets/tp01_pool.png" alt="PoolDeBloques.Obtener"><figcaption>PoolDeBloques.Obtener: el bloque reciclado sale del final de la lista.</figcaption></figure>
 
     <h3>Por qué la estática</h3>
     <p>Las puertas se cargan una vez y después se leen por índice en cada frame para encontrar la más cercana al jugador: acceder por posición es O(1) en el arreglo y O(n) en la enlazada. En el pool siempre se saca y se agrega por el final, que en el arreglo también es O(1). La dinámica no aportaría nada y gastaría un nodo por elemento.</p>
@@ -142,24 +216,34 @@ reserva.RemoveAt(ultimo);</code></pre>
     <h2><span class="chip-num">TP02</span> Stack (pila)</h2>
     <p>Una pila es como una pila de platos: el último que ponés arriba es el primero que sacás. Se llama LIFO (<em>last in, first out</em>). Solo se trabaja con la cima: <code>Push</code> apila, <code>Pop</code> desapila y <code>Peek</code> mira la cima sin sacarla.</p>
 
+    <figure>
+      <svg viewBox="0 0 560 190" width="480">
+        <rect class="caja" x="200" y="120" width="160" height="34"/><text x="236" y="142">bloque 1 (primero)</text>
+        <rect class="caja" x="200" y="86" width="160" height="34"/><text x="258" y="108">bloque 2</text>
+        <rect class="caja-acento" x="200" y="52" width="160" height="34"/><text x="236" y="74">bloque 3 (cima)</text>
+        <path class="flecha" d="M130,30 C170,30 180,40 205,55"/>
+        <text x="40" y="34">Push: poner</text>
+        <path class="flecha" d="M355,55 C380,40 390,30 430,30"/>
+        <text x="440" y="34">Pop: Z</text>
+        <text x="200" y="182" class="t-chico">Z siempre saca el último bloque que pusiste</text>
+      </svg>
+    </figure>
+
     <div class="ficha">
       <div><h4>Dónde se ve jugando</h4><p>Cada bloque que ponés se apila. Al apretar Z se deshace el último que pusiste, después el anterior, y así. Es un "deshacer" clásico.</p></div>
-      <div><h4>Qué dice el panel</h4><p>Fila <strong>Pila</strong>: "Push del bloque 'sombra' en (x, y). Hay 3 apilados" al poner, y "Pop, se deshace el bloque 'sombra'. Quedan 2" al apretar Z.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Pila</strong>: "Push del bloque 'sombra' en (x, y). Hay 3 apilados" al poner, y "Pop, se deshace el bloque. Quedan 2" al apretar Z.</p></div>
     </div>
 
-    <h3>En el código</h3>
-    <p>Clases: <code>ISimpleStack</code>, <code>SimpleArrayStack</code>, <code>SimpleLinkedStack</code>. La pila vive en <code>GridManager</code>, que es quien administra la grilla de celdas.</p>
-<pre><code>// Al colocar un bloque (GridManager.IntentarColocarBloque)
-historialDeBloques.Push(sb);
+    <div class="par">
+      <figure class="juego"><img src="assets/tp02_bloques.png" alt="Bloques apilados"><figcaption>Nivel 2 con tres bloques puestos (dos de sombra y un espejo).</figcaption></figure>
+      <figure class="juego"><img src="assets/tp02_bloques_panel.png" alt="Panel"><figcaption>Fila Pila: "Hay 3 apilados, Z deshace el de la cima".</figcaption></figure>
+    </div>
+  </section>
 
-// Al apretar Z (GridManager.DeshacerUltimoBloque)
-while (!historialDeBloques.IsEmpty)
-{
-    ShadowBlock sb = historialDeBloques.Pop();
-    if (sb == null || !bloquesInstanciados.Contains(sb.gameObject)) continue; // ya lo destruyó la luz
-    sb.DestruirBloque();
-    return true;
-}</code></pre>
+  <section class="section-break">
+    <h3>En el código</h3>
+    <p>Clases: <code>ISimpleStack</code>, <code>SimpleArrayStack</code>, <code>SimpleLinkedStack</code>. La pila vive en <code>GridManager</code>, que administra la grilla de celdas. Al colocar un bloque se hace <code>historialDeBloques.Push(sb)</code>; Z llama a <code>DeshacerUltimoBloque</code>:</p>
+    <figure class="codigo"><img src="assets/tp02_pila.png" alt="GridManager"><figcaption>La declaración de la pila y el deshacer con Pop.</figcaption></figure>
     <p>Un detalle de gameplay: la luz puede destruir un bloque que todavía está en la pila. Al desapilar, ese bloque se salta y se sigue con el siguiente, así Z siempre deshace algo que existe.</p>
 
     <h3>Por qué la estática</h3>
@@ -173,19 +257,32 @@ while (!historialDeBloques.IsEmpty)
     <h2><span class="chip-num">TP03</span> Queue (cola)</h2>
     <p>Una cola es la fila del supermercado: el primero que llega es el primero que atienden. Se llama FIFO (<em>first in, first out</em>). <code>Enqueue</code> agrega al final y <code>Dequeue</code> saca del principio.</p>
 
+    <figure>
+      <svg viewBox="0 0 640 120" width="600">
+        <text x="6" y="64">Dequeue ⟵</text>
+        <rect class="caja-acento" x="100" y="40" width="96" height="38"/><text x="112" y="64">1 · MoverA</text>
+        <rect class="caja" x="200" y="40" width="120" height="38"/><text x="208" y="64">2 · UsarHabilidad</text>
+        <rect class="caja" x="324" y="40" width="96" height="38"/><text x="336" y="64">3 · Esperar</text>
+        <rect class="caja" x="424" y="40" width="96" height="38"/><text x="436" y="64">4 · MoverA</text>
+        <text x="530" y="64">⟵ Enqueue</text>
+        <text x="100" y="102" class="t-chico">frente: el próximo paso que hace el NPC</text>
+        <text x="400" y="102" class="t-chico">final: el último que se cargó</text>
+      </svg>
+    </figure>
+
     <div class="ficha">
-      <div><h4>Dónde se ve jugando</h4><p>Noxel (nivel 1) y el guía (nivel 2) hacen una rutina de pasos: moverse a un punto, usar una habilidad, esperar. Los pasos se cargan en una cola y se ejecutan en el mismo orden en que se cargaron.</p></div>
-      <div><h4>Qué dice el panel</h4><p>Fila <strong>Cola</strong>: "Guia carga 5 pasos con Enqueue" y después "Guia hace Dequeue del paso MoverA. Quedan 4", que va bajando a medida que el NPC avanza.</p></div>
+      <div><h4>Dónde se ve jugando</h4><p>Noxel (nivel 1) y el guía (nivel 2) hacen una rutina de pasos: moverse a un punto, usar una habilidad, esperar, hablar. Los pasos se cargan en una cola y se ejecutan en el mismo orden en que se cargaron.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Cola</strong>: "Noxel carga 7 pasos con Enqueue" y después "Noxel hace Dequeue del paso MoverA. Quedan 5", que va bajando a medida que avanza.</p></div>
+    </div>
+
+    <div class="par">
+      <figure class="juego"><img src="assets/tp03_noxel.png" alt="Nivel 1 con Noxel"><figcaption>Nivel 1. Noxel está arriba a la derecha, detrás del panel, haciendo su rutina.</figcaption></figure>
+      <figure class="juego"><img src="assets/tp03_noxel_panel.png" alt="Panel"><figcaption>Los eventos muestran el Enqueue de 7 pasos y cada Dequeue en orden.</figcaption></figure>
     </div>
 
     <h3>En el código</h3>
-    <p>Clases: <code>ISimpleQueue</code>, <code>SimpleArrayQueue</code>, <code>SimpleLinkedQueue</code>. La usa <code>NPCDemostrador</code>.</p>
-<pre><code>colaDePasos = new SimpleLinkedQueue&lt;DemostracionPaso&gt;();
-foreach (var paso in pasos)
-    colaDePasos.Enqueue(paso);
-
-while (!colaDePasos.IsEmpty)
-    yield return EjecutarPaso(colaDePasos.Dequeue());</code></pre>
+    <p>Clases: <code>ISimpleQueue</code>, <code>SimpleArrayQueue</code>, <code>SimpleLinkedQueue</code>. La usa <code>NPCDemostrador</code>, el componente de Noxel y del guía.</p>
+    <figure class="codigo"><img src="assets/tp03_cola.png" alt="NPCDemostrador"><figcaption>NPCDemostrador.FlujoDemostracion: carga los pasos y los saca de a uno.</figcaption></figure>
 
     <h3>Por qué la dinámica</h3>
     <p>La operación que más se repite es sacar el primero. En la enlazada es O(1): el segundo nodo pasa a ser el primero y listo. Sobre un arreglo simple, sacar el primero obliga a correr todos los demás un lugar.</p>
@@ -198,29 +295,40 @@ while (!colaDePasos.IsEmpty)
     <h2><span class="chip-num">TP04</span> Priority Queue (cola de prioridad)</h2>
     <p>Es como la guardia de un hospital: no se atiende por orden de llegada sino por gravedad. Cada elemento entra con un número de prioridad y sale primero el más urgente. En nuestro proyecto el número más chico es el más urgente, como los puestos de una carrera: el 1 va antes que el 2. Si empatan, sale primero el que llegó antes.</p>
 
+    <figure>
+      <svg viewBox="0 0 640 170" width="600">
+        <text x="10" y="20" class="t-titulo">Piden sonar en el mismo frame</text>
+        <rect class="caja" x="10" y="32" width="120" height="30"/><text x="20" y="52">pasos · 3</text>
+        <rect class="caja" x="10" y="66" width="120" height="30"/><text x="20" y="86">muerte · 1</text>
+        <rect class="caja" x="10" y="100" width="120" height="30"/><text x="20" y="120">bloque · 2</text>
+        <rect class="caja" x="10" y="134" width="120" height="30"/><text x="20" y="154">pasos · 3</text>
+        <path class="flecha" d="M150,98 L250,98"/>
+        <text x="160" y="88" class="t-chico">cola de prioridad</text>
+        <text x="270" y="20" class="t-titulo">Salen en este orden</text>
+        <rect class="caja-acento" x="270" y="32" width="120" height="30"/><text x="280" y="52">muerte · 1</text>
+        <rect class="caja-acento" x="270" y="66" width="120" height="30"/><text x="280" y="86">bloque · 2</text>
+        <rect class="caja-acento" x="270" y="100" width="120" height="30"/><text x="280" y="120">pasos · 3</text>
+        <rect class="caja-mala" x="270" y="134" width="120" height="30"/><text x="280" y="154">pasos · 3</text>
+        <text x="410" y="86" class="t-chico">suenan como máximo 3 por frame</text>
+        <text x="410" y="154" class="t-chico">el que sobra se descarta</text>
+      </svg>
+    </figure>
+
     <div class="ficha">
-      <div><h4>Dónde se ve jugando</h4><p>Sonidos: en un mismo frame pueden pedirse muchos (pasos, bloques, una muerte). Suenan como máximo tres y ganan los importantes. Avisos: al desbloquear varias habilidades juntas (arranque de los niveles 2 y 3), los carteles salen de a uno y en orden de prioridad, en vez de pisarse.</p></div>
-      <div><h4>Qué dice el panel</h4><p>Fila <strong>Cola de prioridad</strong>: "se encola el aviso de ShadowTp con prioridad 2 (1 sale primero)", "Dequeue de un sonido de prioridad 1" y, si hubo demasiados, cuántos sonaron y cuántos se descartaron.</p></div>
+      <div><h4>Dónde se ve jugando</h4><p>Sonidos: en un mismo frame pueden pedirse muchos. Suenan como máximo tres y ganan los importantes (muerte y habilidades 1; bloques, teletransporte y diálogo 2; pasos 3). Avisos: al empezar el nivel 2 hay tres carteles de habilidad para mostrar y salen de a uno, en orden de prioridad, en vez de pisarse.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Cola de prioridad</strong>: "se encola el aviso de ReflectiveBlocks con prioridad 2 (1 sale primero)", "Dequeue de un sonido de prioridad 1" y, si hubo demasiados, cuántos sonaron y cuántos se descartaron.</p></div>
     </div>
 
-    <table>
-      <thead><tr><th>Prioridad</th><th>Sonidos (AudioManager)</th></tr></thead>
-      <tbody>
-        <tr><td>1 · alta</td><td>muerte, habilidades especiales</td></tr>
-        <tr><td>2 · media</td><td>bloques, teletransporte, diálogo</td></tr>
-        <tr><td>3 · baja</td><td>pasos</td></tr>
-      </tbody>
-    </table>
+    <div class="par">
+      <figure class="juego"><img src="assets/tp04_avisos.png" alt="Avisos de habilidad"><figcaption>Arranque del nivel 2: el cartel de la primera habilidad; los otros esperan su turno en la cola.</figcaption></figure>
+      <figure class="juego"><img src="assets/tp04_avisos_panel.png" alt="Panel"><figcaption>Filas Cola de prioridad y Conjunto en el mismo momento.</figcaption></figure>
+    </div>
+  </section>
 
+  <section class="section-break">
     <h3>En el código</h3>
-    <p>Clases: <code>ISimplePriorityQueue</code>, <code>SimpleArrayPriorityQueue</code> (arreglo sin ordenar), <code>SimpleLinkedPriorityQueue</code> (nodos que se mantienen ordenados). Se usan las dos, cada una donde le conviene.</p>
-<pre><code>// AudioManager: se pide un sonido con su prioridad
-colaFX.Enqueue(new SolicitudSonido(clip, pitch), prioridad);
-
-// Una vez por frame: suenan los 3 más urgentes y el resto se descarta
-while (reproducidos &lt; maxFXPorFrame &amp;&amp; colaFX.Count &gt; 0)
-    Reproducir(colaFX.Dequeue());
-colaFX.Clear();</code></pre>
+    <p>Clases: <code>ISimplePriorityQueue</code>, <code>SimpleArrayPriorityQueue</code> (arreglo sin ordenar) y <code>SimpleLinkedPriorityQueue</code> (nodos que se mantienen ordenados). Se usan las dos, cada una donde le conviene.</p>
+    <figure class="codigo"><img src="assets/tp04_sonidos.png" alt="AudioManager"><figcaption>AudioManager: los sonidos se encolan con su prioridad y una vez por frame salen los más urgentes.</figcaption></figure>
 
     <h3>Por qué cada implementación</h3>
     <ul>
@@ -236,18 +344,27 @@ colaFX.Clear();</code></pre>
     <h2><span class="chip-num">TP05</span> Set (conjunto)</h2>
     <p>Un conjunto es como un álbum de figuritas: cada figurita está o no está, nunca repetida, y no importa en qué orden la pegaste. La operación clave es preguntar si algo está (<code>Contains</code>). <code>Add</code> devuelve si lo agregó o si ya estaba.</p>
 
+    <figure>
+      <svg viewBox="0 0 640 140" width="600">
+        <rect x="10" y="20" width="330" height="100" rx="40" class="caja"/>
+        <text x="40" y="58">ShadowBlocks</text>
+        <text x="180" y="58">ReflectiveBlocks</text>
+        <text x="110" y="96">AbyssFlame</text>
+        <text x="380" y="50">Add(ShadowTp)</text>
+        <text x="380" y="68" class="t-chico">no estaba: entra, devuelve true</text>
+        <text x="380" y="100">Add(ShadowBlocks)</text>
+        <text x="380" y="118" class="t-chico">ya estaba: no se repite, devuelve false</text>
+      </svg>
+    </figure>
+
     <div class="ficha">
-      <div><h4>Dónde se ve jugando</h4><p>Las habilidades desbloqueadas. Al empezar el nivel 2 o 3 se desbloquean varias y el conjunto crece. Si el juego intenta desbloquear de nuevo una que ya tenés, no se duplica ni vuelve a mostrar el cartel.</p></div>
-      <div><h4>Qué dice el panel</h4><p>Fila <strong>Conjunto</strong>: "Add(ShadowBlocks) devuelve true, la habilidad es nueva. Desbloqueadas: 2", o "devuelve false, ya estaba (un Set no repite)".</p></div>
+      <div><h4>Dónde se ve jugando</h4><p>Las habilidades desbloqueadas. Noxel te da la primera en el nivel 1 y el nivel 2 arranca con dos (sombra y espejo). Si el juego intenta desbloquear de nuevo una que ya tenés, no se duplica ni vuelve a mostrar el cartel.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Conjunto</strong>: "Add(ReflectiveBlocks) devuelve true, la habilidad es nueva. Desbloqueadas: 2" (ver la captura del TP04), o "devuelve false, ya estaba (un Set no repite)".</p></div>
     </div>
 
     <h3>En el código</h3>
     <p>Clases: <code>ISimpleSet</code>, <code>SimpleArraySet</code>, <code>SimpleLinkedSet</code>. Lo usa <code>AbilityManager</code>. El resultado de <code>Add</code> decide si hay algo nuevo para anunciar:</p>
-<pre><code>private readonly ISimpleSet&lt;AbilityType&gt; desbloqueadas = new SimpleArraySet&lt;AbilityType&gt;();
-
-if (!desbloqueadas.Add(tipo))
-    return;                 // ya la tenía: no hay cartel ni sonido
-OnAbilityUnlocked.Invoke(tipo);</code></pre>
+    <figure class="codigo"><img src="assets/tp05_set.png" alt="AbilityManager.Unlock"><figcaption>AbilityManager.Unlock: si Add devuelve false, no hay cartel ni evento.</figcaption></figure>
 
     <h3>Por qué la estática</h3>
     <p>En las dos versiones <code>Add</code> es O(n), porque antes de agregar hay que revisar que no esté. Así que el tiempo no decide. Son cinco habilidades como mucho: un arreglo chico ocupa menos memoria que cinco nodos.</p>
@@ -260,19 +377,31 @@ OnAbilityUnlocked.Invoke(tipo);</code></pre>
     <h2><span class="chip-num">TP06</span> Dictionary (diccionario)</h2>
     <p>Un diccionario asocia una clave con un valor, como una agenda: buscás por nombre y obtenés el teléfono. Las claves no se repiten. Se busca con <code>TryGetValue</code>, que dice si la clave existe sin tirar error.</p>
 
+    <figure>
+      <svg viewBox="0 0 560 170" width="480">
+        <text x="20" y="20" class="t-titulo">Clave (habilidad elegida)</text>
+        <text x="300" y="20" class="t-titulo">Valor (código que corre)</text>
+        <rect class="caja" x="20" y="32" width="200" height="28"/><text x="30" y="51">ShadowBlocks</text>
+        <rect class="caja" x="300" y="32" width="230" height="28"/><text x="310" y="51">HabilidadBloqueSombra</text>
+        <rect class="caja" x="20" y="64" width="200" height="28"/><text x="30" y="83">ReflectiveBlocks</text>
+        <rect class="caja" x="300" y="64" width="230" height="28"/><text x="310" y="83">HabilidadBloqueEspejo</text>
+        <rect class="caja" x="20" y="96" width="200" height="28"/><text x="30" y="115">AbyssFlame</text>
+        <rect class="caja" x="300" y="96" width="230" height="28"/><text x="310" y="115">HabilidadLlamaAbisal</text>
+        <rect class="caja" x="20" y="128" width="200" height="28"/><text x="30" y="147">ShadowTp</text>
+        <rect class="caja" x="300" y="128" width="230" height="28"/><text x="310" y="147">HabilidadTeletransporte</text>
+        <path class="flecha" d="M222,46 L298,46"/><path class="flecha" d="M222,78 L298,78"/>
+        <path class="flecha" d="M222,110 L298,110"/><path class="flecha" d="M222,142 L298,142"/>
+      </svg>
+    </figure>
+
     <div class="ficha">
       <div><h4>Dónde se ve jugando</h4><p>Cuando hacés clic con una habilidad elegida, el juego busca en un diccionario qué código ejecutar para esa habilidad. Y el pool de bloques tiene una reserva separada por cada tipo de bloque: el diccionario va de tipo a su lista.</p></div>
-      <div><h4>Qué dice el panel</h4><p>Fila <strong>Diccionario</strong>: "TryGetValue(ShadowBlocks) encuentra la habilidad a ejecutar" en cada clic, o "la reserva de 'ShadowBlock' está vacía, se instancia un bloque nuevo".</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Diccionario</strong>: "TryGetValue(ShadowBlocks) encuentra la habilidad a ejecutar" en cada clic, o "la reserva de 'ShadowBlock' está vacía, se instancia un bloque nuevo" (ver la captura del TP02).</p></div>
     </div>
 
     <h3>En el código</h3>
     <p>Clases: <code>ISimpleDictionary</code>, <code>SimpleArrayDictionary</code>, <code>SimpleLinkedDictionary</code>. Se usa en <code>PlayerAbilityController</code> (tipo de habilidad → habilidad) y en <code>PoolDeBloques</code> (prefab → lista de bloques guardados).</p>
-<pre><code>private readonly ISimpleDictionary&lt;AbilityType, IHabilidad&gt; habilidades =
-    new SimpleArrayDictionary&lt;AbilityType, IHabilidad&gt;();
-
-if (!habilidades.TryGetValue(seleccionada.tipo, out IHabilidad habilidad)) return;
-if (Input.GetMouseButtonDown(0)) habilidad.UsarPrincipal(jugador);</code></pre>
-    <p>Gracias a esto el controlador no tiene un <code>if</code> por cada habilidad: agregar una habilidad nueva es registrarla en el diccionario.</p>
+    <figure class="codigo"><img src="assets/tp06_dic.png" alt="PlayerAbilityController"><figcaption>PlayerAbilityController: un solo TryGetValue reemplaza un if por cada habilidad.</figcaption></figure>
 
     <h3>Por qué la estática</h3>
     <p>Son cuatro habilidades que se cargan una vez al empezar y se consultan muchas veces. Con tan pocas claves, recorrer un arreglo corto es rápido y no se gasta un nodo por entrada. Lo mismo en el pool, que tiene dos o tres tipos de bloque.</p>
@@ -283,23 +412,24 @@ if (Input.GetMouseButtonDown(0)) habilidad.UsarPrincipal(jugador);</code></pre>
   <!-- TP07 -->
   <section class="section-break">
     <h2><span class="chip-num">TP07</span> Sorting (ordenamiento)</h2>
-    <p>Ordenar es acomodar una colección según un criterio, como ordenar las cartas en la mano. Implementamos los tres algoritmos vistos en clase: Bubble, Selection y Quick, en orden ascendente o descendente (el extra de la consigna).</p>
+    <p>Ordenar es acomodar una colección según un criterio, como ordenar las cartas en la mano. Implementamos los tres algoritmos vistos en clase, Bubble, Selection y Quick, en orden ascendente o descendente (el extra de la consigna).</p>
 
     <div class="ficha">
       <div><h4>Dónde se ve jugando</h4><p>Al llegar a la salida de un nivel se guarda tu tiempo. El índice muestra el ranking de los niveles terminados, del más rápido al más lento. En el juego completo, el cartel de cada puerta del Hub dice en qué puesto está ese nivel.</p></div>
       <div><h4>Qué dice el panel</h4><p>Fila <strong>Sorting</strong>, al terminar un nivel: "CollectionSort ordena los tiempos de 3 niveles. Primero: …". Después el ranking queda visible en el índice.</p></div>
     </div>
 
+    <div class="par">
+      <figure class="juego"><img src="assets/tp07_sorting.png" alt="Salida del nivel 3"><figcaption>Llegada a la salida del nivel 3: se guarda el tiempo y se ordena el ranking.</figcaption></figure>
+      <figure class="juego"><img src="assets/tp07_sorting_panel.png" alt="Panel"><figcaption>Fila Sorting con el primer puesto.</figcaption></figure>
+    </div>
+
     <h3>En el código</h3>
-    <p>Clase: <code>CollectionSort</code>, con <code>SortArray</code> y <code>SortList</code>, más el método <code>Sort</code> en la interfaz de las listas. El orden es genérico: recibe una <code>Comparison</code> que dice cómo comparar dos elementos.</p>
-<pre><code>// RankingDeTiempos: arma la lista de marcas y la ordena por tiempo
-ISimpleList&lt;Marca&gt; marcas = new SimpleArrayList&lt;Marca&gt;();
-// ... una marca por cada puerta con tiempo guardado ...
-CollectionSort.SortList(marcas, (a, b) =&gt; a.Tiempo.CompareTo(b.Tiempo));</code></pre>
-    <p>Por defecto usa Quick y orden ascendente. Cambiar a descendente o a otro algoritmo es pasar un parámetro más.</p>
+    <p>Clase: <code>CollectionSort</code>, con <code>SortArray</code> y <code>SortList</code>, más el método <code>Sort</code> en la interfaz de las listas. El orden es genérico: recibe una <code>Comparison</code> que dice cómo comparar dos elementos. Por defecto usa Quick y orden ascendente.</p>
+    <figure class="codigo chico"><img src="assets/tp07_sort.png" alt="RankingDeTiempos"><figcaption>RankingDeTiempos.Ordenadas: arma una lista propia con las marcas y la ordena por tiempo.</figcaption></figure>
 
     <div class="guion"><strong>Para decirlo:</strong> "El ranking ordena nuestra propia lista con nuestro propio algoritmo. Le pasamos cómo comparar dos tiempos y el mismo código sirve para ordenar cualquier cosa."</div>
-    <p class="small">Las demos guardan sus tiempos con ids propios (<code>Demo_Nivel1</code> a <code>3</code>), así que no tocan el ranking del juego real.</p>
+    <p class="small">Las demos guardan sus tiempos con ids propios (<code>Demo_Nivel1</code> a <code>Demo_Nivel3</code>), así que no tocan el ranking del juego real. La captura del índice al principio de la guía muestra el ranking con los tres niveles.</p>
   </section>
 
   <!-- TP08-09 -->
@@ -308,11 +438,30 @@ CollectionSort.SortList(marcas, (a, b) =&gt; a.Tiempo.CompareTo(b.Tiempo));</cod
     <p>Un árbol binario de búsqueda (BST) guarda datos ordenados así: cada nodo tiene a la izquierda los menores y a la derecha los mayores. Para buscar se baja por un solo camino, descartando la mitad en cada paso, como buscar en una guía telefónica.</p>
     <p>El problema: si los datos entran ya ordenados, el árbol crece hacia un solo lado, queda como una lista y buscar pasa a ser O(n). El AVL lo arregla: después de cada alta o baja revisa la altura de los dos lados de cada nodo y, si difieren en más de uno, <strong>rota</strong> para reequilibrar. Así buscar, agregar y quitar son siempre O(log n).</p>
 
+    <figure>
+      <svg viewBox="0 0 640 200" width="600">
+        <text x="20" y="18" class="t-titulo">BST con 10, 20, 30 cargados en orden</text>
+        <line class="linea" x1="60" y1="50" x2="120" y2="100"/><line class="linea" x1="120" y1="100" x2="180" y2="150"/>
+        <circle class="nodo-claro" cx="60" cy="50" r="20"/><text x="50" y="55">10</text>
+        <circle class="nodo-claro" cx="120" cy="100" r="20"/><text x="110" y="105">20</text>
+        <circle class="nodo-claro" cx="180" cy="150" r="20"/><text x="170" y="155">30</text>
+        <text x="20" y="192" class="t-chico">quedó como una lista: buscar el 30 recorre todo</text>
+        <path class="flecha" d="M260,100 L360,100"/>
+        <text x="262" y="88" class="t-chico">rotación a la izquierda</text>
+        <text x="410" y="18" class="t-titulo">AVL después de rotar</text>
+        <line class="linea" x1="500" y1="60" x2="440" y2="130"/><line class="linea" x1="500" y1="60" x2="560" y2="130"/>
+        <circle class="nodo-claro" cx="500" cy="60" r="20"/><text x="490" y="65">20</text>
+        <circle class="nodo-claro" cx="440" cy="130" r="20"/><text x="430" y="135">10</text>
+        <circle class="nodo-claro" cx="560" cy="130" r="20"/><text x="550" y="135">30</text>
+        <text x="410" y="192" class="t-chico">equilibrado: cualquiera está a un paso de la raíz</text>
+      </svg>
+    </figure>
+
     <table>
       <thead><tr><th>Si el árbol pesa hacia…</th><th>El AVL hace</th></tr></thead>
       <tbody>
         <tr><td>izquierda-izquierda</td><td>una rotación a la derecha</td></tr>
-        <tr><td>derecha-derecha</td><td>una rotación a la izquierda</td></tr>
+        <tr><td>derecha-derecha</td><td>una rotación a la izquierda (el caso del dibujo)</td></tr>
         <tr><td>izquierda-derecha</td><td>rota el hijo a la izquierda y después el nodo a la derecha</td></tr>
         <tr><td>derecha-izquierda</td><td>rota el hijo a la derecha y después el nodo a la izquierda</td></tr>
       </tbody>
@@ -320,18 +469,16 @@ CollectionSort.SortList(marcas, (a, b) =&gt; a.Tiempo.CompareTo(b.Tiempo));</cod
 
     <div class="ficha">
       <div><h4>Dónde se ve jugando</h4><p>Cada vez que ponés un bloque, el juego busca en un catálogo qué tipo de bloque construir ("sombra" o "espejo"). Ese catálogo es un AVL ordenado por el id del bloque.</p></div>
-      <div><h4>Qué dice el panel</h4><p>Fila <strong>AVL</strong>: "TryGet('espejo') baja por el árbol ordenado por id y encuentra el prefab". Probalo en el nivel 2 alternando sombra y espejo.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>AVL</strong>: "TryGet('sombra') baja por el árbol ordenado por id y encuentra el prefab" (ver la captura del TP02). Probalo en el nivel 2 alternando sombra y espejo.</p></div>
     </div>
+  </section>
 
+  <section class="section-break">
     <h3>En el código</h3>
     <p>Clases: <code>TreeNode&lt;T&gt;</code>, <code>BST&lt;TKey, T&gt;</code> y <code>AVL&lt;TKey, T&gt;</code>, que hereda de <code>BST</code> y sobrescribe <code>Insertar</code> y <code>Quitar</code> para balancear. Hicimos el opcional de la consigna: el árbol guarda un tipo (la entrada del catálogo) y busca por otro (el id de texto), con una función de comparación que se pasa al constructor.</p>
-<pre><code>// FabricaDeBloques: el catálogo es un AVL que compara un id con una entrada
-catalogo = new AVL&lt;string, Entrada&gt;((id, entrada) =&gt; string.CompareOrdinal(id, entrada.Id));
-
-// Al construir un bloque
-if (!catalogo.TryGet(id, out Entrada entrada)) return null;
-return pool.Obtener(entrada.Prefab, posicion);</code></pre>
-    <p>También tiene los recorridos <code>InOrder</code>, <code>PreOrder</code> y <code>PostOrder</code>, <code>Min</code>, <code>Max</code>, <code>Height</code> y un dibujo del árbol para depurar. La prueba del AVL inserta datos en los cuatro casos de desbalance y comprueba que el árbol queda equilibrado.</p>
+    <figure class="codigo chico"><img src="assets/tp08_catalogo.png" alt="FabricaDeBloques"><figcaption>FabricaDeBloques: el catálogo es un AVL y Crear busca el prefab con TryGet.</figcaption></figure>
+    <figure class="codigo chico"><img src="assets/tp09_avl.png" alt="AVL.Balancear"><figcaption>AVL.Balancear y RotarDerecha: los cuatro casos de la tabla, en código.</figcaption></figure>
+    <p>El BST también tiene los recorridos <code>InOrder</code>, <code>PreOrder</code> y <code>PostOrder</code>, <code>Min</code>, <code>Max</code>, <code>Height</code> y un dibujo del árbol para depurar. La prueba del AVL inserta datos en los cuatro casos de desbalance y comprueba que el árbol queda equilibrado.</p>
 
     <div class="guion"><strong>Para decirlo:</strong> "El catálogo de bloques es un AVL: busca por nombre en tiempo logarítmico y se mantiene equilibrado solo, aunque los tipos se carguen en orden. Hoy hay dos tipos, pero agregar uno nuevo es arrastrar un prefab y el árbol se acomoda."</div>
     <p class="small">Si preguntan "¿para dos elementos hace falta un árbol?": a este tamaño no se nota. La consigna pide reemplazar el BST por el AVL en el juego, y el catálogo es el lugar donde crecería si se suman bloques.</p>
@@ -342,57 +489,82 @@ return pool.Obtener(entrada.Prefab, posicion);</code></pre>
     <h2><span class="chip-num">TP10</span> Graph y Dijkstra</h2>
     <p>Un grafo es una red de puntos (nodos) unidos por conexiones (aristas), como un mapa de subte: estaciones y vías. Cada vía puede tener un costo. Dijkstra es el algoritmo que usa un GPS para encontrar el camino más barato entre dos puntos: siempre sigue explorando desde el lugar más cercano que todavía no visitó, hasta llegar al destino.</p>
 
+    <figure>
+      <svg viewBox="0 0 640 230" width="560">
+        <g>
+          <!-- grilla 7x4, celdas de 70 px, origen 40,30 -->
+          <line class="linea" x1="40" y1="30" x2="460" y2="30"/><line class="linea" x1="40" y1="100" x2="460" y2="100"/>
+          <line class="linea" x1="40" y1="170" x2="460" y2="170"/>
+          <line class="linea" x1="40" y1="30" x2="40" y2="170"/><line class="linea" x1="110" y1="30" x2="110" y2="170"/>
+          <line class="linea" x1="180" y1="30" x2="180" y2="170"/><line class="linea" x1="250" y1="30" x2="250" y2="170"/>
+          <line class="linea" x1="320" y1="30" x2="320" y2="170"/><line class="linea" x1="390" y1="30" x2="390" y2="170"/>
+          <line class="linea" x1="460" y1="30" x2="460" y2="170"/>
+          <rect x="230" y="80" width="40" height="40" fill="#2B2148" rx="4"/>
+          <path class="ruta" d="M40,100 L110,100 L180,100 L180,170 L250,170 L320,170 L320,100 L390,100 L460,100"/>
+          <circle class="nodo" cx="40" cy="30" r="7"/><circle class="nodo" cx="110" cy="30" r="7"/><circle class="nodo" cx="180" cy="30" r="7"/><circle class="nodo" cx="250" cy="30" r="7"/><circle class="nodo" cx="320" cy="30" r="7"/><circle class="nodo" cx="390" cy="30" r="7"/><circle class="nodo" cx="460" cy="30" r="7"/>
+          <circle class="nodo" cx="110" cy="100" r="7"/><circle class="nodo" cx="180" cy="100" r="7"/><circle class="nodo" cx="320" cy="100" r="7"/><circle class="nodo" cx="390" cy="100" r="7"/>
+          <circle class="nodo" cx="40" cy="170" r="7"/><circle class="nodo" cx="110" cy="170" r="7"/><circle class="nodo" cx="180" cy="170" r="7"/><circle class="nodo" cx="250" cy="170" r="7"/><circle class="nodo" cx="320" cy="170" r="7"/><circle class="nodo" cx="390" cy="170" r="7"/><circle class="nodo" cx="460" cy="170" r="7"/>
+          <circle cx="40" cy="100" r="14" fill="#d65c5c"/><text x="34" y="105" style="fill:#fff">P</text>
+          <circle cx="460" cy="100" r="14" fill="#6A4FC4"/><text x="455" y="105" style="fill:#fff">J</text>
+        </g>
+        <text x="490" y="60" class="t-chico">P: perseguidor</text>
+        <text x="490" y="78" class="t-chico">J: jugador</text>
+        <text x="490" y="96" class="t-chico">punto: celda libre (nodo)</text>
+        <text x="490" y="114" class="t-chico">línea gris: vecinas (arista, costo 1)</text>
+        <text x="490" y="132" class="t-chico">cuadrado: bloque (celda sin nodo)</text>
+        <text x="490" y="150" class="t-chico">naranja: ruta de Dijkstra</text>
+        <text x="40" y="215" class="t-chico">El bloque saca un nodo del grafo, así que la ruta más corta lo rodea por abajo.</text>
+      </svg>
+    </figure>
+
     <div class="ficha">
-      <div><h4>Dónde se ve jugando</h4><p>Nivel 3. El NPC rojo te sigue por el camino más corto sobre la grilla del piso. Cada bloque que ponés ocupa una celda y cambia el mapa, así que el perseguidor lo rodea. Si lo encerrás, se queda quieto porque no hay camino. Si te alcanza, volvés al inicio sin morir.</p></div>
-      <div><h4>Qué dice el panel</h4><p>Fila <strong>Grafo / Dijkstra</strong>: "ruta de 7 celdas hasta vos sobre un grafo de 88 celdas libres", o "no hay camino hasta vos" cuando lo encerraste. Con Gizmos activado en la vista Game se ve la ruta dibujada en celeste.</p></div>
+      <div><h4>Dónde se ve jugando</h4><p>Nivel 3. El NPC de ojos rojos te sigue por el camino más corto sobre la grilla del piso. Cada bloque que ponés ocupa una celda y cambia el mapa, así que el perseguidor lo rodea. Si lo encerrás, se queda quieto porque no hay camino. Si te alcanza, volvés al inicio sin morir.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Grafo / Dijkstra</strong>: "ruta de 7 celdas hasta vos sobre un grafo de 88 celdas libres", o "no hay camino hasta vos" cuando quedó encerrado. Con Gizmos activado en la vista Game se ve la ruta dibujada en celeste.</p></div>
     </div>
 
+    <div class="par">
+      <figure class="juego"><img src="assets/tp10_persigue.png" alt="Perseguidor"><figcaption>Nivel 3: el perseguidor arranca a la derecha (detrás del panel) y viene por la ruta más corta.</figcaption></figure>
+      <figure class="juego"><img src="assets/tp10_persigue_panel.png" alt="Panel"><figcaption>Rutas de 10, 7 y 4 celdas a medida que se acerca, y la vuelta al inicio cuando te alcanza.</figcaption></figure>
+    </div>
+    <div class="par">
+      <figure class="juego"><img src="assets/tp10_encerrado.png" alt="Sin camino"><figcaption>Cuatro bloques alrededor del jugador: el grafo ya no tiene un camino hasta él.</figcaption></figure>
+      <figure class="juego"><img src="assets/tp10_encerrado_panel.png" alt="Panel"><figcaption>"No hay camino hasta vos en el grafo de 84 celdas libres": cuatro nodos menos.</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="section-break">
     <h3>El grafo</h3>
-    <p>Elegimos la lista de adyacencia genérica: <code>Graph&lt;T&gt;</code> guarda un diccionario propio que va de cada nodo a la lista propia de sus aristas (<code>ISimpleDictionary&lt;T, ISimpleList&lt;Edge&lt;T&gt;&gt;&gt;</code>). Tiene altas y bajas de nodos y aristas, consulta de vecinos y aristas en uno o dos sentidos. En el juego, <code>GridManager.ConstruirGrafo()</code> arma el grafo con las celdas del piso que no tienen bloque, unidas con sus vecinas a costo 1.</p>
-<pre><code>foreach (var celda in celdas)
-    if (!celda.Value.occupied) grafo.AddNode(celda.Key);
-// cada celda libre se une con la de la derecha y la de arriba, en los dos sentidos
-if (grafo.ContainsNode(derecha)) grafo.AddEdge(celda.Key, derecha, 1);</code></pre>
+    <p>Elegimos la lista de adyacencia genérica: <code>Graph&lt;T&gt;</code> guarda un diccionario propio que va de cada nodo a la lista propia de sus aristas. Tiene altas y bajas de nodos y aristas, consulta de vecinos y aristas en uno o dos sentidos.</p>
+    <figure class="codigo"><img src="assets/tp10_grafo.png" alt="Graph"><figcaption>Graph: la lista de adyacencia y AddEdge.</figcaption></figure>
+    <p>En el juego, <code>GridManager.ConstruirGrafo()</code> arma el grafo con las celdas del piso que no tienen bloque, unidas con sus vecinas a costo 1:</p>
+    <figure class="codigo chico"><img src="assets/tp10_grilla.png" alt="ConstruirGrafo"><figcaption>GridManager.ConstruirGrafo: cada celda libre es un nodo.</figcaption></figure>
 
     <h3>Dijkstra</h3>
     <p><code>DijkstraSolver&lt;T&gt;</code> cumple la interfaz <code>IPathfindingSolver&lt;T&gt;</code>, así que se podría cambiar por otro algoritmo (por ejemplo A*) sin tocar al perseguidor. Por dentro reutiliza estructuras de los TP anteriores:</p>
     <ul>
-      <li>una <strong>cola de prioridad</strong> (TP04) con las celdas pendientes, ordenadas por la distancia acumulada;</li>
-      <li>un <strong>conjunto</strong> (TP05) de celdas ya visitadas;</li>
-      <li>dos <strong>diccionarios</strong> (TP06): la mejor distancia conocida a cada celda y desde qué celda se llegó;</li>
-      <li>una <strong>lista</strong> (TP01) donde se arma el camino final, de atrás hacia adelante.</li>
+      <li>una cola de prioridad (TP04) con las celdas pendientes, ordenadas por la distancia acumulada;</li>
+      <li>un conjunto (TP05) de celdas ya visitadas;</li>
+      <li>dos diccionarios (TP06): la mejor distancia conocida a cada celda y desde qué celda se llegó;</li>
+      <li>una lista (TP01) donde se arma el camino final, de atrás hacia adelante.</li>
     </ul>
-<pre><code>// DijkstraSolver.FindPath, simplificado para leerlo
-while (!pendientes.IsEmpty)
-{
-    T actual = pendientes.Dequeue();          // la más cercana todavía sin visitar
-    if (!visitados.Add(actual)) continue;
-    if (actual es la meta) break;
-    foreach (var arista in graph.GetEdges(actual))
-    {
-        int nueva = distancia[actual] + arista.Cost;
-        if (encontré un camino más corto a arista.To)
-        {
-            distancia[arista.To] = nueva;
-            anterior[arista.To] = actual;
-            pendientes.Enqueue(arista.To, nueva);
-        }
-    }
-}</code></pre>
+  </section>
+
+  <section class="section-break">
+    <figure class="codigo"><img src="assets/tp10_dijkstra.png" alt="DijkstraSolver.FindPath"><figcaption>DijkstraSolver.FindPath completo.</figcaption></figure>
     <p><code>NPCPerseguidor</code> recalcula la ruta cada medio segundo, porque los bloques cambian el mapa, y camina hacia la siguiente celda del camino.</p>
 
-    <div class="guion"><strong>Para decirlo:</strong> "El piso es un grafo: cada celda libre es un nodo y las vecinas están unidas. Dijkstra busca el camino más corto hasta mí. Si pongo un bloque, el grafo pierde ese nodo y la ruta cambia. Si lo encierro, Dijkstra no encuentra camino y el perseguidor se frena. Y ojo que Dijkstra usa adentro la cola de prioridad, el Set, el diccionario y la lista de los TP anteriores."</div>
+    <div class="guion"><strong>Para decirlo:</strong> "El piso es un grafo: cada celda libre es un nodo y las vecinas están unidas. Dijkstra busca el camino más corto hasta mí. Si pongo un bloque, el grafo pierde ese nodo y la ruta cambia. Si me encierro, Dijkstra no encuentra camino y el perseguidor se frena. Y Dijkstra usa adentro la cola de prioridad, el Set, el diccionario y la lista de los TP anteriores."</div>
   </section>
 
   <!-- Guion -->
   <section class="section-break">
     <h2><span class="chip-num">3</span> Guion sugerido para la presentación</h2>
-    <p>Un recorrido de unos diez minutos que pasa por los diez TP en orden de juego, sin saltar de un tema a otro:</p>
+    <p>Un recorrido de unos diez minutos que pasa por los diez TP en orden de juego:</p>
     <ol>
-      <li><strong>Índice.</strong> Mostrar los tres niveles y el panel de relato: "a la derecha, cada fila es una estructura y se ilumina cuando se usa".</li>
+      <li><strong>Índice.</strong> Mostrar los tres niveles y explicar el panel: "a la derecha, cada fila es una estructura y se resalta cuando se usa".</li>
       <li><strong>Nivel 1.</strong> Hablar con Noxel y mirar la fila Cola (TP03). Cuando entrega la habilidad, mirar Conjunto (TP05) y Cola de prioridad (TP04). Poner tres bloques y deshacerlos con Z: Pila (TP02), Lista del pool (TP01), Diccionario (TP06) y AVL (TP08/09).</li>
-      <li><strong>Nivel 2.</strong> Dejar que el guía haga su rutina sola (TP03 de nuevo, sin intervenir). Alternar sombra y espejo para mostrar que el AVL busca distintos ids.</li>
-      <li><strong>Nivel 3.</strong> Dejar que el perseguidor se acerque, poner bloques para cortarle el paso y mostrar cómo cambia la ruta (TP10). Encerrarlo para mostrar "no hay camino". Llegar a la salida.</li>
+      <li><strong>Nivel 2.</strong> Ver los carteles salir de a uno (TP04). Dejar que el guía haga su rutina solo (TP03). Alternar sombra y espejo para mostrar que el AVL busca distintos ids.</li>
+      <li><strong>Nivel 3.</strong> Dejar que el perseguidor se acerque, poner bloques para cortarle el paso y mostrar cómo cambia la ruta (TP10). Encerrarse para mostrar "no hay camino". Llegar a la salida.</li>
       <li><strong>Vuelta al índice.</strong> Mostrar el ranking ordenado (TP07).</li>
       <li><strong>Respaldo.</strong> Si queda tiempo o lo piden, abrir <code>PruebaTodo</code> para ver las pruebas automáticas de cada estructura.</li>
     </ol>
