@@ -70,7 +70,7 @@ public class PanelEstructurasEnJuego : MonoBehaviour
     {
         // Sin GraphicRaycaster ni raycastTarget: el panel no tapa los clics del juego
         RectTransform raiz = UIRapida.CrearCanvas(transform, 1000, false);
-        RectTransform fondo = UIRapida.Rect("Panel", raiz, new Color(0.03f, 0.04f, 0.06f, 0.82f));
+        RectTransform fondo = UIRapida.Rect("Panel", raiz, new Color(0.03f, 0.04f, 0.06f, 0.94f));
         fondo.GetComponent<Image>().raycastTarget = false;
         UIRapida.Rellenar(fondo, 0.62f, 0.01f, 0.995f, 0.99f, 0);
 
@@ -78,19 +78,39 @@ public class PanelEstructurasEnJuego : MonoBehaviour
         panel = raiz.gameObject;
     }
 
-    // En un nivel de demostracion: el relato de lo que hacen las estructuras
+    // Una fila por estructura, siempre en el mismo lugar: (TP, nombre, color)
+    private static readonly (int tp, string nombre, string color)[] Filas =
+    {
+        (1, "Lista", "#6ec1ff"), (2, "Pila", "#ffb36e"), (3, "Cola", "#8be28b"),
+        (4, "Cola de prioridad", "#ff8b8b"), (5, "Conjunto", "#d39bff"), (6, "Diccionario", "#ffe36e"),
+        (7, "Sorting", "#6effd8"), (8, "AVL", "#ff9bd6"), (10, "Grafo / Dijkstra", "#b0f06e"),
+    };
+
+    // En un nivel de demostracion: el estado de cada estructura y los ultimos eventos
     private static string ArmarRelato()
     {
         var sb = new StringBuilder();
-        sb.AppendLine(demo.Titulo.ToUpper());
-        sb.AppendLine(demo.Descripcion);
+        sb.AppendLine($"<b>{demo.Titulo.ToUpper()}</b>");
+        sb.AppendLine($"<color=#8a93a6>{demo.Descripcion}</color>");
         sb.AppendLine();
-        sb.AppendLine("QUE ESTA PASANDO (lo ultimo arriba)");
+
+        sb.AppendLine("<b>ESTRUCTURAS</b>");
+        foreach (var fila in Filas)
+        {
+            string ultimo = Narrador.Ultimo(fila.tp);
+            // La actividad de los ultimos 2 s va resaltada
+            bool reciente = ultimo != null && Narrador.HaceCuanto(fila.tp) < 2f;
+            string texto = ultimo == null ? "<color=#5b6372>sin actividad todavia</color>"
+                : reciente ? $"<b>{ultimo}</b>" : ultimo;
+            sb.AppendLine($"<color={fila.color}>{fila.nombre}</color>  {texto}");
+        }
         sb.AppendLine();
-        string relato = Narrador.Reciente(16);
-        sb.AppendLine(relato.Length == 0 ? "Todavia nada: movete y usa las habilidades." : relato.TrimEnd());
+
+        sb.AppendLine("<b>ULTIMOS EVENTOS</b>");
+        string relato = Narrador.Reciente(7);
+        sb.AppendLine(relato.Length == 0 ? "<color=#5b6372>Todavia nada: movete y usa las habilidades.</color>" : relato.TrimEnd());
         sb.AppendLine();
-        sb.AppendLine(demo.Controles);
+        sb.AppendLine($"<color=#8a93a6>{demo.Controles}</color>");
         return sb.ToString();
     }
 
