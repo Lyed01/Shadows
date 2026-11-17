@@ -101,6 +101,21 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Estructuras/PruebaTodo.unity
     guid: a03c6f6fbf747b74eafa4b7e8bd8c4b9
+  - enabled: 1
+    path: Assets/Scenes/Demostracion/IndiceDemostracion.unity
+    guid: 0ffcf2c732bb1634f990d8a58c243844
+  - enabled: 1
+    path: Assets/Scenes/Demostracion/Demo_Bloques.unity
+    guid: b02ac916b65df864f841346e9a27bfca
+  - enabled: 1
+    path: Assets/Scenes/Demostracion/Demo_Habilidades.unity
+    guid: 080f3044fa7cf3348861094dbd443c79
+  - enabled: 1
+    path: Assets/Scenes/Demostracion/Demo_Ranking.unity
+    guid: d9d97b24f7a5c4d43bdaa33436bd002f
+  - enabled: 1
+    path: Assets/Scenes/Demostracion/Demo_Perseguidor.unity
+    guid: b7d90bb1fb33f3b4db091dba8d21cedd
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -22,6 +22,9 @@ public class NPCPerseguidor : MonoBehaviour
     private ISimpleList<Vector3Int> ruta;
     private float proximoCalculo;
 
+    /// <summary>Celdas de la ruta actual hasta el jugador, o -1 si no hay camino. Para el panel de depuracion.</summary>
+    public int LargoDeRuta => ruta == null ? -1 : ruta.Count;
+
     void Awake() => rb = GetComponent<Rigidbody2D>();
 
     // Dibuja la ruta actual en la vista Scene (y en Game con Gizmos activado).

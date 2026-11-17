@@ -65,6 +65,14 @@ public class GameManager : PersistentSingleton<GameManager>
             return;
         }
 
+        // El indice de demostracion es un menu: ni jugador ni HUD
+        if (escena.name == Escenas.Indice)
+        {
+            UIManager.Instance?.OcultarTodo();
+            HUDHabilidad.Instance?.gameObject.SetActive(false);
+            return;
+        }
+
         grid = FindFirstObjectByType<GridManager>();
         ability = FindFirstObjectByType<AbilityManager>();
 

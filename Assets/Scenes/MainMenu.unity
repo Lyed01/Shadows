@@ -5747,7 +5747,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5b3b9d913a8cf841958f2034e66ef20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nombreEscenaJuego: Tutorial
+  nombreEscenaJuego: IndiceDemostracion
   panelOpciones: {fileID: 1227898837}
   panelControles: {fileID: 0}
 --- !u!1 &1479010825

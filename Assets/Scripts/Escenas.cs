@@ -19,6 +19,9 @@ public static class Escenas
     /// <summary>Pasillo central con una puerta por nivel.</summary>
     public const string Hub = "Hub";
 
+    /// <summary>Indice de los niveles de demostracion de Estructuras de Datos.</summary>
+    public const string Indice = "IndiceDemostracion";
+
     /// <summary>Cinematica de cierre, al terminar el ultimo nivel.</summary>
     public const string CinematicaFinal = "FinalCutscene";
 }

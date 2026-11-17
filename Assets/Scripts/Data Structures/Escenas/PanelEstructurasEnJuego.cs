@@ -18,6 +18,27 @@ public class PanelEstructurasEnJuego : MonoBehaviour
     private GameObject panel;
     private float proximoRefresco;
 
+    // Demo activa: filtra los TP que se muestran y pone un encabezado. Sin demo, todos.
+    private static Demo demo;
+    private static PanelEstructurasEnJuego instancia;
+
+    private static bool Ver(int tp) => demo == null || System.Array.IndexOf(demo.Tps, tp) >= 0;
+
+    /// <summary>Pasa a mostrar solo los TP de la demo (o todos si es null). Con demo, abre el panel.</summary>
+    public static void Mostrar(Demo nueva)
+    {
+        demo = nueva;
+        if (instancia == null) return;
+
+        if (nueva != null)
+        {
+            if (instancia.panel == null) instancia.Construir();
+            instancia.panel.SetActive(true);
+        }
+        else if (instancia.panel != null) instancia.panel.SetActive(false);
+        instancia.proximoRefresco = 0f;
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Crear()
     {
@@ -26,7 +47,7 @@ public class PanelEstructurasEnJuego : MonoBehaviour
 
         var go = new GameObject(nameof(PanelEstructurasEnJuego));
         DontDestroyOnLoad(go);
-        go.AddComponent<PanelEstructurasEnJuego>();
+        instancia = go.AddComponent<PanelEstructurasEnJuego>();
     }
 
     private void Update()
@@ -60,77 +81,121 @@ public class PanelEstructurasEnJuego : MonoBehaviour
     private static string Armar()
     {
         var sb = new StringBuilder();
-        sb.AppendLine("ESTRUCTURAS DE DATOS EN VIVO   (F1 cierra)");
-        sb.AppendLine();
-
-        // TP01 List
-        var puertas = DoorHub.Registradas;
-        sb.Append($"TP01 List · SimpleArrayList<DoorHub>: {puertas.Count} puertas");
-        sb.AppendLine(puertas.Count == 0 ? "  (se llena en el Hub)" : "");
-        sb.AppendLine();
-
-        // TP02 Stack
-        var grid = FindFirstObjectByType<GridManager>();
-        sb.AppendLine("TP02 Stack · SimpleArrayStack<ShadowBlock>, Z deshace el de la cima");
-        if (grid == null) sb.AppendLine("  (sin GridManager en esta escena)");
+        if (demo == null)
+            sb.AppendLine("ESTRUCTURAS DE DATOS EN VIVO   (F1 cierra)");
         else
         {
-            ShadowBlock[] pila = grid.HistorialDeBloques;
-            sb.AppendLine(pila.Length == 0 ? "  vacia" : $"  {pila.Length} apilados, cima primero:");
-
-            for (int i = 0; i < pila.Length && i < 6; i++)
-            {
-                ShadowBlock b = pila[i];
-                bool vivo = b != null && b.gameObject.activeInHierarchy;
-                sb.AppendLine(b == null ? "    (destruido)" : $"    {b.idTipo} en {b.cellPos}{(vivo ? "" : "  - ya destruido")}");
-            }
-
-            if (pila.Length > 6) sb.AppendLine($"    ... y {pila.Length - 6} mas");
+            sb.AppendLine(demo.Titulo.ToUpper() + "   (F1 oculta, F2 indice)");
+            sb.AppendLine(demo.Descripcion);
+            sb.AppendLine("Controles: " + demo.Controles);
         }
         sb.AppendLine();
+        var grid = FindFirstObjectByType<GridManager>();
 
-        // TP03 Queue
-        var npcs = FindObjectsByType<NPCDemostrador>(FindObjectsSortMode.None);
-        sb.AppendLine("TP03 Queue · SimpleLinkedQueue<DemostracionPaso> de los NPC");
-        if (npcs.Length == 0) sb.AppendLine("  (sin NPC demostrador en esta escena)");
-        foreach (NPCDemostrador npc in npcs)
+        if (Ver(1))
         {
-            DemostracionPaso[] pendientes = npc.PasosPendientes;
-            sb.Append($"  {npc.name}: ");
-            sb.AppendLine(pendientes.Length == 0 ? "sin pasos pendientes" : $"{pendientes.Length} pendientes: " + string.Join(", ", System.Array.ConvertAll(pendientes, p => p.tipo.ToString())));
+            // TP01 List
+            var puertas = DoorHub.Registradas;
+            sb.Append($"TP01 List · SimpleArrayList<DoorHub>: {puertas.Count} puertas");
+            sb.AppendLine(puertas.Count == 0 ? "  (se llena en el Hub o en la demo del ranking)" : "");
+            sb.AppendLine();
         }
-        sb.AppendLine();
 
-        // TP04 Priority Queue
-        var audio = AudioManager.Instance;
-        var popups = FindFirstObjectByType<PopupManager>();
-        sb.AppendLine("TP04 Priority Queue · sonidos y popups (se vacian cada frame)");
-        sb.AppendLine(audio == null ? "  audio: sin AudioManager" : $"  FX encolados {audio.FxEncolados}, sonaron {audio.FxReproducidos}");
-        sb.AppendLine(popups == null ? "  popups: sin PopupManager" : $"  popups: {popups.Postulaciones} postulaciones");
-        sb.AppendLine();
+        if (Ver(2))
+        {
+            // TP02 Stack
+            sb.AppendLine("TP02 Stack · SimpleArrayStack<ShadowBlock>, Z deshace el de la cima");
+            if (grid == null) sb.AppendLine("  (sin GridManager en esta escena)");
+            else
+            {
+                ShadowBlock[] pila = grid.HistorialDeBloques;
+                sb.AppendLine(pila.Length == 0 ? "  vacia" : $"  {pila.Length} apilados, cima primero:");
 
-        // TP05 Set
-        var habilidades = AbilityManager.Instance;
-        sb.AppendLine("TP05 Set · SimpleArraySet<AbilityType> de habilidades desbloqueadas");
-        sb.AppendLine(habilidades == null ? "  (sin AbilityManager)" : "  [" + string.Join(", ", habilidades.GetUnlockedAbilities()) + "]");
-        sb.AppendLine();
+                for (int i = 0; i < pila.Length && i < 6; i++)
+                {
+                    ShadowBlock b = pila[i];
+                    bool vivo = b != null && b.gameObject.activeInHierarchy;
+                    sb.AppendLine(b == null ? "    (destruido)" : $"    {b.idTipo} en {b.cellPos}{(vivo ? "" : "  - ya destruido")}");
+                }
 
-        // TP06 Dictionary
-        var controlador = FindFirstObjectByType<PlayerAbilityController>();
-        sb.AppendLine("TP06 Dictionary · habilidades del jugador y pool de bloques");
-        sb.AppendLine(controlador == null ? "  habilidades: sin jugador en esta escena" : "  habilidades registradas: [" + string.Join(", ", controlador.TiposRegistrados) + "]");
-        if (grid != null) sb.AppendLine($"  bloques guardados en el pool: {grid.BloquesEnReserva}");
-        sb.AppendLine();
+                if (pila.Length > 6) sb.AppendLine($"    ... y {pila.Length - 6} mas");
+            }
+            sb.AppendLine();
+        }
 
-        // TP07 Sorting
-        string ranking = RankingDeTiempos.Detalle();
-        sb.AppendLine("TP07 Sorting · CollectionSort ordena tus mejores tiempos");
-        sb.AppendLine(ranking.Length == 0 ? "  (sin tiempos todavia, o no estas en el Hub)" : ranking.TrimEnd());
-        sb.AppendLine();
+        if (Ver(3))
+        {
+            // TP03 Queue
+            var npcs = FindObjectsByType<NPCDemostrador>(FindObjectsSortMode.None);
+            sb.AppendLine("TP03 Queue · SimpleLinkedQueue<DemostracionPaso> de los NPC");
+            if (npcs.Length == 0) sb.AppendLine("  (sin NPC demostrador en esta escena)");
+            foreach (NPCDemostrador npc in npcs)
+            {
+                DemostracionPaso[] pendientes = npc.PasosPendientes;
+                sb.Append($"  {npc.name}: ");
+                sb.AppendLine(pendientes.Length == 0 ? "sin pasos pendientes" : $"{pendientes.Length} pendientes: " + string.Join(", ", System.Array.ConvertAll(pendientes, p => p.tipo.ToString())));
+            }
+            sb.AppendLine();
+        }
 
-        // TP08 BST y TP09 AVL
-        sb.AppendLine("TP08 BST / TP09 AVL · catalogo de bloques (la raiz a la izquierda)");
-        sb.AppendLine(grid == null ? "  (sin GridManager)" : grid.Fabrica.DescribirCatalogo().TrimEnd());
+        if (Ver(4))
+        {
+            // TP04 Priority Queue
+            var audio = AudioManager.Instance;
+            var popups = FindFirstObjectByType<PopupManager>();
+            sb.AppendLine("TP04 Priority Queue · sonidos y popups (se vacian cada frame)");
+            sb.AppendLine(audio == null ? "  audio: sin AudioManager" : $"  FX encolados {audio.FxEncolados}, sonaron {audio.FxReproducidos}");
+            sb.AppendLine(popups == null ? "  popups: sin PopupManager" : $"  popups: {popups.Postulaciones} postulaciones");
+            sb.AppendLine();
+        }
+
+        if (Ver(5))
+        {
+            // TP05 Set
+            var habilidades = AbilityManager.Instance;
+            sb.AppendLine("TP05 Set · SimpleArraySet<AbilityType> de habilidades desbloqueadas");
+            sb.AppendLine(habilidades == null ? "  (sin AbilityManager)" : "  [" + string.Join(", ", habilidades.GetUnlockedAbilities()) + "]");
+            sb.AppendLine();
+        }
+
+        if (Ver(6))
+        {
+            // TP06 Dictionary
+            var controlador = FindFirstObjectByType<PlayerAbilityController>();
+            sb.AppendLine("TP06 Dictionary · habilidades del jugador y pool de bloques");
+            sb.AppendLine(controlador == null ? "  habilidades: sin jugador en esta escena" : "  habilidades registradas: [" + string.Join(", ", controlador.TiposRegistrados) + "]");
+            if (grid != null) sb.AppendLine($"  bloques guardados en el pool: {grid.BloquesEnReserva}");
+            sb.AppendLine();
+        }
+
+        if (Ver(7))
+        {
+            // TP07 Sorting
+            string ranking = RankingDeTiempos.Detalle();
+            sb.AppendLine("TP07 Sorting · CollectionSort ordena tus mejores tiempos");
+            sb.AppendLine(ranking.Length == 0 ? "  (sin tiempos todavia, o no estas en el Hub)" : ranking.TrimEnd());
+            sb.AppendLine();
+        }
+
+        if (Ver(8) || Ver(9))
+        {
+            // TP08 BST y TP09 AVL
+            sb.AppendLine("TP08 BST / TP09 AVL · catalogo de bloques (la raiz a la izquierda)");
+            sb.AppendLine(grid == null ? "  (sin GridManager)" : grid.Fabrica.DescribirCatalogo().TrimEnd());
+        }
+
+        // TP10 Graph y Dijkstra
+        if (Ver(10))
+        {
+            var perseguidores = FindObjectsByType<NPCPerseguidor>(FindObjectsSortMode.None);
+            sb.AppendLine();
+            sb.AppendLine("TP10 Graph / Dijkstra · la grilla como Graph<Vector3Int>, ruta del NPC al jugador");
+            if (grid == null) sb.AppendLine("  (sin GridManager)");
+            else sb.AppendLine($"  grafo: {grid.ConstruirGrafo().Count} celdas libres (cada bloque saca una)");
+            if (perseguidores.Length == 0) sb.AppendLine("  (sin NPC perseguidor en esta escena)");
+            foreach (NPCPerseguidor npc in perseguidores)
+                sb.AppendLine($"  {npc.name}: " + (npc.LargoDeRuta < 0 ? "sin camino" : $"ruta de {npc.LargoDeRuta} celdas"));
+        }
 
         return sb.ToString();
     }
