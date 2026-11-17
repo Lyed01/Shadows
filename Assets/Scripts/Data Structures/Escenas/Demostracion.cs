@@ -31,7 +31,7 @@ public class Demostracion : MonoBehaviour
         {
             Escena = "Demo_Nivel1",
             Titulo = "Nivel 1 - Aprender con Noxel",
-            Descripcion = "Habla con Noxel: te entrega la primera habilidad. Llega a la salida sin que el perseguidor te alcance.",
+            Descripcion = "Habla con Noxel: sus pasos esperan en una cola y te da la primera habilidad. Despues proba poner bloques y deshacerlos con Z.",
             Controles = Controles,
             Habilidades = new AbilityType[0],
         },
@@ -39,7 +39,7 @@ public class Demostracion : MonoBehaviour
         {
             Escena = "Demo_Nivel2",
             Titulo = "Nivel 2 - Bloques y espejos",
-            Descripcion = "Un guia repite su rutina solo. Usa los bloques de sombra y espejo, y encerra al perseguidor para que no encuentre camino.",
+            Descripcion = "Un guia repite su rutina solo. Proba los bloques de sombra y espejo: se apilan, se deshacen con Z y se reciclan en un pool.",
             Controles = Controles,
             Habilidades = new[] { AbilityType.AbilityMode, AbilityType.ShadowBlocks, AbilityType.ReflectiveBlocks },
             GuiaAutomatica = true,
@@ -47,11 +47,10 @@ public class Demostracion : MonoBehaviour
         new Demo
         {
             Escena = "Demo_Nivel3",
-            Titulo = "Nivel 3 - Todas las habilidades",
-            Descripcion = "Con las cuatro habilidades, llega a la salida mientras el perseguidor te sigue.",
+            Titulo = "Nivel 3 - El perseguidor",
+            Descripcion = "Un perseguidor te sigue por el camino mas corto (Dijkstra). Encerralo con bloques y llega a la salida para entrar al ranking.",
             Controles = Controles,
             Habilidades = new[] { AbilityType.AbilityMode, AbilityType.ShadowBlocks, AbilityType.ReflectiveBlocks, AbilityType.AbyssFlame, AbilityType.ShadowTp },
-            GuiaAutomatica = true,
         },
     };
 

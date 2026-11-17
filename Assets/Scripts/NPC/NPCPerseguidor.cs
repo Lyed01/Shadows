@@ -14,9 +14,9 @@ public class NPCPerseguidor : MonoBehaviour
     public float intervaloDeRuta = 0.5f;
     [Tooltip("A que distancia del jugador se queda quieto.")]
     public float distanciaParaDetenerse = 0.6f;
-    [Tooltip("Si al alcanzar al jugador lo mata (y vuelve a su lugar de origen).")]
-    public bool matarAlContacto = true;
-    public float distanciaParaMatar = 0.7f;
+    [Tooltip("Si al alcanzar al jugador lo devuelve a donde empezo (sin matarlo) y vuelve a su lugar de origen.")]
+    public bool devolverAlInicio = true;
+    public float distanciaParaAlcanzar = 0.7f;
 
     private readonly IPathfindingSolver<Vector3Int> solver = new DijkstraSolver<Vector3Int>();
     private Rigidbody2D rb;
@@ -25,6 +25,7 @@ public class NPCPerseguidor : MonoBehaviour
     private ISimpleList<Vector3Int> ruta;
     private float proximoCalculo;
     private Vector3 origen;
+    private Vector3? inicioDelJugador;
     private int largoAnterior = -2;
     private float proximoMensaje;
 
@@ -77,12 +78,15 @@ public class NPCPerseguidor : MonoBehaviour
             }
         }
 
+        // El primer lugar donde se lo ve es el de partida
+        if (inicioDelJugador == null) inicioDelJugador = jugador.transform.position;
+
         float distancia = Vector2.Distance(transform.position, jugador.transform.position);
-        if (matarAlContacto && distancia <= distanciaParaMatar)
+        if (devolverAlInicio && distancia <= distanciaParaAlcanzar)
         {
-            // Matar() ya ignora las llamadas repetidas; el NPC vuelve para no matar al reaparecer
-            Narrador.Decir(10, "El perseguidor te alcanzo y vuelve a su lugar.");
-            jugador.Matar();
+            Narrador.Decir(10, "El perseguidor te alcanzo: volves al inicio y el vuelve a su lugar.");
+            jugador.GetComponent<Rigidbody2D>().position = inicioDelJugador.Value;
+            jugador.transform.position = inicioDelJugador.Value;
             rb.position = origen;
             ruta = null;
             return;
