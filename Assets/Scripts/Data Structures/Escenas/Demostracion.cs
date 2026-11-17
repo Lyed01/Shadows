@@ -11,6 +11,8 @@ public class Demo
     public string Controles;
     public AbilityType[] Habilidades;
     public bool GuiaAutomatica;
+    /// <summary>Da las habilidades sin un cartel por cada una (el nivel ya no las presenta).</summary>
+    public bool HabilidadesSinAviso;
 }
 
 /// <summary>
@@ -50,7 +52,8 @@ public class Demostracion : MonoBehaviour
             Titulo = "Nivel 3 - El perseguidor",
             Descripcion = "Un perseguidor te sigue por el camino mas corto (Dijkstra). Encerralo con bloques y llega a la salida para entrar al ranking.",
             Controles = Controles,
-            Habilidades = new[] { AbilityType.AbilityMode, AbilityType.ShadowBlocks, AbilityType.ReflectiveBlocks, AbilityType.AbyssFlame, AbilityType.ShadowTp },
+            Habilidades = new[] { AbilityType.ShadowBlocks, AbilityType.ReflectiveBlocks, AbilityType.AbyssFlame, AbilityType.ShadowTp },
+            HabilidadesSinAviso = true,
         },
     };
 
@@ -159,7 +162,16 @@ public class Demostracion : MonoBehaviour
         if (fader != null) fader.InstantClear();
 
         GuardarHabilidades();
-        foreach (AbilityType tipo in demo.Habilidades) AbilityManager.Instance?.Unlock(tipo);
+        if (demo.HabilidadesSinAviso && AbilityManager.Instance != null)
+        {
+            // LoadProgress suma lo guardado sin encolar un cartel por habilidad
+            foreach (AbilityType tipo in demo.Habilidades) SaveSystem.SetHabilidad(tipo, true);
+            AbilityManager.Instance.LoadProgress();
+        }
+        else
+        {
+            foreach (AbilityType tipo in demo.Habilidades) AbilityManager.Instance?.Unlock(tipo);
+        }
 
         if (!demo.GuiaAutomatica) yield break;
 

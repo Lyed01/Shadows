@@ -20,7 +20,7 @@ public class IndiceDemostracion : MonoBehaviour
         {
             string escena = demo.Escena;
             UIRapida.Boton(fondo, fuente, $"{demo.Titulo}\n{demo.Descripcion}",
-                new Color(0.12f, 0.16f, 0.24f, 1f), 16, () => SceneManager.LoadScene(escena), out Text etiqueta);
+                new Color(0.12f, 0.16f, 0.24f, 1f), 20, () => SceneManager.LoadScene(escena), out Text etiqueta);
             UIRapida.Rellenar((RectTransform)etiqueta.transform.parent, 0.05f, y - alto, 0.95f, y, 0);
             y -= alto + 0.015f;
         }
@@ -29,7 +29,7 @@ public class IndiceDemostracion : MonoBehaviour
         UIRapida.Rellenar(pie.rectTransform, 0.05f, 0.01f, 0.95f, 0.06f, 0);
 
         ranking = UIRapida.Etiqueta(fondo, fuente, "", 18);
-        UIRapida.Rellenar(ranking.rectTransform, 0.05f, 0.1f, 0.95f, 0.36f, 0);
+        UIRapida.Rellenar(ranking.rectTransform, 0.05f, 0.08f, 0.95f, 0.27f, 0);
     }
 
     private Text ranking;
