@@ -152,6 +152,12 @@ public class Demostracion : MonoBehaviour
         yield return null;
         yield return null;
 
+        // Salvaguarda: una transicion a medias (fundido a negro sin su fundido de
+        // vuelta) dejaria el nivel tapado aunque el juego corra detras.
+        Time.timeScale = 1f;
+        var fader = FindFirstObjectByType<ScreenFader>();
+        if (fader != null) fader.InstantClear();
+
         GuardarHabilidades();
         foreach (AbilityType tipo in demo.Habilidades) AbilityManager.Instance?.Unlock(tipo);
 
