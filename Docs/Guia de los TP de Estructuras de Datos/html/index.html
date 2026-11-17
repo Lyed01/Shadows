@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Guía de los TP de Estructuras de Datos</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap');
+
+:root {
+  --color-primary: #2B2148;
+  --color-secondary: #6A4FC4;
+  --color-accent: #E8B33A;
+  --color-background: #FFFFFF;
+  --color-surface: #F3F0FA;
+  --color-text: #1C1730;
+  --color-muted: #6E6788;
+  --color-border: #DDD6EE;
+  --color-cover-base: #16121F;
+  --color-cover-night-blue: #221A33;
+  --color-cover-purple: #6A4FC4;
+  --color-cover-orange: #FFD966;
+  --color-cover-green: #7FD6C2;
+  --color-cover-pink: #C8B4FF;
+  --font-heading: 'Silkscreen', 'Inter', Arial, Helvetica, sans-serif;
+  --font-body: 'Inter', 'Roboto', Arial, Helvetica, sans-serif;
+  --page-margin-top: 2.4cm;
+  --page-margin-bottom: 2.1cm;
+  --page-margin-left: 2cm;
+  --page-margin-right: 2cm;
+}
+</style>
+  <style>
+    .ficha { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0.6em 0 1em; }
+    .ficha > div { background: var(--color-surface); border-radius: 8px; padding: 9px 12px; font-size: 9.5pt; }
+    .ficha h4 { margin: 0 0 4px; font-size: 9.5pt; }
+    .ficha p { margin: 0; }
+    .tp-head { display: flex; align-items: baseline; gap: 10px; }
+    .tp-head .badge { font-size: 8.5pt; }
+    pre { font-size: 8.3pt; line-height: 1.35; }
+    .guion { border-left: 4px solid var(--color-accent); background: color-mix(in srgb, var(--color-accent) 10%, white); padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 0.8em 0; font-size: 9.8pt; }
+    .guion strong { color: var(--color-primary); }
+    .small { font-size: 9pt; color: var(--color-muted); }
+    td code, li code, p code { font-size: 0.9em; }
+  </style>
+</head>
+<body>
+
+  <section class="cover">
+    <div class="cover-bg"></div>
+    <img class="logo" src="assets/shadows_logo.png" alt="Shadows">
+    <h1>Guía de los TP de Estructuras de Datos</h1>
+    <p class="subtitle">Cómo explicar cada estructura con el juego en pantalla y el código al lado</p>
+    <div class="meta">
+      Shadows · Estructuras de Datos · UADE &nbsp;·&nbsp; Rama <code>estructuras-de-datos</code> &nbsp;·&nbsp; Noviembre 2026
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="chip-num">1</span> Para qué sirve esta guía</h2>
+    <p>Shadows es un juego 2D de puzzles de luz y sombra. El jugador es una sombra: la luz lo mata, así que coloca bloques de sombra para taparla y llegar a la salida. A lo largo de la materia le fuimos sumando las diez estructuras de la consigna, cada una metida en algo que el juego ya hacía.</p>
+    <p>La guía está pensada para que cualquiera del grupo pueda defender cualquier TP, aunque no lo haya programado. Cada tema tiene la misma forma: qué es la estructura dicho en simple, dónde se ve jugando, cómo está en el código, por qué elegimos esa implementación y un guion corto para decirlo en voz alta.</p>
+
+    <div class="stats">
+      <div class="stat-card"><div class="stat-value">10</div><div class="stat-label">TP implementados con clases propias</div></div>
+      <div class="stat-card"><div class="stat-value">3</div><div class="stat-label">Niveles de demostración jugables</div></div>
+      <div class="stat-card"><div class="stat-value">489</div><div class="stat-label">Comprobaciones automáticas (TP01 a TP09)</div></div>
+    </div>
+
+    <h3>Cómo abrir la demo</h3>
+    <ol>
+      <li>Bajar la rama <code>estructuras-de-datos</code> del repo <code>Lyed01/Shadows</code> y abrir el proyecto con Unity 6000.3.17f1.</li>
+      <li>Abrir la escena <code>MainMenu</code>, dar Play y elegir "Jugar". Aparece el índice con los tres niveles de demostración y, abajo, el ranking de tiempos.</li>
+      <li>Dentro de un nivel, a la derecha está el <strong>panel de relato</strong>: una fila por estructura con lo último que hizo y, debajo, los últimos eventos. F1 lo oculta y F2 vuelve al índice.</li>
+    </ol>
+    <p>Los controles son los del juego: WASD para moverse, Espacio para entrar al modo habilidad, 1 a 4 o la rueda para elegir habilidad, clic para usarla y Z para deshacer el último bloque.</p>
+
+    <table>
+      <thead><tr><th>Nivel</th><th>Qué pasa</th><th>TP que se lucen</th></tr></thead>
+      <tbody>
+        <tr><td>1 · Aprender con Noxel</td><td>Noxel hace su rutina y te da la primera habilidad. Después podés poner bloques.</td><td>01, 02, 03, 04, 05, 06, 08/09</td></tr>
+        <tr><td>2 · Bloques y espejos</td><td>Un guía repite su rutina solo. Arrancás con bloque de sombra y espejo.</td><td>01, 02, 03, 04, 05, 06, 08/09</td></tr>
+        <tr><td>3 · El perseguidor</td><td>Un NPC rojo te sigue por el camino más corto. Llegar a la salida guarda tu tiempo en el ranking.</td><td>10, 07 y todas las anteriores</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">La escena <code>Assets/Scenes/Estructuras/PruebaTodo</code> corre las pruebas automáticas de los TP01 a TP09 y muestra una tabla OK/FALLA (9 de 9 en verde). Sirve de respaldo si el profesor quiere ver que cada estructura cumple con todas sus operaciones, más allá de lo que usa el juego.</div>
+  </section>
+
+  <section class="section-break">
+    <h2><span class="chip-num">2</span> Tres ideas que se repiten en todos los TP</h2>
+
+    <h3>Estática y dinámica</h3>
+    <p>Casi todas las estructuras tienen dos versiones, y la consigna pide justificar cuál usamos.</p>
+    <ul>
+      <li><strong>Estática (las clases <code>SimpleArray…</code>).</strong> Guarda los elementos en un arreglo, uno al lado del otro, como casilleros numerados. Ir al casillero 7 es inmediato. Cuando se llena, se crea un arreglo del doble de tamaño y se copian los datos. Meter o sacar algo en el medio obliga a correr todo lo que está después.</li>
+      <li><strong>Dinámica (las clases <code>SimpleLinked…</code>).</strong> Cada elemento vive en un nodo que apunta al siguiente, como los vagones de un tren. Agregar o sacar en una punta es enganchar o soltar un vagón, sin mover nada. Para llegar al vagón 7 hay que recorrer los seis anteriores, y cada nodo gasta un poco más de memoria.</li>
+    </ul>
+
+    <h3>Cuánto cuesta una operación</h3>
+    <table>
+      <thead><tr><th>Notación</th><th>Se lee</th><th>Qué significa en criollo</th></tr></thead>
+      <tbody>
+        <tr><td>O(1)</td><td>constante</td><td>Tarda lo mismo con 3 elementos que con 3 millones.</td></tr>
+        <tr><td>O(log n)</td><td>logarítmico</td><td>Cada paso descarta la mitad, como buscar una palabra en el diccionario de papel.</td></tr>
+        <tr><td>O(n)</td><td>lineal</td><td>Puede tener que mirar todos los elementos uno por uno.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Contrato e implementación</h3>
+    <p>Cada TP tiene una interfaz (<code>ISimpleList</code>, <code>ISimpleStack</code>, etc.) que dice qué operaciones existen, y dos clases que la cumplen. El juego guarda la variable con el tipo de la interfaz y elige la clase concreta en una sola línea. Por eso cambiar de estática a dinámica es cambiar esa línea y nada más:</p>
+<pre><code>private readonly ISimpleStack&lt;ShadowBlock&gt; historialDeBloques = new SimpleArrayStack&lt;ShadowBlock&gt;();</code></pre>
+    <p>Todo el código propio está en <code>Assets/Scripts/Data Structures/</code>. En las mecánicas que cubren los TP no se usan <code>List</code>, <code>Stack</code>, <code>Queue</code>, <code>HashSet</code> ni <code>Dictionary</code> de C#.</p>
+  </section>
+
+  <!-- TP01 -->
+  <section class="section-break">
+    <h2><span class="chip-num">TP01</span> List</h2>
+    <p>Una lista es una fila de elementos con posición: el primero, el segundo, el tercero. Se puede leer o cambiar cualquier posición, agregar al final, insertar en el medio y quitar. Es la estructura más general de todas.</p>
+
+    <div class="ficha">
+      <div><h4>Dónde se ve jugando</h4><p>Cada vez que ponés un bloque, el juego primero se fija si tiene uno guardado de antes para reciclarlo (un <em>pool</em>). Al deshacerlo o cuando la luz lo destruye, vuelve a esa reserva. También son una lista las puertas de los niveles, que el ranking recorre.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Lista</strong>: "el pool saca el último bloque de la reserva (RemoveAt, O(1))" o "el bloque vuelve a la reserva del pool (Add)". Al entrar al nivel: cuántas puertas hay en la lista.</p></div>
+    </div>
+
+    <h3>En el código</h3>
+    <p>Clases: <code>ISimpleList</code>, <code>SimpleArrayList</code>, <code>SimpleLinkedList</code>. El juego usa la estática en dos lugares: <code>DoorHub.Registradas</code> (las puertas) y las reservas de <code>PoolDeBloques</code>.</p>
+<pre><code>// PoolDeBloques.Obtener: se saca del final, que en un arreglo no obliga a correr nada
+int ultimo = reserva.Count - 1;
+ShadowBlock guardado = reserva[ultimo];
+reserva.RemoveAt(ultimo);</code></pre>
+
+    <h3>Por qué la estática</h3>
+    <p>Las puertas se cargan una vez y después se leen por índice en cada frame para encontrar la más cercana al jugador: acceder por posición es O(1) en el arreglo y O(n) en la enlazada. En el pool siempre se saca y se agrega por el final, que en el arreglo también es O(1). La dinámica no aportaría nada y gastaría un nodo por elemento.</p>
+
+    <div class="guion"><strong>Para decirlo:</strong> "La lista es el contenedor general. La usamos para el pool de bloques y para las puertas. Elegimos la estática porque siempre accedemos por índice o por el final, y en un arreglo las dos cosas son inmediatas."</div>
+    <p class="small">Si preguntan por la enlazada: nuestra <code>SimpleLinkedList</code> es simplemente enlazada (cada nodo apunta solo al siguiente). En clase se vio la doblemente enlazada, que puede entrar por la punta más cercana. Está implementada y probada en <code>PruebaTodo</code>, pero el juego no la necesita.</p>
+  </section>
+
+  <!-- TP02 -->
+  <section class="section-break">
+    <h2><span class="chip-num">TP02</span> Stack (pila)</h2>
+    <p>Una pila es como una pila de platos: el último que ponés arriba es el primero que sacás. Se llama LIFO (<em>last in, first out</em>). Solo se trabaja con la cima: <code>Push</code> apila, <code>Pop</code> desapila y <code>Peek</code> mira la cima sin sacarla.</p>
+
+    <div class="ficha">
+      <div><h4>Dónde se ve jugando</h4><p>Cada bloque que ponés se apila. Al apretar Z se deshace el último que pusiste, después el anterior, y así. Es un "deshacer" clásico.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Pila</strong>: "Push del bloque 'sombra' en (x, y). Hay 3 apilados" al poner, y "Pop, se deshace el bloque 'sombra'. Quedan 2" al apretar Z.</p></div>
+    </div>
+
+    <h3>En el código</h3>
+    <p>Clases: <code>ISimpleStack</code>, <code>SimpleArrayStack</code>, <code>SimpleLinkedStack</code>. La pila vive en <code>GridManager</code>, que es quien administra la grilla de celdas.</p>
+<pre><code>// Al colocar un bloque (GridManager.IntentarColocarBloque)
+historialDeBloques.Push(sb);
+
+// Al apretar Z (GridManager.DeshacerUltimoBloque)
+while (!historialDeBloques.IsEmpty)
+{
+    ShadowBlock sb = historialDeBloques.Pop();
+    if (sb == null || !bloquesInstanciados.Contains(sb.gameObject)) continue; // ya lo destruyó la luz
+    sb.DestruirBloque();
+    return true;
+}</code></pre>
+    <p>Un detalle de gameplay: la luz puede destruir un bloque que todavía está en la pila. Al desapilar, ese bloque se salta y se sigue con el siguiente, así Z siempre deshace algo que existe.</p>
+
+    <h3>Por qué la estática</h3>
+    <p>Apilar y desapilar ocurren en el último lugar del arreglo, que es O(1). No hace falta pagar un nodo por cada bloque. La enlazada también sería O(1), así que la diferencia la decide la memoria.</p>
+
+    <div class="guion"><strong>Para decirlo:</strong> "El deshacer es una pila: lo último que hiciste es lo primero que se deshace. Pongo tres bloques, aprieto Z tres veces y se van en orden inverso. Usamos la versión con arreglo porque todo pasa en la punta."</div>
+  </section>
+
+  <!-- TP03 -->
+  <section class="section-break">
+    <h2><span class="chip-num">TP03</span> Queue (cola)</h2>
+    <p>Una cola es la fila del supermercado: el primero que llega es el primero que atienden. Se llama FIFO (<em>first in, first out</em>). <code>Enqueue</code> agrega al final y <code>Dequeue</code> saca del principio.</p>
+
+    <div class="ficha">
+      <div><h4>Dónde se ve jugando</h4><p>Noxel (nivel 1) y el guía (nivel 2) hacen una rutina de pasos: moverse a un punto, usar una habilidad, esperar. Los pasos se cargan en una cola y se ejecutan en el mismo orden en que se cargaron.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Cola</strong>: "Guia carga 5 pasos con Enqueue" y después "Guia hace Dequeue del paso MoverA. Quedan 4", que va bajando a medida que el NPC avanza.</p></div>
+    </div>
+
+    <h3>En el código</h3>
+    <p>Clases: <code>ISimpleQueue</code>, <code>SimpleArrayQueue</code>, <code>SimpleLinkedQueue</code>. La usa <code>NPCDemostrador</code>.</p>
+<pre><code>colaDePasos = new SimpleLinkedQueue&lt;DemostracionPaso&gt;();
+foreach (var paso in pasos)
+    colaDePasos.Enqueue(paso);
+
+while (!colaDePasos.IsEmpty)
+    yield return EjecutarPaso(colaDePasos.Dequeue());</code></pre>
+
+    <h3>Por qué la dinámica</h3>
+    <p>La operación que más se repite es sacar el primero. En la enlazada es O(1): el segundo nodo pasa a ser el primero y listo. Sobre un arreglo simple, sacar el primero obliga a correr todos los demás un lugar.</p>
+
+    <div class="guion"><strong>Para decirlo:</strong> "Noxel no improvisa: tiene su guion cargado en una cola y lo ejecuta en orden. Miren cómo en el panel baja el número de pasos que quedan. Elegimos la enlazada porque lo que más hacemos es sacar el primero."</div>
+  </section>
+
+  <!-- TP04 -->
+  <section class="section-break">
+    <h2><span class="chip-num">TP04</span> Priority Queue (cola de prioridad)</h2>
+    <p>Es como la guardia de un hospital: no se atiende por orden de llegada sino por gravedad. Cada elemento entra con un número de prioridad y sale primero el más urgente. En nuestro proyecto el número más chico es el más urgente, como los puestos de una carrera: el 1 va antes que el 2. Si empatan, sale primero el que llegó antes.</p>
+
+    <div class="ficha">
+      <div><h4>Dónde se ve jugando</h4><p>Sonidos: en un mismo frame pueden pedirse muchos (pasos, bloques, una muerte). Suenan como máximo tres y ganan los importantes. Avisos: al desbloquear varias habilidades juntas (arranque de los niveles 2 y 3), los carteles salen de a uno y en orden de prioridad, en vez de pisarse.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Cola de prioridad</strong>: "se encola el aviso de ShadowTp con prioridad 2 (1 sale primero)", "Dequeue de un sonido de prioridad 1" y, si hubo demasiados, cuántos sonaron y cuántos se descartaron.</p></div>
+    </div>
+
+    <table>
+      <thead><tr><th>Prioridad</th><th>Sonidos (AudioManager)</th></tr></thead>
+      <tbody>
+        <tr><td>1 · alta</td><td>muerte, habilidades especiales</td></tr>
+        <tr><td>2 · media</td><td>bloques, teletransporte, diálogo</td></tr>
+        <tr><td>3 · baja</td><td>pasos</td></tr>
+      </tbody>
+    </table>
+
+    <h3>En el código</h3>
+    <p>Clases: <code>ISimplePriorityQueue</code>, <code>SimpleArrayPriorityQueue</code> (arreglo sin ordenar), <code>SimpleLinkedPriorityQueue</code> (nodos que se mantienen ordenados). Se usan las dos, cada una donde le conviene.</p>
+<pre><code>// AudioManager: se pide un sonido con su prioridad
+colaFX.Enqueue(new SolicitudSonido(clip, pitch), prioridad);
+
+// Una vez por frame: suenan los 3 más urgentes y el resto se descarta
+while (reproducidos &lt; maxFXPorFrame &amp;&amp; colaFX.Count &gt; 0)
+    Reproducir(colaFX.Dequeue());
+colaFX.Clear();</code></pre>
+
+    <h3>Por qué cada implementación</h3>
+    <ul>
+      <li><strong>Sonidos y popups en pantalla: estática.</strong> La cola se llena y se vacía en el mismo frame, con pocos elementos. En el arreglo sin ordenar encolar es O(1) y sacar busca el mínimo, O(n) sobre una lista cortísima.</li>
+      <li><strong>Avisos de habilidad pendientes: dinámica.</strong> Esa fila vive entre frames y se consume de a un aviso por vez. La enlazada paga el orden al encolar y después sacar es O(1).</li>
+    </ul>
+
+    <div class="guion"><strong>Para decirlo:</strong> "Si en el mismo instante pasan diez cosas, no pueden sonar todas. La cola de prioridad decide: primero la muerte, después el bloque, último los pasos. Con los carteles igual: salen de a uno y en orden de importancia."</div>
+  </section>
+
+  <!-- TP05 -->
+  <section class="section-break">
+    <h2><span class="chip-num">TP05</span> Set (conjunto)</h2>
+    <p>Un conjunto es como un álbum de figuritas: cada figurita está o no está, nunca repetida, y no importa en qué orden la pegaste. La operación clave es preguntar si algo está (<code>Contains</code>). <code>Add</code> devuelve si lo agregó o si ya estaba.</p>
+
+    <div class="ficha">
+      <div><h4>Dónde se ve jugando</h4><p>Las habilidades desbloqueadas. Al empezar el nivel 2 o 3 se desbloquean varias y el conjunto crece. Si el juego intenta desbloquear de nuevo una que ya tenés, no se duplica ni vuelve a mostrar el cartel.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Conjunto</strong>: "Add(ShadowBlocks) devuelve true, la habilidad es nueva. Desbloqueadas: 2", o "devuelve false, ya estaba (un Set no repite)".</p></div>
+    </div>
+
+    <h3>En el código</h3>
+    <p>Clases: <code>ISimpleSet</code>, <code>SimpleArraySet</code>, <code>SimpleLinkedSet</code>. Lo usa <code>AbilityManager</code>. El resultado de <code>Add</code> decide si hay algo nuevo para anunciar:</p>
+<pre><code>private readonly ISimpleSet&lt;AbilityType&gt; desbloqueadas = new SimpleArraySet&lt;AbilityType&gt;();
+
+if (!desbloqueadas.Add(tipo))
+    return;                 // ya la tenía: no hay cartel ni sonido
+OnAbilityUnlocked.Invoke(tipo);</code></pre>
+
+    <h3>Por qué la estática</h3>
+    <p>En las dos versiones <code>Add</code> es O(n), porque antes de agregar hay que revisar que no esté. Así que el tiempo no decide. Son cinco habilidades como mucho: un arreglo chico ocupa menos memoria que cinco nodos.</p>
+
+    <div class="guion"><strong>Para decirlo:</strong> "Las habilidades son un conjunto porque una habilidad se tiene o no se tiene. Si dos eventos te dan la misma, el Set la rechaza y el juego no repite el cartel."</div>
+  </section>
+
+  <!-- TP06 -->
+  <section class="section-break">
+    <h2><span class="chip-num">TP06</span> Dictionary (diccionario)</h2>
+    <p>Un diccionario asocia una clave con un valor, como una agenda: buscás por nombre y obtenés el teléfono. Las claves no se repiten. Se busca con <code>TryGetValue</code>, que dice si la clave existe sin tirar error.</p>
+
+    <div class="ficha">
+      <div><h4>Dónde se ve jugando</h4><p>Cuando hacés clic con una habilidad elegida, el juego busca en un diccionario qué código ejecutar para esa habilidad. Y el pool de bloques tiene una reserva separada por cada tipo de bloque: el diccionario va de tipo a su lista.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Diccionario</strong>: "TryGetValue(ShadowBlocks) encuentra la habilidad a ejecutar" en cada clic, o "la reserva de 'ShadowBlock' está vacía, se instancia un bloque nuevo".</p></div>
+    </div>
+
+    <h3>En el código</h3>
+    <p>Clases: <code>ISimpleDictionary</code>, <code>SimpleArrayDictionary</code>, <code>SimpleLinkedDictionary</code>. Se usa en <code>PlayerAbilityController</code> (tipo de habilidad → habilidad) y en <code>PoolDeBloques</code> (prefab → lista de bloques guardados).</p>
+<pre><code>private readonly ISimpleDictionary&lt;AbilityType, IHabilidad&gt; habilidades =
+    new SimpleArrayDictionary&lt;AbilityType, IHabilidad&gt;();
+
+if (!habilidades.TryGetValue(seleccionada.tipo, out IHabilidad habilidad)) return;
+if (Input.GetMouseButtonDown(0)) habilidad.UsarPrincipal(jugador);</code></pre>
+    <p>Gracias a esto el controlador no tiene un <code>if</code> por cada habilidad: agregar una habilidad nueva es registrarla en el diccionario.</p>
+
+    <h3>Por qué la estática</h3>
+    <p>Son cuatro habilidades que se cargan una vez al empezar y se consultan muchas veces. Con tan pocas claves, recorrer un arreglo corto es rápido y no se gasta un nodo por entrada. Lo mismo en el pool, que tiene dos o tres tipos de bloque.</p>
+
+    <div class="guion"><strong>Para decirlo:</strong> "El diccionario traduce 'qué habilidad tengo elegida' a 'qué código corro'. Es lo que permite sumar habilidades sin tocar el controlador."</div>
+  </section>
+
+  <!-- TP07 -->
+  <section class="section-break">
+    <h2><span class="chip-num">TP07</span> Sorting (ordenamiento)</h2>
+    <p>Ordenar es acomodar una colección según un criterio, como ordenar las cartas en la mano. Implementamos los tres algoritmos vistos en clase: Bubble, Selection y Quick, en orden ascendente o descendente (el extra de la consigna).</p>
+
+    <div class="ficha">
+      <div><h4>Dónde se ve jugando</h4><p>Al llegar a la salida de un nivel se guarda tu tiempo. El índice muestra el ranking de los niveles terminados, del más rápido al más lento. En el juego completo, el cartel de cada puerta del Hub dice en qué puesto está ese nivel.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Sorting</strong>, al terminar un nivel: "CollectionSort ordena los tiempos de 3 niveles. Primero: …". Después el ranking queda visible en el índice.</p></div>
+    </div>
+
+    <h3>En el código</h3>
+    <p>Clase: <code>CollectionSort</code>, con <code>SortArray</code> y <code>SortList</code>, más el método <code>Sort</code> en la interfaz de las listas. El orden es genérico: recibe una <code>Comparison</code> que dice cómo comparar dos elementos.</p>
+<pre><code>// RankingDeTiempos: arma la lista de marcas y la ordena por tiempo
+ISimpleList&lt;Marca&gt; marcas = new SimpleArrayList&lt;Marca&gt;();
+// ... una marca por cada puerta con tiempo guardado ...
+CollectionSort.SortList(marcas, (a, b) =&gt; a.Tiempo.CompareTo(b.Tiempo));</code></pre>
+    <p>Por defecto usa Quick y orden ascendente. Cambiar a descendente o a otro algoritmo es pasar un parámetro más.</p>
+
+    <div class="guion"><strong>Para decirlo:</strong> "El ranking ordena nuestra propia lista con nuestro propio algoritmo. Le pasamos cómo comparar dos tiempos y el mismo código sirve para ordenar cualquier cosa."</div>
+    <p class="small">Las demos guardan sus tiempos con ids propios (<code>Demo_Nivel1</code> a <code>3</code>), así que no tocan el ranking del juego real.</p>
+  </section>
+
+  <!-- TP08-09 -->
+  <section class="section-break">
+    <h2><span class="chip-num">TP08</span> BST y <span class="chip-num">TP09</span> AVL</h2>
+    <p>Un árbol binario de búsqueda (BST) guarda datos ordenados así: cada nodo tiene a la izquierda los menores y a la derecha los mayores. Para buscar se baja por un solo camino, descartando la mitad en cada paso, como buscar en una guía telefónica.</p>
+    <p>El problema: si los datos entran ya ordenados, el árbol crece hacia un solo lado, queda como una lista y buscar pasa a ser O(n). El AVL lo arregla: después de cada alta o baja revisa la altura de los dos lados de cada nodo y, si difieren en más de uno, <strong>rota</strong> para reequilibrar. Así buscar, agregar y quitar son siempre O(log n).</p>
+
+    <table>
+      <thead><tr><th>Si el árbol pesa hacia…</th><th>El AVL hace</th></tr></thead>
+      <tbody>
+        <tr><td>izquierda-izquierda</td><td>una rotación a la derecha</td></tr>
+        <tr><td>derecha-derecha</td><td>una rotación a la izquierda</td></tr>
+        <tr><td>izquierda-derecha</td><td>rota el hijo a la izquierda y después el nodo a la derecha</td></tr>
+        <tr><td>derecha-izquierda</td><td>rota el hijo a la derecha y después el nodo a la izquierda</td></tr>
+      </tbody>
+    </table>
+
+    <div class="ficha">
+      <div><h4>Dónde se ve jugando</h4><p>Cada vez que ponés un bloque, el juego busca en un catálogo qué tipo de bloque construir ("sombra" o "espejo"). Ese catálogo es un AVL ordenado por el id del bloque.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>AVL</strong>: "TryGet('espejo') baja por el árbol ordenado por id y encuentra el prefab". Probalo en el nivel 2 alternando sombra y espejo.</p></div>
+    </div>
+
+    <h3>En el código</h3>
+    <p>Clases: <code>TreeNode&lt;T&gt;</code>, <code>BST&lt;TKey, T&gt;</code> y <code>AVL&lt;TKey, T&gt;</code>, que hereda de <code>BST</code> y sobrescribe <code>Insertar</code> y <code>Quitar</code> para balancear. Hicimos el opcional de la consigna: el árbol guarda un tipo (la entrada del catálogo) y busca por otro (el id de texto), con una función de comparación que se pasa al constructor.</p>
+<pre><code>// FabricaDeBloques: el catálogo es un AVL que compara un id con una entrada
+catalogo = new AVL&lt;string, Entrada&gt;((id, entrada) =&gt; string.CompareOrdinal(id, entrada.Id));
+
+// Al construir un bloque
+if (!catalogo.TryGet(id, out Entrada entrada)) return null;
+return pool.Obtener(entrada.Prefab, posicion);</code></pre>
+    <p>También tiene los recorridos <code>InOrder</code>, <code>PreOrder</code> y <code>PostOrder</code>, <code>Min</code>, <code>Max</code>, <code>Height</code> y un dibujo del árbol para depurar. La prueba del AVL inserta datos en los cuatro casos de desbalance y comprueba que el árbol queda equilibrado.</p>
+
+    <div class="guion"><strong>Para decirlo:</strong> "El catálogo de bloques es un AVL: busca por nombre en tiempo logarítmico y se mantiene equilibrado solo, aunque los tipos se carguen en orden. Hoy hay dos tipos, pero agregar uno nuevo es arrastrar un prefab y el árbol se acomoda."</div>
+    <p class="small">Si preguntan "¿para dos elementos hace falta un árbol?": a este tamaño no se nota. La consigna pide reemplazar el BST por el AVL en el juego, y el catálogo es el lugar donde crecería si se suman bloques.</p>
+  </section>
+
+  <!-- TP10 -->
+  <section class="section-break">
+    <h2><span class="chip-num">TP10</span> Graph y Dijkstra</h2>
+    <p>Un grafo es una red de puntos (nodos) unidos por conexiones (aristas), como un mapa de subte: estaciones y vías. Cada vía puede tener un costo. Dijkstra es el algoritmo que usa un GPS para encontrar el camino más barato entre dos puntos: siempre sigue explorando desde el lugar más cercano que todavía no visitó, hasta llegar al destino.</p>
+
+    <div class="ficha">
+      <div><h4>Dónde se ve jugando</h4><p>Nivel 3. El NPC rojo te sigue por el camino más corto sobre la grilla del piso. Cada bloque que ponés ocupa una celda y cambia el mapa, así que el perseguidor lo rodea. Si lo encerrás, se queda quieto porque no hay camino. Si te alcanza, volvés al inicio sin morir.</p></div>
+      <div><h4>Qué dice el panel</h4><p>Fila <strong>Grafo / Dijkstra</strong>: "ruta de 7 celdas hasta vos sobre un grafo de 88 celdas libres", o "no hay camino hasta vos" cuando lo encerraste. Con Gizmos activado en la vista Game se ve la ruta dibujada en celeste.</p></div>
+    </div>
+
+    <h3>El grafo</h3>
+    <p>Elegimos la lista de adyacencia genérica: <code>Graph&lt;T&gt;</code> guarda un diccionario propio que va de cada nodo a la lista propia de sus aristas (<code>ISimpleDictionary&lt;T, ISimpleList&lt;Edge&lt;T&gt;&gt;&gt;</code>). Tiene altas y bajas de nodos y aristas, consulta de vecinos y aristas en uno o dos sentidos. En el juego, <code>GridManager.ConstruirGrafo()</code> arma el grafo con las celdas del piso que no tienen bloque, unidas con sus vecinas a costo 1.</p>
+<pre><code>foreach (var celda in celdas)
+    if (!celda.Value.occupied) grafo.AddNode(celda.Key);
+// cada celda libre se une con la de la derecha y la de arriba, en los dos sentidos
+if (grafo.ContainsNode(derecha)) grafo.AddEdge(celda.Key, derecha, 1);</code></pre>
+
+    <h3>Dijkstra</h3>
+    <p><code>DijkstraSolver&lt;T&gt;</code> cumple la interfaz <code>IPathfindingSolver&lt;T&gt;</code>, así que se podría cambiar por otro algoritmo (por ejemplo A*) sin tocar al perseguidor. Por dentro reutiliza estructuras de los TP anteriores:</p>
+    <ul>
+      <li>una <strong>cola de prioridad</strong> (TP04) con las celdas pendientes, ordenadas por la distancia acumulada;</li>
+      <li>un <strong>conjunto</strong> (TP05) de celdas ya visitadas;</li>
+      <li>dos <strong>diccionarios</strong> (TP06): la mejor distancia conocida a cada celda y desde qué celda se llegó;</li>
+      <li>una <strong>lista</strong> (TP01) donde se arma el camino final, de atrás hacia adelante.</li>
+    </ul>
+<pre><code>// DijkstraSolver.FindPath, simplificado para leerlo
+while (!pendientes.IsEmpty)
+{
+    T actual = pendientes.Dequeue();          // la más cercana todavía sin visitar
+    if (!visitados.Add(actual)) continue;
+    if (actual es la meta) break;
+    foreach (var arista in graph.GetEdges(actual))
+    {
+        int nueva = distancia[actual] + arista.Cost;
+        if (encontré un camino más corto a arista.To)
+        {
+            distancia[arista.To] = nueva;
+            anterior[arista.To] = actual;
+            pendientes.Enqueue(arista.To, nueva);
+        }
+    }
+}</code></pre>
+    <p><code>NPCPerseguidor</code> recalcula la ruta cada medio segundo, porque los bloques cambian el mapa, y camina hacia la siguiente celda del camino.</p>
+
+    <div class="guion"><strong>Para decirlo:</strong> "El piso es un grafo: cada celda libre es un nodo y las vecinas están unidas. Dijkstra busca el camino más corto hasta mí. Si pongo un bloque, el grafo pierde ese nodo y la ruta cambia. Si lo encierro, Dijkstra no encuentra camino y el perseguidor se frena. Y ojo que Dijkstra usa adentro la cola de prioridad, el Set, el diccionario y la lista de los TP anteriores."</div>
+  </section>
+
+  <!-- Guion -->
+  <section class="section-break">
+    <h2><span class="chip-num">3</span> Guion sugerido para la presentación</h2>
+    <p>Un recorrido de unos diez minutos que pasa por los diez TP en orden de juego, sin saltar de un tema a otro:</p>
+    <ol>
+      <li><strong>Índice.</strong> Mostrar los tres niveles y el panel de relato: "a la derecha, cada fila es una estructura y se ilumina cuando se usa".</li>
+      <li><strong>Nivel 1.</strong> Hablar con Noxel y mirar la fila Cola (TP03). Cuando entrega la habilidad, mirar Conjunto (TP05) y Cola de prioridad (TP04). Poner tres bloques y deshacerlos con Z: Pila (TP02), Lista del pool (TP01), Diccionario (TP06) y AVL (TP08/09).</li>
+      <li><strong>Nivel 2.</strong> Dejar que el guía haga su rutina sola (TP03 de nuevo, sin intervenir). Alternar sombra y espejo para mostrar que el AVL busca distintos ids.</li>
+      <li><strong>Nivel 3.</strong> Dejar que el perseguidor se acerque, poner bloques para cortarle el paso y mostrar cómo cambia la ruta (TP10). Encerrarlo para mostrar "no hay camino". Llegar a la salida.</li>
+      <li><strong>Vuelta al índice.</strong> Mostrar el ranking ordenado (TP07).</li>
+      <li><strong>Respaldo.</strong> Si queda tiempo o lo piden, abrir <code>PruebaTodo</code> para ver las pruebas automáticas de cada estructura.</li>
+    </ol>
+
+    <h3>Preguntas que pueden hacer</h3>
+    <table>
+      <thead><tr><th>Pregunta</th><th>Respuesta corta</th></tr></thead>
+      <tbody>
+        <tr><td>¿Por qué no usaron las colecciones de C#?</td><td>La consigna pide las propias. Están en <code>Data Structures/</code> y cumplen las mismas interfaces que vimos en clase.</td></tr>
+        <tr><td>¿Cómo eligieron entre estática y dinámica?</td><td>Por la operación que más se repite: si es acceder por índice o trabajar en el final, arreglo; si es sacar el primero, enlazada. Cuando el tiempo empata, decide la memoria.</td></tr>
+        <tr><td>¿Qué pasa si cambio la implementación?</td><td>El juego guarda la interfaz, así que es cambiar el <code>new</code> en una línea. El resto del código no se entera.</td></tr>
+        <tr><td>¿Por qué el número chico es más prioritario?</td><td>Es la convención que elegimos, como los puestos de una carrera. Está documentada en la interfaz y se respeta en todo el proyecto.</td></tr>
+        <tr><td>¿Dijkstra o A*?</td><td>La consigna pide Dijkstra. Como está detrás de <code>IPathfindingSolver</code>, sumar A* sería escribir otra clase sin tocar al perseguidor.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Resumen</h3>
+    <table>
+      <thead><tr><th>TP</th><th>Estructura</th><th>Dónde está en el juego</th><th>Implementación</th></tr></thead>
+      <tbody>
+        <tr><td>01</td><td>List</td><td>Pool de bloques, puertas de los niveles</td><td>Estática</td></tr>
+        <tr><td>02</td><td>Stack</td><td>Deshacer bloques con Z (<code>GridManager</code>)</td><td>Estática</td></tr>
+        <tr><td>03</td><td>Queue</td><td>Rutina de Noxel y del guía (<code>NPCDemostrador</code>)</td><td>Dinámica</td></tr>
+        <tr><td>04</td><td>Priority Queue</td><td>Sonidos y avisos (<code>AudioManager</code>, <code>PopupManager</code>)</td><td>Las dos</td></tr>
+        <tr><td>05</td><td>Set</td><td>Habilidades desbloqueadas (<code>AbilityManager</code>)</td><td>Estática</td></tr>
+        <tr><td>06</td><td>Dictionary</td><td>Habilidades del jugador, reservas del pool</td><td>Estática</td></tr>
+        <tr><td>07</td><td>Sorting</td><td>Ranking de tiempos (<code>RankingDeTiempos</code>)</td><td>Quick por defecto</td></tr>
+        <tr><td>08 / 09</td><td>BST / AVL</td><td>Catálogo de tipos de bloque (<code>FabricaDeBloques</code>)</td><td>AVL sobre BST</td></tr>
+        <tr><td>10</td><td>Graph + Dijkstra</td><td>Perseguidor del nivel 3 (<code>NPCPerseguidor</code>)</td><td>Lista de adyacencia</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</body>
+</html>

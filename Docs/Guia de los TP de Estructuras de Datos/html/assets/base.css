@@ -1,0 +1,266 @@
+/* Base stylesheet for long-form documents (functional / technical / commercial).
+   Consumes --color-*, --font-heading, --font-body, --page-margin-* CSS variables.
+   The :root block below is a snapshot of brand/brand.json's current values, so
+   this file (and templates/doc.html) can be opened directly in a browser and
+   look right while editing — no generation step needed to preview.
+   At real generation time, scripts/render_common.py injects a fresh <style>
+   block with the live values from brand.json right after this stylesheet loads;
+   being later in the cascade, it wins over these defaults. If you change
+   brand/brand.json, update this block too so the raw-preview stays accurate. */
+@import url('https://fonts.googleapis.com/css2?family=Huninn&family=Outfit:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  --color-primary: #001A64;
+  --color-secondary: #5032CD;
+  --color-accent: #FF7850;
+  --color-background: #FFFFFF;
+  --color-surface: #D5D5E0;
+  --color-text: #0B0D11;
+  --color-muted: #6B7280;
+  --color-border: #D5D5E0;
+  --color-cover-base: #0B0D11;
+  --color-cover-night-blue: #001A64;
+  --color-cover-purple: #5032CD;
+  --color-cover-orange: #FF7850;
+  --color-cover-green: #76DEB4;
+  --color-cover-pink: #F173FF;
+  --font-heading: 'Huninn', 'Outfit', 'Roboto', Arial, Helvetica, sans-serif;
+  --font-body: 'Roboto', 'Outfit', Arial, Helvetica, sans-serif;
+  --page-margin-top: 2.4cm;
+  --page-margin-bottom: 2.1cm;
+  --page-margin-left: 2cm;
+  --page-margin-right: 2cm;
+}
+
+@page {
+  size: A4;
+  /* No margin declared here on purpose: an explicit `margin: 0` used to sit here
+     and silently overrode Playwright's page.pdf() margin option, collapsing every
+     page's padding down to whatever a heading's own default margin happened to
+     add. Leaving it undeclared lets the API's margin option (brand.json ->
+     document.margin_*) be the single source of truth for page padding. */
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-background);
+  font-size: 11pt;
+  line-height: 1.55;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  line-height: 1.25;
+  margin-top: 1.4em;
+  margin-bottom: 0.5em;
+  page-break-after: avoid;
+}
+/* A heading that's the first thing in its section, or that forces a fresh page
+   via .section-break, always lands at the very top of a page's content area.
+   The gap between the header and wherever content starts (a heading or
+   otherwise) is reserved in the real page margin itself (PAGE_BREAK_GAP_PX in
+   scripts/html_to_pdf.py) so it applies no matter what lands there — a
+   heading's own margin-top would just stack an extra ~1.4em on top of that. */
+section > h1:first-child, section > h2:first-child,
+section > h3:first-child, section > h4:first-child,
+.section-break { margin-top: 0; }
+
+h1 { font-size: 24pt; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.2em; }
+h2 { font-size: 16pt; }
+h3 { font-size: 13pt; color: var(--color-secondary); }
+h4 { font-size: 11.5pt; color: var(--color-secondary); }
+
+p { margin: 0 0 0.8em; }
+
+a { color: var(--color-secondary); text-decoration: none; }
+
+ul, ol { margin: 0 0 0.8em; padding-left: 1.4em; }
+li { margin-bottom: 0.3em; }
+
+/* Clean/minimalist by design: no cell borders, no solid header fill — just a
+   rule under the header row and a hairline between rows for separation. */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0 1.4em;
+  font-size: 10pt;
+  page-break-inside: avoid;
+}
+th, td {
+  padding: 8px 10px;
+  text-align: left;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+}
+th {
+  color: var(--color-background);
+  font-family: var(--font-heading);
+  background: var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+}
+tbody tr:nth-child(odd) td { background: color-mix(in srgb, var(--color-surface) 40%, white); }
+tbody tr:last-child td { border-bottom: none; }
+
+blockquote {
+  border-left: 3px solid var(--color-accent);
+  margin: 1em 0;
+  padding: 0.4em 1em;
+  color: var(--color-muted);
+  background: var(--color-surface);
+}
+
+code, pre {
+  font-family: "Consolas", "Courier New", monospace;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+}
+code { padding: 1px 5px; font-size: 0.95em; }
+pre { padding: 10px 14px; overflow-x: auto; page-break-inside: avoid; }
+
+/* Full-bleed cover: the PDF renderer (scripts/html_to_pdf.py) prints the cover in
+   its own pass with the physical page margin set to 0 on all 4 sides (no header,
+   no footer on this page), so this just needs to fill the page — no CSS margin
+   trick required. Chromium's API margin is a hard clip, not a layout offset
+   content can bleed past, so a negative-margin approach here doesn't work once
+   real margins are in play.
+   The 1px negative margin/oversize is a small overscan: Chromium's PDF export
+   can leave a hairline (~1px) unpainted at the page edge even with margin:0,
+   from sub-pixel rounding. Bleeding 1px past each edge covers that without
+   materially affecting layout or pagination. */
+.cover {
+  position: relative;
+  overflow: hidden;
+  margin: -1px;
+  width: calc(100% + 2px);
+  height: calc(100vh + 2px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0 var(--page-margin-left, 2cm);
+  background: var(--color-cover-base, #0B0D11);
+  color: var(--color-background);
+  page-break-after: always;
+}
+
+/* Gradient backdrop: three soft radial-gradient "glows" in the brand's accent
+   colors — warm orange down the left, night blue to the right, violet rising
+   from the bottom — over a dark base.
+
+   This USED to be five layers composited with `background-blend-mode: screen`
+   under `filter: blur(40px)`. It looked right and was very slow: the cover was
+   by far the heaviest page of every document and viewers stuttered on it.
+   Measured, printing page 1 and timing the raster:
+
+     blur + screen (the original)   55 ms   855 KB   rasterised to 9.7 Mpx
+     screen, no blur               128 ms   146 KB   worse — see below
+     normal, no blur                11 ms   143 KB   kept
+
+   A `filter` forces Chromium to rasterise the whole cover into one page-sized
+   bitmap. Dropping the blur but keeping `screen` is worse still: a non-normal
+   blend mode becomes a PDF transparency group the viewer composites on every
+   repaint. Only plain alpha over an opaque base stays cheap vector shadings.
+
+   `normal` does not lighten the way `screen` does, so the layers below are not
+   the old ones with the blend mode removed — they were re-fitted against a
+   render of the original cover (mean error 5.7/255, i.e. visually the same).
+   If you retune this, keep it to plain `rgba()` stops: no filter, no blend
+   mode, no backdrop image (a pre-rendered JPEG was also tried: ~23 ms just to
+   decode, worse than these gradients). */
+.cover-bg {
+  position: absolute;
+  top: -60px; right: -60px; bottom: -60px; left: -60px;
+  background-color: #140F22;
+  background-image:
+    radial-gradient(ellipse 62% 86% at -4% 34%, rgba(255, 120, 80, 0.52) 0%, rgba(255, 120, 80, 0.25) 36%, rgba(255, 120, 80, 0.078) 62%, rgba(255, 120, 80, 0) 86%),
+    radial-gradient(ellipse 58% 52% at 20% 106%, rgba(106, 0, 144, 0.65) 0%, rgba(106, 0, 144, 0.312) 36%, rgba(106, 0, 144, 0.098) 62%, rgba(106, 0, 144, 0) 86%),
+    radial-gradient(ellipse 66% 92% at 104% 38%, rgba(42, 66, 128, 0.546) 0%, rgba(42, 66, 128, 0.262) 36%, rgba(42, 66, 128, 0.082) 62%, rgba(42, 66, 128, 0) 86%);
+  z-index: 0;
+}
+
+.cover > *:not(.cover-bg) { position: relative; z-index: 2; }
+
+.cover .logo { max-height: 66px; margin-bottom: 2em; }
+.cover h1 { color: var(--color-background); border: none; font-size: 30pt; }
+.cover .subtitle { font-size: 14pt; color: var(--color-background); opacity: 0.85; }
+.cover .meta { margin-top: 3em; font-size: 10pt; opacity: 0.7; }
+
+.callout {
+  border-left: 4px solid var(--color-secondary);
+  background: var(--color-surface);
+  padding: 0.8em 1.2em;
+  margin: 1em 0;
+  page-break-inside: avoid;
+}
+.callout.warning { border-color: var(--color-accent); }
+
+.section-break { page-break-before: always; }
+.avoid-break { page-break-inside: avoid; }
+
+.badge {
+  display: inline-block;
+  background: var(--color-accent);
+  color: var(--color-text);
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-size: 9pt;
+  font-family: var(--font-heading);
+}
+
+/* Numbered-heading chip: wrap the leading number of a section heading in
+   <span class="chip-num">, e.g. <h2><span class="chip-num">1</span> Alcance</h2>.
+   Sized in em so it scales with whichever heading level it's used in. */
+.chip-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5em;
+  height: 1.5em;
+  margin-right: 0.35em;
+  padding: 0 0.3em;
+  border-radius: 4px;
+  background: var(--color-accent);
+  color: var(--color-background);
+  font-size: 0.62em;
+  font-family: var(--font-heading);
+  vertical-align: middle;
+}
+
+/* KPI/indicator cards: <div class="stats"><div class="stat-card">...</div>...</div>.
+   The top accent bar rotates naranja/violeta/navy across cards automatically. */
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9em;
+  margin: 1em 0 1.4em;
+}
+.stat-card {
+  flex: 1 1 140px;
+  background: var(--color-surface);
+  border-top: 4px solid var(--color-accent);
+  border-radius: 6px;
+  padding: 0.9em 1em;
+  page-break-inside: avoid;
+}
+.stat-card:nth-child(3n+2) { border-top-color: var(--color-secondary); }
+.stat-card:nth-child(3n+3) { border-top-color: var(--color-primary); }
+.stat-value {
+  font-family: var(--font-heading);
+  font-size: 20pt;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.stat-label {
+  font-size: 9pt;
+  color: var(--color-muted);
+  margin-top: 0.2em;
+}
+
+footer.doc-footer { display: none; } /* real footer is rendered by Playwright's footer_template */
